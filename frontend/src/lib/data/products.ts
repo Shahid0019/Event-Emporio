@@ -1,4 +1,5 @@
 import type { Product, ProductVariant } from "../types";
+import { kitProducts } from "../kit/products";
 import { demoImage } from "./images";
 
 /**
@@ -661,4 +662,6 @@ export const products: Product[] = [
     salesCount: 0,
     createdAt: "2026-10-06T09:00:00.000Z",
   },
+  /* Kit builder items — generated from src/lib/kit/config.ts */
+  ...kitProducts,
 ];

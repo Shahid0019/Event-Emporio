@@ -1,5 +1,6 @@
 "use client";
 
+import { lineCap, MAX_LINE_QUANTITY } from "../pricing";
 import type { Address, CartLine, ImageAsset, Order } from "../types";
 import { createPersistedStore, createUIStore, isArray } from "./create-store";
 
@@ -11,14 +12,14 @@ import { createPersistedStore, createUIStore, isArray } from "./create-store";
  */
 export const cartStore = createPersistedStore<CartLine[]>("ee.cart.v1", [], isArray as (v: unknown) => v is CartLine[]);
 
-export const MAX_LINE_QUANTITY = 20;
+export { MAX_LINE_QUANTITY };
 
 export function addToCart(line: Omit<CartLine, "key">) {
   const key = `${line.productId}:${line.variantId}`;
   let added = 0;
   cartStore.set((lines) => {
     const existing = lines.find((l) => l.key === key);
-    const cap = Math.min(line.maxQuantity, MAX_LINE_QUANTITY);
+    const cap = lineCap(line.maxQuantity, line.maxPerOrder);
     if (existing) {
       const quantity = Math.min(existing.quantity + line.quantity, cap);
       added = quantity - existing.quantity;
@@ -32,7 +33,7 @@ export function addToCart(line: Omit<CartLine, "key">) {
 
 export function updateCartQuantity(key: string, quantity: number) {
   cartStore.set((lines) =>
-    lines.map((l) => (l.key === key ? { ...l, quantity: Math.max(1, Math.min(quantity, l.maxQuantity, MAX_LINE_QUANTITY)) } : l)),
+    lines.map((l) => (l.key === key ? { ...l, quantity: Math.max(1, Math.min(quantity, lineCap(l.maxQuantity, l.maxPerOrder))) } : l)),
   );
 }
 

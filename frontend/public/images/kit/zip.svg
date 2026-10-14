@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Zip lock bag">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="393" rx="95" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<rect x="120" y="150" width="160" height="230" rx="14" fill="#ffffff"/>
+<path d="M120 185 H280 M120 197 H280" stroke="#c5a46d" stroke-width="5"/>
+<rect x="250" y="176" width="22" height="30" rx="5" fill="#e9dcc3"/>
+</g>
+</svg>

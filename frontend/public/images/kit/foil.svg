@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Aluminium foil">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="215" cy="400" rx="120" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M110 300 L285 300 L320 390 L145 390 Z" fill="#ffffff" stroke="#d6c9b9"/>
+<rect x="100" y="215" width="200" height="90" rx="44" fill="#e9dcc3"/>
+<ellipse cx="300" cy="260" rx="22" ry="44" fill="#fbf7f1"/><ellipse cx="300" cy="260" rx="7" ry="14" fill="#c5a46d"/>
+</g>
+</svg>

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Napkin">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="350" rx="110" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M90 285 L200 240 L310 285 L200 330 Z" fill="#e9dcc3"/>
+<path d="M90 265 L200 220 L310 265 L200 310 Z" fill="#fbf7f1"/>
+<path d="M200 220 L310 265 L200 310 Z" fill="#ffffff"/>
+<path d="M118 265 L200 232 L282 265 L200 298 Z" fill="none" stroke="#c5a46d" stroke-width="5" stroke-dasharray="2 11"/>
+</g>
+</svg>

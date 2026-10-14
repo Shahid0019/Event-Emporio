@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Paper glass">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="395" rx="70" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M145 175 H255 L240 385 H160 Z" fill="#fbf7f1"/>
+<path d="M150 230 H250 M153 280 H247 M156 330 H244" stroke="#c5a46d" stroke-width="5"/>
+<path d="M180 150 Q170 128 182 110 M220 150 Q210 128 222 110" fill="none" stroke="#d6c9b9" stroke-width="6"/>
+</g>
+</svg>

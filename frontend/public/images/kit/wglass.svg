@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Water glass">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="395" rx="70" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M140 140 H260 L246 385 H154 Z" fill="#ffffff"/>
+<path d="M148 250 H252 L246 385 H154 Z" fill="#e9dcc3" stroke="none"/>
+<path d="M140 140 H260 L246 385 H154 Z" fill="none"/>
+<path d="M150 250 H250" stroke="#c5a46d" stroke-width="5"/>
+</g>
+</svg>

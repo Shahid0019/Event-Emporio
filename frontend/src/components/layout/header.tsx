@@ -55,6 +55,12 @@ export function Header({ menu }: { menu: MegaMenuData }) {
 
         {/* Right: actions */}
         <div className="flex items-center justify-end gap-0.5 sm:gap-1">
+          <Link
+            href="/kit"
+            className="mr-1.5 hidden h-10 items-center rounded-full bg-brand px-4 text-[0.68rem] font-medium uppercase tracking-[0.12em] whitespace-nowrap text-brand-ink transition-colors hover:bg-brand-deep lg:inline-flex"
+          >
+            Build my kit
+          </Link>
           <IconButton label="Search" onClick={() => setSearchOpen(true)} className="hidden lg:grid">
             <Search />
           </IconButton>

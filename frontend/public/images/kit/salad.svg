@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Salad plate">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="365" rx="125" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<ellipse cx="200" cy="290" rx="135" ry="62" fill="#fbf7f1"/>
+<ellipse cx="200" cy="284" rx="92" ry="38" fill="none" stroke="#c5a46d" stroke-width="5"/>
+<ellipse cx="180" cy="280" rx="22" ry="11" fill="#e9dcc3" stroke="#c5a46d" stroke-width="5" transform="rotate(-20 180 280)"/>
+<ellipse cx="222" cy="288" rx="20" ry="10" fill="#e9dcc3" stroke="#c5a46d" stroke-width="5" transform="rotate(25 222 288)"/>
+</g>
+</svg>

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Outer bag">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="395" rx="115" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M150 190 Q150 120 200 120 Q250 120 250 190" fill="none"/>
+<path d="M110 185 H290 L305 385 H95 Z" fill="#fbf7f1"/>
+<path d="M110 225 H290" stroke="#c5a46d" stroke-width="5"/>
+</g>
+</svg>

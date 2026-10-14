@@ -8,13 +8,13 @@ import { Tag, X } from "lucide-react";
 import { QuantitySelector } from "@/components/ui/quantity-selector";
 import { Button } from "@/components/ui/button";
 import { storeSettings } from "@/lib/data/settings";
-import { couponStore, MAX_LINE_QUANTITY, removeFromCart, updateCartQuantity } from "@/lib/store";
+import { couponStore, removeFromCart, updateCartQuantity } from "@/lib/store";
 import type { CartLine, OrderTotals } from "@/lib/types";
 import { cn, formatPrice } from "@/lib/utils";
-import type { CouponResult } from "@/lib/pricing";
+import { lineCap, type CouponResult } from "@/lib/pricing";
 
 export function CartLineItem({ line, onNavigate, compact }: { line: CartLine; onNavigate?: () => void; compact?: boolean }) {
-  const max = Math.min(line.maxQuantity, MAX_LINE_QUANTITY);
+  const max = lineCap(line.maxQuantity, line.maxPerOrder);
   return (
     <li className="flex gap-4 py-5 sm:gap-5">
       <Link

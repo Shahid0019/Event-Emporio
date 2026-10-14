@@ -77,6 +77,8 @@ export interface Product {
   attributes: Record<string, string>;
   careInfo?: string;
   customization?: ProductCustomization;
+  /** Per-line order cap for bulk items (e.g. kit disposables). Defaults to MAX_LINE_QUANTITY. */
+  maxPerOrder?: number;
   colour?: string;
   isFeatured: boolean;
   isNewArrival: boolean;
@@ -113,6 +115,8 @@ export interface CartLine {
   compareAtPrice?: Paise;
   quantity: number;
   maxQuantity: number;
+  /** Bulk cap copied from the product; absent means the normal per-line cap. */
+  maxPerOrder?: number;
   giftMessage?: string;
 }
 

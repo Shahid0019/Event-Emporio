@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Trash bag">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="395" rx="100" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M175 170 Q120 200 115 300 Q115 385 200 385 Q285 385 285 300 Q280 200 225 170 Z" fill="#fbf7f1"/>
+<path d="M175 170 L160 125 M225 170 L240 125 M178 168 Q200 150 222 168" fill="none"/>
+<path d="M150 260 Q200 275 250 260" fill="none" stroke="#d6c9b9" stroke-width="5"/>
+</g>
+</svg>

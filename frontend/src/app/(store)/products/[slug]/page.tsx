@@ -117,6 +117,15 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
           items={[{ label: "Home", href: "/" }, { label: catName, href: `/category/${product.categorySlug}` }, { label: product.name }]}
         />
         <ProductView product={product} categoryName={catName} />
+        {product.categorySlug === "decorative-disposables" && (
+          <p className="mt-10 rounded-card border border-line bg-raised px-5 py-4 text-[0.95rem]">
+            Need it for a whole function?{" "}
+            <Link href="/kit" className="link-underline font-medium text-brand">
+              Build a kit
+            </Link>{" "}
+            — we count every item per trami.
+          </p>
+        )}
       </div>
 
       <section aria-labelledby="reviews-title" className="border-t border-line">

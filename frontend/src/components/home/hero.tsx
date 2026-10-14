@@ -36,6 +36,9 @@ export function Hero({ quickLinks }: { quickLinks: { slug: string; name: string 
             <Link href={hero.primaryCta.href} className={buttonVariants({ size: "lg" })}>
               {hero.primaryCta.label}
             </Link>
+            <Link href="/kit" className={buttonVariants({ variant: "outline", size: "lg" })}>
+              Build my kit
+            </Link>
             <Link href={hero.secondaryCta.href} className={buttonVariants({ variant: "link", className: "text-[0.72rem]" })}>
               {hero.secondaryCta.label}
             </Link>

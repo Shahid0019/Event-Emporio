@@ -234,3 +234,60 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ------------------------------------------------------------------
+   Kit builder — chat minimise/restore (View Transitions).
+   Only the chat column and the kit panel animate; the rest of the page
+   swaps instantly. Snapshots are drawn at their natural size and clipped
+   by the resizing card (never stretched), so text never distorts.
+   ------------------------------------------------------------------ */
+html.kit-transition {
+  view-transition-name: none;
+}
+::view-transition-group(kit-chat),
+::view-transition-group(kit-panel) {
+  animation-duration: 0.4s;
+  animation-timing-function: var(--ease-luxe);
+}
+/* The card itself (background + hairline) resizes; content is revealed inside it. */
+::view-transition-image-pair(kit-chat),
+::view-transition-image-pair(kit-panel) {
+  overflow: clip;
+  border-radius: var(--r-card);
+  background: var(--surface-raised);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+::view-transition-old(kit-chat),
+::view-transition-new(kit-chat),
+::view-transition-old(kit-panel),
+::view-transition-new(kit-panel) {
+  width: 100%;
+  height: 100%;
+  object-fit: none;
+  object-position: left top;
+}
+/* Kit panel: show only the final layout so prices never ghost on top of each other. */
+::view-transition-old(kit-panel) {
+  animation: none;
+  opacity: 0;
+}
+::view-transition-new(kit-panel) {
+  animation: none;
+}
+/* Chat ⇄ launcher: quick hand-off between two different contents. */
+::view-transition-old(kit-chat) {
+  animation: 0.14s ease-out both kit-fade-out;
+}
+::view-transition-new(kit-chat) {
+  animation: 0.26s ease-out 0.06s both kit-fade-in;
+}
+@keyframes kit-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes kit-fade-in {
+  from {
+    opacity: 0;
+  }
+}

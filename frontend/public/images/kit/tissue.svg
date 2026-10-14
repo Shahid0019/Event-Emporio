@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Tissue box">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="384" rx="105" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M165 205 Q168 130 200 145 Q232 130 235 205" fill="#ffffff" stroke-width="6"/>
+<rect x="105" y="200" width="190" height="170" rx="16" fill="#fbf7f1"/>
+<rect x="160" y="196" width="80" height="16" rx="8" fill="#e9dcc3" stroke="#c5a46d" stroke-width="5"/>
+<path d="M105 330 H295" stroke="#c5a46d" stroke-width="5"/>
+</g>
+</svg>

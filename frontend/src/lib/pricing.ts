@@ -1,6 +1,14 @@
 import type { Coupon, OrderTotals, Paise } from "./types";
 import { formatPrice } from "./utils";
 
+/** Normal per-line quantity cap; bulk products raise it with `maxPerOrder`. */
+export const MAX_LINE_QUANTITY = 20;
+
+/** Highest quantity one cart line may hold: limited by stock and the product's per-order cap. */
+export function lineCap(stock: number, maxPerOrder?: number): number {
+  return Math.min(stock, maxPerOrder ?? MAX_LINE_QUANTITY);
+}
+
 export interface PricingLine {
   unitPrice: Paise;
   quantity: number;

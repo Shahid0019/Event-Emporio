@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Take-home box">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="392" rx="115" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<path d="M95 205 L200 165 L305 205 L200 245 Z" fill="#e9dcc3"/>
+<path d="M95 205 V335 L200 378 V245 Z" fill="#fbf7f1"/><path d="M305 205 V335 L200 378 V245 Z" fill="#ffffff"/>
+<path d="M148 185 L252 226 V356" fill="none" stroke="#c5a46d" stroke-width="6"/>
+</g>
+</svg>

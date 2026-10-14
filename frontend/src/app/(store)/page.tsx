@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CategoryGrid } from "@/components/home/category-grid";
 import { Hero } from "@/components/home/hero";
+import { OccasionCards, ReadyKits } from "@/components/home/kit-sections";
 import { Benefits, BrandStory, EditorialBanner, GiftingSection, InstagramGallery, Testimonials } from "@/components/home/sections";
 import { Reveal } from "@/components/motion/reveal";
 import { ProductGrid } from "@/components/product/product-grid";
@@ -40,7 +41,11 @@ export default async function HomePage() {
 
       <Hero quickLinks={categories.slice(0, 4).map(({ slug, name }) => ({ slug, name }))} />
 
+      <OccasionCards />
+
       <CategoryGrid categories={highlighted} />
+
+      <ReadyKits />
 
       <section aria-labelledby="bestsellers-title" className="pb-[clamp(4rem,2.5rem+6vw,9rem)]">
         <div className="container-luxe">

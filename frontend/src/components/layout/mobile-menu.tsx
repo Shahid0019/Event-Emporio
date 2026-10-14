@@ -16,7 +16,17 @@ export function MobileMenu({ menu, instagram }: { menu: MegaMenuData; instagram:
   return (
     <Sheet open={open} onOpenChange={setMenuOpen} title={<Logo />} side="left" description="Site navigation" bodyClassName="px-0 py-0">
       <nav aria-label="Mobile" className="flex min-h-full flex-col">
-        <ul className="px-6 pt-4">
+        <div className="px-6 pt-5">
+          <Link
+            href="/kit"
+            onClick={close}
+            className="flex min-h-12 items-center justify-between rounded-full bg-brand px-5 text-[0.78rem] font-medium uppercase tracking-[0.12em] text-brand-ink"
+          >
+            Build my kit
+            <ArrowUpRight className="size-4" />
+          </Link>
+        </div>
+        <ul className="px-6 pt-2">
           {mainNav.map((item) => (
             <li key={item.href} className="border-b border-line">
               <Link

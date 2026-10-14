@@ -2,7 +2,7 @@ import { z } from "zod";
 import { findCoupon } from "./data/content";
 import { products } from "./data/products";
 import { storeSettings } from "./data/settings";
-import { computeTotals, evaluateCoupon } from "./pricing";
+import { computeTotals, evaluateCoupon, lineCap } from "./pricing";
 import type { OrderTotals } from "./types";
 import { variantLabel } from "./utils";
 
@@ -12,7 +12,7 @@ export const quoteRequestSchema = z.object({
       z.object({
         productId: z.string().max(40),
         variantId: z.string().max(60),
-        quantity: z.number().int().min(1).max(20),
+        quantity: z.number().int().min(1).max(100000),
       }),
     )
     .min(1)
@@ -61,9 +61,13 @@ export function buildQuote(input: z.infer<typeof quoteRequestSchema>, now = new 
       issues.push({ variantId: variant.id, message: `${product.name} is now out of stock.` });
       continue;
     }
-    const quantity = Math.min(requested.quantity, variant.stock);
+    const quantity = Math.min(requested.quantity, lineCap(variant.stock, product.maxPerOrder));
     if (quantity < requested.quantity) {
-      issues.push({ variantId: variant.id, message: `Only ${variant.stock} of ${product.name} available — quantity adjusted.` });
+      const message =
+        quantity === variant.stock
+          ? `Only ${variant.stock} of ${product.name} available — quantity adjusted.`
+          : `Maximum ${quantity} of ${product.name} per order — quantity adjusted.`;
+      issues.push({ variantId: variant.id, message });
     }
     lines.push({
       productId: product.id,

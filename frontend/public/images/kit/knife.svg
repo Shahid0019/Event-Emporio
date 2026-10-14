@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Knife">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="200" cy="410" rx="80" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<g transform="rotate(22 200 260)"><path d="M190 110 Q238 150 222 268 H190 Z" fill="#fbf7f1"/>
+<rect x="186" y="268" width="28" height="130" rx="12" fill="#e9dcc3"/><circle cx="200" cy="300" r="4" fill="#5a2334"/><circle cx="200" cy="360" r="4" fill="#5a2334"/></g>
+</g>
+</svg>

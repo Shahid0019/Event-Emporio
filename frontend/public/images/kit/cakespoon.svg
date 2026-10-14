@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" role="img" aria-label="Cake spoon">
+<rect width="400" height="500" fill="#f2ece5"/>
+<ellipse cx="210" cy="400" rx="80" ry="13" fill="#d6c9b9" opacity=".55"/>
+<g stroke="#5a2334" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+<g transform="rotate(-30 200 260)"><ellipse cx="200" cy="190" rx="30" ry="42" fill="#fbf7f1"/>
+<path d="M200 232 V370" fill="none" stroke-width="13"/></g>
+<circle cx="275" cy="340" r="8" fill="#e9dcc3" stroke="#c5a46d" stroke-width="4"/><circle cx="298" cy="352" r="6" fill="#e9dcc3" stroke="#c5a46d" stroke-width="4"/>
+</g>
+</svg>

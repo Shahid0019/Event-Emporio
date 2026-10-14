@@ -8,6 +8,7 @@ export function QuantitySelector({
   onChange,
   min = 1,
   max,
+  step = 1,
   size = "md",
   label = "Quantity",
   className,
@@ -16,6 +17,8 @@ export function QuantitySelector({
   onChange: (value: number) => void;
   min?: number;
   max: number;
+  /** Amount each tap adds or removes; the result is clamped to min/max. */
+  step?: number;
   size?: "sm" | "md";
   label?: string;
   className?: string;
@@ -30,13 +33,25 @@ export function QuantitySelector({
       aria-label={label}
       className={cn("inline-flex items-center overflow-hidden rounded-full border border-line-strong bg-raised", className)}
     >
-      <button type="button" className={btn} onClick={() => onChange(value - 1)} disabled={value <= min} aria-label="Decrease quantity">
+      <button
+        type="button"
+        className={btn}
+        onClick={() => onChange(Math.max(min, value - step))}
+        disabled={value <= min}
+        aria-label="Decrease quantity"
+      >
         <Minus className="size-3.5" />
       </button>
       <output aria-live="polite" className={cn("text-center text-sm tabular-nums", size === "sm" ? "w-8" : "w-10")}>
         {value}
       </output>
-      <button type="button" className={btn} onClick={() => onChange(value + 1)} disabled={value >= max} aria-label="Increase quantity">
+      <button
+        type="button"
+        className={btn}
+        onClick={() => onChange(Math.min(max, value + step))}
+        disabled={value >= max}
+        aria-label="Increase quantity"
+      >
         <Plus className="size-3.5" />
       </button>
     </div>

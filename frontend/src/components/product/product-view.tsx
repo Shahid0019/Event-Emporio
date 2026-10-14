@@ -13,7 +13,8 @@ import { Price } from "@/components/ui/primitives";
 import { QuantitySelector } from "@/components/ui/quantity-selector";
 import { WishlistButton } from "./product-card";
 import { storeSettings } from "@/lib/data/settings";
-import { addToCart, MAX_LINE_QUANTITY, openCart, rememberViewed } from "@/lib/store";
+import { lineCap } from "@/lib/pricing";
+import { addToCart, openCart, rememberViewed } from "@/lib/store";
 import type { Product, ProductVariant } from "@/lib/types";
 import { cn, formatPrice, variantLabel } from "@/lib/utils";
 
@@ -39,7 +40,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
 
   const variant = findVariant(product, selected);
   const stock = variant?.stock ?? 0;
-  const maxQty = Math.max(1, Math.min(stock, MAX_LINE_QUANTITY));
+  const maxQty = Math.max(1, lineCap(stock, product.maxPerOrder));
   const prices = product.variants.map((v) => v.price);
 
   useEffect(() => {
@@ -90,6 +91,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
       compareAtPrice: variant.compareAtPrice,
       quantity,
       maxQuantity: variant.stock,
+      maxPerOrder: product.maxPerOrder,
       giftMessage: giftMessage.trim() || undefined,
     });
     if (thenCheckout) {
