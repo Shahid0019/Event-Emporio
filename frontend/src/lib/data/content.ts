@@ -2,8 +2,8 @@ import type { Coupon, Review } from "../types";
 import { demoImage } from "./images";
 
 /**
- * Homepage & CMS content — DEMO DATA, managed via /admin/banners once the
- * backend exists. Copy is either the client brief's suggested wording or
+ * Homepage & CMS content — DEMO DATA, copied into the database on first
+ * run (the hero and announcement bar are read from there). Copy is either the client brief's suggested wording or
  * taken from the official Instagram bio; nothing here claims facts about
  * the business that haven't been supplied.
  */
@@ -11,8 +11,8 @@ import { demoImage } from "./images";
 export const announcements = [
   {
     id: "a1",
-    message: "The Mehndi Night Edit is here — dressed baskets, favours & trays",
-    href: "/collections/mehndi-night",
+    message: "The Mehndi Night Edit is here dressed baskets, favours & trays",
+    href: "/category/mehndi-baskets",
     isActive: true,
   },
   { id: "a2", message: "Planning something bespoke? Request a custom hamper quote", href: "/custom-orders", isActive: true },
@@ -24,17 +24,17 @@ export const homepage = {
     titleLines: ["Celebrate", "Beautifully."],
     description: "Thoughtfully curated essentials for moments worth remembering — from mehndi baskets to bridal hampers.",
     primaryCta: { label: "Shop Now", href: "/shop" },
-    secondaryCta: { label: "Explore Collections", href: "/collections" },
+    secondaryCta: { label: "Build Your Kit", href: "/kit" },
     image: demoImage("hero-florals", "Lush arrangement of deep pink roses and burgundy blooms"),
     inset: demoImage("gift-candlelight", "Gift box tied with a black ribbon beside glowing candles"),
-    insetCaption: { label: "The Bridal Edit", href: "/collections/the-bridal-edit" },
+    insetCaption: { label: "Bridal Hampers", href: "/category/bridal-hampers" },
   },
   categoryHighlights: ["mehndi-baskets", "bridal-hampers", "luxury-hampers", "customised-gifts", "decorative-disposables"],
   editorial: {
     eyebrow: "Thoughtful Gifting",
     title: "The Art of Thoughtful Gifting.",
     body: "A gift says what words sometimes can't. We wrap every piece with the same care you'd give it yourself — ribbon tied by hand, a note written in your words, and a box worth keeping long after it's opened.",
-    cta: { label: "Explore the Collection", href: "/collections/thoughtful-gifting" },
+    cta: { label: "Explore Gifting", href: "/category/customised-gifts" },
     image: demoImage("candlelit-table", "Candlelit table dressed with linen and greenery"),
     detailImage: demoImage("macaron-box", "Pastel macarons in a ribboned gift box"),
   },
@@ -107,15 +107,6 @@ export const testimonials: Review[] = [
   },
 ];
 
-export const gallery = [
-  { id: "g1", image: demoImage("mehndi-celebration", "Mehndi celebration with henna-decorated hands"), href: "/collections/mehndi-night" },
-  { id: "g2", image: demoImage("gift-candlelight", "Wrapped gift in candlelight"), href: "/products/signature-bridal-trousseau-box" },
-  { id: "g3", image: demoImage("macarons-stack", "Stacked pastel macarons"), href: "/products/macaron-tower-favours" },
-  { id: "g4", image: demoImage("brass-tray", "Ornate brass serving tray"), href: "/products/heritage-brass-serving-tray" },
-  { id: "g5", image: demoImage("rose-basket", "Basket of blush roses"), href: "/products/gilded-rose-mehndi-basket" },
-  { id: "g6", image: demoImage("candlelit-table", "Candlelit reception table"), href: "/products/candlelit-centrepiece-set" },
-];
-
 export const faqs = [
   {
     group: "Orders",
@@ -151,7 +142,7 @@ export const faqs = [
         q: "Which payment methods do you accept?",
         a: "Online payments are processed securely through Razorpay at checkout. We never store your card details.",
       },
-      { q: "Is cash on delivery available?", a: "Cash on delivery isn't currently offered." },
+      { q: "Is cash on delivery available?", a: "When it's offered, you'll see Cash on delivery as a payment option at checkout." },
     ],
   },
 ];
@@ -179,7 +170,6 @@ export const coupons: Coupon[] = [
     startsAt: "2026-01-01T00:00:00.000Z",
     expiresAt: "2027-06-30T23:59:59.000Z",
     usedCount: 41,
-    categorySlugs: ["mehndi-baskets"],
     isActive: true,
   },
   {

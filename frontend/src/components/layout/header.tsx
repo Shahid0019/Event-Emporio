@@ -1,21 +1,18 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { NavigationMenu } from "radix-ui";
-import { ArrowRight, Heart, Menu, Search, ShoppingBag, User } from "lucide-react";
+import { ArrowRight, Heart, Menu, Search, ShoppingBag } from "lucide-react";
 import { Logo } from "@/components/ui/primitives";
 import { mainNav } from "@/lib/site";
-import { cartCount, cartStore, openCart, sessionStore, setMenuOpen, setSearchOpen, wishlistStore } from "@/lib/store";
-import type { ImageAsset } from "@/lib/types";
+import { AccountMenu } from "./account-menu";
+import { cartCount, cartStore, openCart, setMenuOpen, setSearchOpen, wishlistStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 export interface MegaMenuData {
   categories: { slug: string; name: string }[];
-  collections: { slug: string; name: string }[];
-  feature: { title: string; href: string; image: ImageAsset };
 }
 
 export function Header({ menu }: { menu: MegaMenuData }) {
@@ -64,7 +61,7 @@ export function Header({ menu }: { menu: MegaMenuData }) {
           <IconButton label="Search" onClick={() => setSearchOpen(true)} className="hidden lg:grid">
             <Search />
           </IconButton>
-          <AccountLink />
+          <AccountMenu />
           <WishlistLink />
           <CartButton />
         </div>
@@ -123,9 +120,9 @@ function DesktopNav({ menu, pathname }: { menu: MegaMenuData; pathname: string |
 function MegaMenu({ menu }: { menu: MegaMenuData }) {
   return (
     <div className="container-luxe grid grid-cols-12 gap-10 py-12">
-      <div className="col-span-4">
+      <div className="col-span-8">
         <p className="eyebrow mb-6 text-accent-ink">Shop by category</p>
-        <ul className="space-y-1">
+        <ul className="grid grid-cols-2 gap-x-10 gap-y-1">
           {menu.categories.map((c) => (
             <li key={c.slug}>
               <NavigationMenu.Link asChild>
@@ -141,22 +138,20 @@ function MegaMenu({ menu }: { menu: MegaMenuData }) {
           ))}
         </ul>
       </div>
-      <div className="col-span-3 border-l border-line pl-10">
-        <p className="eyebrow mb-6 text-accent-ink">Collections</p>
+      <div className="col-span-4 border-l border-line pl-10">
+        <p className="eyebrow mb-6 text-accent-ink">More</p>
         <ul className="space-y-3">
-          {menu.collections.map((c) => (
-            <li key={c.slug}>
-              <NavigationMenu.Link asChild>
-                <Link href={`/collections/${c.slug}`} className="text-[0.95rem] text-ink transition-colors hover:text-brand">
-                  {c.name}
-                </Link>
-              </NavigationMenu.Link>
-            </li>
-          ))}
-          <li className="pt-4">
+          <li>
             <NavigationMenu.Link asChild>
               <Link href="/shop" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
                 Shop all products
+              </Link>
+            </NavigationMenu.Link>
+          </li>
+          <li>
+            <NavigationMenu.Link asChild>
+              <Link href="/kit" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
+                Build your kit
               </Link>
             </NavigationMenu.Link>
           </li>
@@ -169,25 +164,6 @@ function MegaMenu({ menu }: { menu: MegaMenuData }) {
           </li>
         </ul>
       </div>
-      <NavigationMenu.Link asChild>
-        <Link href={menu.feature.href} className="group relative col-span-5 block aspect-[16/10] overflow-hidden rounded-media bg-surface">
-          <Image
-            src={menu.feature.image.src}
-            alt={menu.feature.image.alt}
-            fill
-            sizes="40vw"
-            className="object-cover transition-transform duration-[1.4s] ease-[var(--ease-luxe)] group-hover:scale-105"
-          />
-          <span className="absolute inset-0 bg-gradient-to-t from-ink/60 via-ink/0" />
-          <span className="absolute inset-x-6 bottom-6 flex items-end justify-between text-canvas">
-            <span>
-              <span className="eyebrow block text-canvas/80">Featured</span>
-              <span className="mt-2 block font-serif text-3xl">{menu.feature.title}</span>
-            </span>
-            <ArrowRight className="size-5" />
-          </span>
-        </Link>
-      </NavigationMenu.Link>
     </div>
   );
 }
@@ -234,15 +210,6 @@ function CountBadge({ count }: { count: number }) {
 
 const iconLink =
   "relative grid size-11 place-items-center rounded-full text-ink transition-colors hover:bg-surface [&_svg]:size-[1.2rem] [&_svg]:stroke-[1.5]";
-
-function AccountLink() {
-  const user = sessionStore.useStore();
-  return (
-    <Link href={user ? "/account" : "/login"} aria-label={user ? "My account" : "Sign in"} className={cn(iconLink, "hidden sm:grid")}>
-      <User />
-    </Link>
-  );
-}
 
 function WishlistLink() {
   const count = wishlistStore.useStore((items) => items.length);

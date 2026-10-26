@@ -5,7 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { Heart } from "lucide-react";
 import { Price } from "@/components/ui/primitives";
-import type { ProductSummary } from "@/lib/catalog";
+import type { ProductSummary } from "@/lib/catalog-shared";
 import { addToCart, openCart, toggleWishlist, wishlistStore } from "@/lib/store";
 import { cn, discountPercent } from "@/lib/utils";
 

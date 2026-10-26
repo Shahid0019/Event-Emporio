@@ -1,96 +1,81 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { homepage } from "@/lib/data/content";
-import { storeSettings } from "@/lib/data/settings";
+import type { HeroContent } from "@/lib/settings";
+
+/** The table spread behind the hero: wazwan plate on a runner, with the shop's disposables around it. */
+const background = {
+  src: "/images/hero/table-spread.webp",
+  width: 3200,
+  height: 893,
+  alt: "A wazwan plate on a patterned runner, surrounded by cups, boxes, napkins and cutlery",
+};
 
 /**
- * Split editorial hero. Entrance motion is pure CSS so the headline is
- * never hidden waiting for JavaScript (good for LCP and resilience).
+ * Centred hero over a full-width table spread. The headline sits on a soft
+ * ivory glow so it stays readable over the photo; the picture's white
+ * background blends into the page. Entrance motion is pure CSS so the
+ * headline is never hidden waiting for JavaScript (good for LCP).
  */
-export function Hero({ quickLinks }: { quickLinks: { slug: string; name: string }[] }) {
-  const { hero } = homepage;
+export function Hero({ hero, quickLinks }: { hero: HeroContent; quickLinks: { slug: string; name: string }[] }) {
   return (
-    <section aria-labelledby="hero-title" className="relative overflow-hidden">
-      <div className="container-luxe grid items-center gap-x-10 gap-y-14 pb-20 pt-8 sm:pt-12 lg:min-h-[calc(100svh-var(--header-h)-2.25rem)] lg:grid-cols-12 lg:pb-16 lg:pt-6">
-        <div className="relative z-10 lg:col-span-6 xl:col-span-6">
-          <p className="eyebrow animate-rise text-accent-ink [animation-delay:100ms]">
+    <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
+      {/* Phones: the spread is a band under the text. Wider screens: it fills the whole hero. */}
+      <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-[38%] sm:h-[44%] lg:inset-0 lg:h-auto">
+        <Image
+          src={background.src}
+          alt=""
+          fill
+          preload
+          sizes="100vw"
+          className="animate-fade object-cover object-center mix-blend-multiply"
+        />
+        {/* Ivory glow behind the words; the edges of the spread stay clear. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-canvas via-canvas/20 to-transparent lg:hidden" />
+        {/* Melts into the section below instead of ending on a hard line. */}
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-canvas to-transparent" />
+        <div className="absolute inset-0 hidden bg-[radial-gradient(ellipse_44%_62%_at_50%_50%,var(--canvas)_0%,color-mix(in_srgb,var(--canvas)_68%,transparent)_45%,transparent_100%)] lg:block" />
+      </div>
+
+      <div className="container-luxe flex min-h-[calc(100svh-var(--header-h)-2.25rem)] flex-col items-center justify-start pb-[42%] pt-12 text-center sm:pb-[46%] sm:pt-16 lg:min-h-[clamp(36rem,calc(100vw/3.58+8rem),52rem)] lg:justify-center lg:pb-28 lg:pt-16">
+        {hero.eyebrow?.trim() && (
+          <p className="eyebrow mb-6 inline-flex animate-rise items-center gap-2 rounded-full bg-canvas/80 px-4 py-2 text-accent-ink backdrop-blur-sm [animation-delay:100ms]">
+            <Sparkles aria-hidden className="size-3.5" />
             {hero.eyebrow}
-            <span className="hidden sm:inline">
-              <span className="mx-3 inline-block h-px w-8 translate-y-[-0.25em] bg-accent align-middle" aria-hidden />
-              {storeSettings.location.city}
-            </span>
           </p>
+        )}
 
-          <h1 id="hero-title" className="mt-7 text-display font-medium tracking-[-0.025em]">
-            <span className="block animate-rise [animation-delay:200ms]">{hero.titleLines[0]}</span>
-            <span className="block animate-rise pl-[0.55em] italic text-brand [animation-delay:340ms]">{hero.titleLines[1]}</span>
-          </h1>
+        <h1 id="hero-title" className="text-display font-medium tracking-[-0.025em]">
+          <span className="block animate-rise [animation-delay:200ms]">{hero.titleLines[0]}</span>
+          <span className="block animate-rise italic text-brand [animation-delay:340ms]">{hero.titleLines[1]}</span>
+        </h1>
 
-          <p className="mt-8 max-w-md animate-rise text-[1.05rem] leading-relaxed text-muted [animation-delay:480ms] sm:text-[1.12rem]">
-            {hero.description}
-          </p>
+        {/* <p className="mx-auto mt-6 max-w-xl animate-rise text-[1.05rem] leading-relaxed text-ink/75 [animation-delay:480ms] sm:text-[1.15rem]">
+          {hero.description}
+        </p> */}
 
-          <div className="mt-10 flex animate-rise flex-wrap items-center gap-x-8 gap-y-5 [animation-delay:600ms]">
-            <Link href={hero.primaryCta.href} className={buttonVariants({ size: "lg" })}>
-              {hero.primaryCta.label}
-            </Link>
-            <Link href="/kit" className={buttonVariants({ variant: "outline", size: "lg" })}>
-              Build my kit
-            </Link>
-            <Link href={hero.secondaryCta.href} className={buttonVariants({ variant: "link", className: "text-[0.72rem]" })}>
-              {hero.secondaryCta.label}
-            </Link>
-          </div>
-
-          <nav
-            aria-label="Popular categories"
-            className="mt-14 hidden animate-fade border-t border-line pt-6 [animation-delay:800ms] sm:block"
-          >
-            <ul className="flex flex-wrap gap-x-7 gap-y-2 text-[0.85rem] text-muted">
-              {quickLinks.map((c) => (
-                <li key={c.slug}>
-                  <Link href={`/category/${c.slug}`} className="transition-colors hover:text-ink">
-                    {c.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-
-        <div className="relative lg:col-span-6">
-          <div className="relative ml-auto aspect-[4/5] w-[88%] max-w-[36rem] animate-unveil overflow-hidden rounded-media bg-surface [animation-delay:150ms] sm:w-[78%] lg:w-[86%] xl:mr-6">
-            <Image src={hero.image.src} alt={hero.image.alt} fill preload sizes="(min-width: 1024px) 42vw, 88vw" className="object-cover" />
-          </div>
-
+        <div className="mt-9 flex w-full animate-rise flex-col items-stretch gap-3 [animation-delay:600ms] sm:w-auto sm:flex-row sm:items-center sm:justify-center">
           <Link
-            href={hero.insetCaption.href}
-            className="group absolute bottom-[-2.5rem] left-0 w-[44%] max-w-[15rem] animate-rise rounded-card bg-canvas p-2.5 pb-0 shadow-[0_20px_50px_-25px_rgb(36_32_32/0.35)] [animation-delay:900ms] sm:bottom-[-1.5rem] sm:w-[36%] lg:bottom-[6%] lg:left-[2%]"
+            href={hero.primaryCta.href}
+            className={buttonVariants({ size: "lg", className: "shadow-[0_12px_30px_-12px_rgb(90_35_52/0.6)]" })}
           >
-            <span className="relative block aspect-[3/4] overflow-hidden rounded-control bg-surface">
-              <Image
-                src={hero.inset.src}
-                alt={hero.inset.alt}
-                fill
-                sizes="(min-width: 1024px) 15vw, 40vw"
-                className="object-cover transition-transform duration-[1.4s] ease-[var(--ease-luxe)] group-hover:scale-105"
-              />
-            </span>
-            <span className="flex items-center justify-between gap-2 py-3 text-[0.68rem] font-medium uppercase tracking-[0.16em]">
-              {hero.insetCaption.label}
-              <ArrowRight className="size-3.5 transition-transform duration-500 group-hover:translate-x-1" />
-            </span>
+            {hero.primaryCta.label}
+            <ArrowRight aria-hidden />
           </Link>
-
-          <p
-            aria-hidden
-            className="absolute right-[calc(var(--gutter)*-0.85)] top-1/2 hidden -translate-y-1/2 rotate-180 font-serif text-[0.95rem] italic tracking-[0.04em] text-muted [writing-mode:vertical-rl] xl:block"
-          >
-            {storeSettings.tagline}
-          </p>
+          <Link href="/kit" className={buttonVariants({ variant: "outline", size: "lg", className: "bg-canvas/80 backdrop-blur-sm" })}>
+            Build my kit
+          </Link>
         </div>
+
+        {hero.secondaryCta.label?.trim() && hero.secondaryCta.href && (
+          <Link
+            href={hero.secondaryCta.href}
+            className="mt-5 animate-rise text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline [animation-delay:700ms]"
+          >
+            {hero.secondaryCta.label}
+          </Link>
+        )}
       </div>
     </section>
   );

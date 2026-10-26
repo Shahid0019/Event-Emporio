@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
-import { getCategories, getCollections, getProductSlugs } from "@/lib/catalog";
+import { getCategories, getProductSlugs } from "@/lib/catalog";
 import { siteUrl } from "@/lib/site";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [categories, collections, slugs] = await Promise.all([getCategories(), getCollections(), getProductSlugs()]);
+  const [categories, slugs] = await Promise.all([getCategories(), getProductSlugs()]);
   const statics = [
     "",
     "/shop",
-    "/collections",
+    "/kit",
     "/about",
     "/contact",
     "/custom-orders",
@@ -20,7 +20,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...statics.map((path) => ({ url: `${siteUrl}${path}`, changeFrequency: "weekly" as const, priority: path === "" ? 1 : 0.6 })),
     ...categories.map((c) => ({ url: `${siteUrl}/category/${c.slug}`, changeFrequency: "weekly" as const, priority: 0.8 })),
-    ...collections.map((c) => ({ url: `${siteUrl}/collections/${c.slug}`, changeFrequency: "weekly" as const, priority: 0.8 })),
     ...slugs.map((slug) => ({ url: `${siteUrl}/products/${slug}`, changeFrequency: "weekly" as const, priority: 0.7 })),
   ];
 }

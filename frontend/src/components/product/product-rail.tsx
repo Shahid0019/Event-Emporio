@@ -2,7 +2,7 @@
 
 import { useRef } from "react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import type { ProductSummary } from "@/lib/catalog";
+import type { ProductSummary } from "@/lib/catalog-shared";
 import { ProductCard } from "./product-card";
 
 /** Horizontally scrolling, snap-aligned product row with keyboard-accessible arrows. */

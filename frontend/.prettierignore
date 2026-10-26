@@ -4,3 +4,5 @@ public
 test-results
 playwright-report
 package-lock.json
+.next-e2e
+.local-db

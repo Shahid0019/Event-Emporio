@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check } from "lucide-react";
 import { Badge } from "@/components/ui/primitives";
-import { fulfilmentSteps, orderStatusLabel, paymentStatusLabel } from "@/lib/order-status";
+import { cashDue, fulfilmentSteps, orderStatusLabel, paymentLabel } from "@/lib/order-status";
 import type { Order, OrderStatus } from "@/lib/types";
 import { cn, formatDate, formatDateTime, formatPrice } from "@/lib/utils";
 
@@ -53,7 +53,7 @@ export function OrderDetail({ order }: { order: Order }) {
     <div className="space-y-10">
       <div className="flex flex-wrap items-center gap-3">
         <Badge tone={statusTone(order.status)}>{orderStatusLabel[order.status]}</Badge>
-        <Badge tone={order.paymentStatus === "paid" ? "success" : "muted"}>{paymentStatusLabel[order.paymentStatus]}</Badge>
+        <Badge tone={order.paymentStatus === "paid" ? "success" : cashDue(order) ? "accent" : "muted"}>{paymentLabel(order)}</Badge>
         <span className="text-[0.85rem] text-muted">Placed {formatDateTime(order.createdAt)}</span>
       </div>
 
@@ -130,6 +130,9 @@ export function OrderDetail({ order }: { order: Order }) {
             <h3 className="eyebrow mb-3 text-accent-ink">Payment</h3>
             <p className="text-muted">
               {order.paymentMethod === "razorpay" ? "Razorpay" : "Cash on delivery"}
+              {cashDue(order) && (
+                <span className="block text-[0.85rem]">Pay {formatPrice(order.totals.total)} when it&apos;s delivered</span>
+              )}
               {order.paymentReference && <span className="block break-all text-[0.78rem]">Ref. {order.paymentReference}</span>}
             </p>
           </div>

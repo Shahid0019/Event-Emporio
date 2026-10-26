@@ -171,9 +171,9 @@ describe("catalogue & checkout integration", () => {
     });
   });
 
-  it("the server quote accepts bulk kit quantities but keeps the normal cap elsewhere", () => {
+  it("the server quote accepts bulk kit quantities but keeps the normal cap elsewhere", async () => {
     const spoon = kitProducts.find((p) => p.id === "kit_spoon")!;
-    const q = buildQuote({
+    const q = await buildQuote({
       lines: [
         { productId: spoon.id, variantId: spoon.variants[1].id, quantity: 200 },
         { productId: "p_003", variantId: "ee-mb-fav-v1", quantity: 30 },

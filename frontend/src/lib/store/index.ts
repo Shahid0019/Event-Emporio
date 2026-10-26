@@ -1,7 +1,8 @@
 "use client";
 
+import { cartItemCount } from "../cart-groups";
 import { lineCap, MAX_LINE_QUANTITY } from "../pricing";
-import type { Address, CartLine, ImageAsset, Order } from "../types";
+import type { CartBundle, CartLine, ImageAsset } from "../types";
 import { createPersistedStore, createUIStore, isArray } from "./create-store";
 
 /* -------------------------------- Cart -------------------------------- */
@@ -45,7 +46,36 @@ export function clearCart() {
   cartStore.set([]);
 }
 
-export const cartCount = (lines: CartLine[]) => lines.reduce((n, l) => n + l.quantity, 0);
+/** Items in the bag: each kit counts once, single products by quantity. */
+export const cartCount = cartItemCount;
+
+/**
+ * Puts a whole kit in the bag as one item. Called again with the same bundle
+ * id (after "Edit kit"), it replaces that kit in place instead of adding a
+ * second one.
+ */
+export function putKitInCart(bundle: CartBundle, items: Omit<CartLine, "key" | "bundle">[]) {
+  cartStore.set((lines) => {
+    const kitLines: CartLine[] = items.map((item) => ({
+      ...item,
+      bundle,
+      key: `${bundle.id}:${item.productId}:${item.variantId}`,
+      quantity: Math.max(1, Math.min(item.quantity, lineCap(item.maxQuantity, item.maxPerOrder))),
+    }));
+    const firstIndex = lines.findIndex((l) => l.bundle?.id === bundle.id);
+    const others = lines.filter((l) => l.bundle?.id !== bundle.id);
+    if (firstIndex < 0) return [...others, ...kitLines];
+    const at = lines.slice(0, firstIndex).filter((l) => l.bundle?.id !== bundle.id).length;
+    return [...others.slice(0, at), ...kitLines, ...others.slice(at)];
+  });
+}
+
+export function removeKitFromCart(bundleId: string) {
+  cartStore.set((lines) => lines.filter((l) => l.bundle?.id !== bundleId));
+}
+
+export const kitInCart = (bundleId: string | undefined) =>
+  bundleId ? cartStore.get().find((l) => l.bundle?.id === bundleId)?.bundle : undefined;
 
 /** Code the shopper typed; it is re-validated on every render and again by the server at checkout. */
 export const couponStore = createPersistedStore<string | null>(
@@ -77,30 +107,29 @@ export function toggleWishlist(item: WishlistItem): boolean {
 
 /* ------------------------------- Session ------------------------------ */
 /**
- * DEMO SESSION — a stand-in for the secure HTTP-only cookie session the
- * backend will provide. Nothing sensitive is stored here.
+ * The signed-in customer's name and email, remembered for the header and
+ * form prefill. The real session is an HTTP-only cookie checked by the
+ * server on every account request; <StoreDataProvider> re-checks this copy
+ * against the server on each visit.
  */
-export interface DemoUser {
+export interface SessionUser {
   name: string;
   email: string;
   phone?: string;
 }
 
-export const sessionStore = createPersistedStore<DemoUser | null>(
+export const sessionStore = createPersistedStore<SessionUser | null>(
   "ee.session.v1",
   null,
-  (v): v is DemoUser | null => v === null || (typeof v === "object" && v !== null && "email" in v),
+  (v): v is SessionUser | null => v === null || (typeof v === "object" && v !== null && "email" in v),
 );
 
-export const signIn = (user: DemoUser) => sessionStore.set(user);
-export const signOut = () => sessionStore.set(null);
+export const signIn = (user: SessionUser) => sessionStore.set(user);
 
-/* ------------------------------ Addresses ----------------------------- */
-export const addressStore = createPersistedStore<Address[]>("ee.addresses.v1", [], isArray as (v: unknown) => v is Address[]);
-
-/* -------------------------------- Orders ------------------------------ */
-/** DEMO ORDERS placed in this browser. The real source of truth is the orders API. */
-export const orderStore = createPersistedStore<Order[]>("ee.orders.v1", [], isArray as (v: unknown) => v is Order[]);
+export function signOut() {
+  sessionStore.set(null);
+  void fetch("/api/account/logout", { method: "POST" }).catch(() => undefined);
+}
 
 /* --------------------------- Recently viewed -------------------------- */
 export const recentStore = createPersistedStore<string[]>("ee.recent.v1", [], isArray as (v: unknown) => v is string[]);

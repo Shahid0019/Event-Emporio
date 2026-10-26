@@ -6,7 +6,7 @@ import Form from "next/form";
 import { useEffect, useState } from "react";
 import { ArrowRight, Search } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
-import type { SearchSuggestions } from "@/lib/catalog";
+import type { SearchSuggestions } from "@/lib/catalog-shared";
 import { setSearchOpen, uiStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
 

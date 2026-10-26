@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/motion/reveal";
 import { buttonVariants } from "@/components/ui/button";
-import { Breadcrumbs, DemoNote } from "@/components/ui/primitives";
+import { Breadcrumbs } from "@/components/ui/primitives";
 import { demoImage } from "@/lib/data/images";
 import { storeSettings } from "@/lib/data/settings";
 
@@ -60,9 +60,6 @@ export default function AboutPage() {
           <h2 className="text-h2">
             What we <em className="text-brand">believe</em>
           </h2>
-          <DemoNote className="mt-6 max-w-sm">
-            Founding story, milestones and team details will be added once supplied by Events Emporio — nothing here is invented.
-          </DemoNote>
         </div>
         <Reveal stagger={0.1} className="space-y-0 lg:col-span-7">
           {pillars.map((p, i) => (

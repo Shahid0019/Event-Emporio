@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
-import { MessageSquareText } from "lucide-react";
 import { ProductGrid } from "@/components/product/product-grid";
+import { ProductReviews, type ShownReview } from "@/components/product/product-reviews";
 import { ProductView } from "@/components/product/product-view";
 import { RecentlyViewed } from "@/components/product/recently-viewed";
-import { Breadcrumbs, DemoNote, Skeleton } from "@/components/ui/primitives";
+import { Breadcrumbs, Skeleton } from "@/components/ui/primitives";
 import { categoryName, getProductBySlug, getProductSlugs, getRelatedProducts, priceRange, totalStock } from "@/lib/catalog";
-import { testimonials } from "@/lib/data/content";
+import { loadContent, loadProductReviews } from "@/lib/db/queries";
 import { siteUrl } from "@/lib/site";
 
 export async function generateStaticParams() {
@@ -61,12 +61,31 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
   if (!product) notFound();
 
   const related = await getRelatedProducts(product, 4);
-  const catName = categoryName(product.categorySlug);
-  const reviews = testimonials.filter((t) => t.isApproved && t.productName === product.name);
+  const [catName, content, customerReviews] = await Promise.all([
+    categoryName(product.categorySlug),
+    loadContent(),
+    loadProductReviews(product.id),
+  ]);
+  // Customers' approved reviews first, then any testimonial the shop added for this product.
+  const reviews: ShownReview[] = [
+    ...customerReviews.map((r) => ({
+      id: r.id,
+      displayName: r.displayName,
+      rating: r.rating,
+      title: r.title,
+      text: r.text,
+      verifiedPurchase: r.verifiedPurchase,
+      date: r.createdAt,
+    })),
+    ...content.testimonials
+      .filter((t) => t.isApproved && t.productName === product.name)
+      .map((t) => ({ id: t.id, displayName: t.displayName, rating: t.rating, text: t.text })),
+  ];
+  const average = customerReviews.length ? customerReviews.reduce((sum, r) => sum + r.rating, 0) / customerReviews.length : 0;
   const { min, max } = priceRange(product);
   const url = `${siteUrl}/products/${product.slug}`;
 
-  // Structured data reflects real price and stock. Sample reviews are never included as review markup.
+  // Structured data reflects real price, stock and customers' approved reviews. Sample testimonials are never marked up.
   const productLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -76,6 +95,9 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
     image: product.images.map((i) => `${siteUrl}${i.src}`),
     brand: { "@type": "Brand", name: "Events Emporio" },
     category: catName,
+    ...(customerReviews.length > 0 && {
+      aggregateRating: { "@type": "AggregateRating", ratingValue: average.toFixed(1), reviewCount: customerReviews.length },
+    }),
     offers:
       min === max
         ? {
@@ -117,7 +139,7 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
           items={[{ label: "Home", href: "/" }, { label: catName, href: `/category/${product.categorySlug}` }, { label: product.name }]}
         />
         <ProductView product={product} categoryName={catName} />
-        {product.categorySlug === "decorative-disposables" && (
+        {(product.kit || product.categorySlug === "decorative-disposables") && (
           <p className="mt-10 rounded-card border border-line bg-raised px-5 py-4 text-[0.95rem]">
             Need it for a whole function?{" "}
             <Link href="/kit" className="link-underline font-medium text-brand">
@@ -128,48 +150,7 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
         )}
       </div>
 
-      <section aria-labelledby="reviews-title" className="border-t border-line">
-        <div className="container-luxe grid gap-10 py-20 lg:grid-cols-12">
-          <div className="lg:col-span-4">
-            <h2 id="reviews-title" className="text-h2">
-              Reviews
-            </h2>
-            {reviews.length === 0 && <p className="mt-4 text-muted">No reviews yet for this product.</p>}
-          </div>
-          <div className="lg:col-span-8">
-            {reviews.length > 0 ? (
-              <>
-                {reviews.some((r) => r.isSample) && <DemoNote className="mb-6">Sample review shown for preview only.</DemoNote>}
-                <ul className="divide-y divide-line border-y border-line">
-                  {reviews.map((r) => (
-                    <li key={r.id} className="py-8">
-                      {r.rating && (
-                        <p className="text-accent-ink" aria-label={`Rated ${r.rating} out of 5`}>
-                          {"★".repeat(r.rating)}
-                          <span className="text-line-strong">{"★".repeat(5 - r.rating)}</span>
-                        </p>
-                      )}
-                      <blockquote className="mt-3 font-serif text-[1.4rem] leading-snug">“{r.text}”</blockquote>
-                      <p className="mt-4 text-[0.85rem] text-muted">{r.displayName}</p>
-                    </li>
-                  ))}
-                </ul>
-              </>
-            ) : (
-              <div className="flex items-start gap-4 rounded-card border border-line bg-surface p-6 text-[0.92rem] text-muted">
-                <MessageSquareText className="size-5 shrink-0 text-ink" />
-                <p>
-                  Bought this piece? Reviews from verified purchases will appear here once approved.{" "}
-                  <Link href="/account/orders" className="underline underline-offset-4 hover:text-ink">
-                    Review from your orders
-                  </Link>
-                  .
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
+      <ProductReviews productId={product.id} productSlug={product.slug} reviews={reviews} />
 
       {related.length > 0 && (
         <section aria-labelledby="related-title" className="container-luxe pb-24">

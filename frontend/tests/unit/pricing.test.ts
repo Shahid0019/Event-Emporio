@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { computeTotals, evaluateCoupon, shippingFor, subtotalOf } from "@/lib/pricing";
 import type { Coupon } from "@/lib/types";
+import { couponFormSchema } from "@/lib/validations";
 
 const now = new Date("2026-10-09T10:00:00Z");
 const shipping = { methodPrice: 15000, freeShippingThreshold: 499900 };
@@ -42,7 +43,7 @@ describe("subtotal & shipping", () => {
 });
 
 describe("evaluateCoupon", () => {
-  const lines = [{ unitPrice: 200000, quantity: 1, categorySlug: "mehndi-baskets" }];
+  const lines = [{ unitPrice: 200000, quantity: 1 }];
 
   it("applies a percentage discount, rounding down to whole paise", () => {
     const r = evaluateCoupon(coupon({ value: 15 }), [{ unitPrice: 33333, quantity: 1 }], now);
@@ -52,6 +53,29 @@ describe("evaluateCoupon", () => {
   it("caps percentage discounts at maxDiscount", () => {
     const r = evaluateCoupon(coupon({ value: 50, maxDiscount: 30000 }), lines, now);
     expect(r).toMatchObject({ ok: true, discount: 30000 });
+  });
+
+  it("treats a cap of 0 as no cap", () => {
+    const r = evaluateCoupon(coupon({ value: 10, maxDiscount: 0 }), lines, now);
+    expect(r).toMatchObject({ ok: true });
+    expect(r.ok && r.discount).toBeGreaterThan(0);
+  });
+
+  it("an empty max-discount field in the admin form means no cap, not 0", () => {
+    const form = {
+      code: "eid12",
+      type: "percentage",
+      value: "12",
+      minSubtotal: "0",
+      startsAt: "2026-10-01",
+      expiresAt: "2026-11-01",
+      isActive: true,
+    };
+    expect(couponFormSchema.parse({ ...form, maxDiscount: "", usageLimit: "", perCustomerLimit: "" })).toMatchObject({
+      maxDiscount: "",
+      usageLimit: "",
+    });
+    expect(couponFormSchema.parse({ ...form, maxDiscount: "500", usageLimit: "", perCustomerLimit: "" }).maxDiscount).toBe(500);
   });
 
   it("never discounts more than the eligible subtotal for fixed coupons", () => {
@@ -76,13 +100,6 @@ describe("evaluateCoupon", () => {
     expect(evaluateCoupon(coupon({ minSubtotal: 500000 }), lines, now).ok).toBe(false);
     expect(evaluateCoupon(coupon({ usageLimit: 10, usedCount: 10 }), lines, now).ok).toBe(false);
     expect(evaluateCoupon(coupon({ perCustomerLimit: 1 }), lines, now, 1).ok).toBe(false);
-  });
-
-  it("only discounts lines in restricted categories", () => {
-    const mixed = [...lines, { unitPrice: 100000, quantity: 1, categorySlug: "luxury-hampers" }];
-    const r = evaluateCoupon(coupon({ value: 10, categorySlugs: ["luxury-hampers"] }), mixed, now);
-    expect(r).toMatchObject({ ok: true, discount: 10000 });
-    expect(evaluateCoupon(coupon({ categorySlugs: ["bridal-hampers"] }), lines, now).ok).toBe(false);
   });
 });
 

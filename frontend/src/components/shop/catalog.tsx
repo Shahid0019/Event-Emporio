@@ -21,7 +21,7 @@ export async function CatalogResults({
 }: {
   searchParams: Promise<RawParams>;
   basePath: string;
-  fixed?: Partial<Pick<ListParams, "category" | "collection">>;
+  fixed?: Partial<Pick<ListParams, "category">>;
 }) {
   const raw = await searchParams;
   const params = parseListParams(raw, fixed);
@@ -91,7 +91,7 @@ export function CatalogSkeleton() {
   );
 }
 
-/** Editorial page header used by shop, category, collection and search pages. */
+/** Editorial page header used by shop, category and search pages. */
 export function CatalogHeader({
   eyebrow,
   title,

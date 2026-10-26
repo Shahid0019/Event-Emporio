@@ -1,4 +1,4 @@
-import type { Category, Collection } from "../types";
+import type { Category } from "../types";
 import { demoImage } from "./images";
 
 /**
@@ -69,53 +69,6 @@ export const categories: Category[] = [
   },
 ];
 
-export const collections: Collection[] = [
-  {
-    id: "col_mehndi_night",
-    slug: "mehndi-night",
-    name: "The Mehndi Night Edit",
-    tagline: "Colour, henna and keepsakes",
-    description: "Everything for the evening of henna — dressed baskets, favour sets and trays to pass around.",
-    image: demoImage("mehndi-celebration", "Bride surrounded by friends showing henna-patterned hands"),
-    isFeatured: true,
-    displayOrder: 1,
-  },
-  {
-    id: "col_bridal",
-    slug: "the-bridal-edit",
-    name: "The Bridal Edit",
-    tagline: "For the bride and her trousseau",
-    description: "Hampers, keepsake boxes and dry fruit platters prepared for the bridal family.",
-    image: demoImage("mehndi-couple", "Couple holding hands with intricate henna designs"),
-    isFeatured: true,
-    displayOrder: 2,
-  },
-  {
-    id: "col_gifting",
-    slug: "thoughtful-gifting",
-    name: "Thoughtful Gifting",
-    tagline: "The art of giving well",
-    description: "Chocolates, macarons and candlelit sets wrapped to be remembered.",
-    image: demoImage("gift-gold-ribbon", "Kraft gift boxes with gold ribbon and a blank card"),
-    isFeatured: true,
-    displayOrder: 3,
-  },
-  {
-    id: "col_table",
-    slug: "the-celebration-table",
-    name: "The Celebration Table",
-    tagline: "Hosting, beautifully",
-    description: "Decorative tableware and centrepieces for dinners, dawats and receptions.",
-    image: demoImage("candlelit-table", "Candlelit table set with linen and greenery"),
-    isFeatured: false,
-    displayOrder: 4,
-  },
-];
-
 export function categoryBySlug(slug: string) {
   return categories.find((c) => c.slug === slug && c.isActive);
-}
-
-export function collectionBySlug(slug: string) {
-  return collections.find((c) => c.slug === slug);
 }

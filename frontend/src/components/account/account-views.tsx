@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -9,14 +9,58 @@ import type { z } from "zod";
 import { MapPin, Package, Pencil, Plus, Trash2 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox, Field, fieldAria, Input, Select } from "@/components/ui/field";
-import { Badge, EmptyState } from "@/components/ui/primitives";
+import { Badge, EmptyState, Skeleton } from "@/components/ui/primitives";
 import { Sheet } from "@/components/ui/sheet";
 import { orderStatusLabel } from "@/lib/order-status";
-import { addressStore, orderStore, sessionStore } from "@/lib/store";
+import { sendJson } from "@/lib/api-client";
+import { sessionStore, signIn } from "@/lib/store";
 import type { Address, Order } from "@/lib/types";
 import { formatDate, formatPrice, newId } from "@/lib/utils";
 import { addressSchema, changePasswordSchema, indianStates, profileSchema } from "@/lib/validations";
 import { OrderDetail, statusTone } from "./order-detail";
+
+/** Loads one of the signed-in customer's lists from the server. */
+function useAccountList<T>(url: string, key: "orders" | "addresses") {
+  const [state, setState] = useState<{ items: T[]; loading: boolean; error: string | null }>({ items: [], loading: true, error: null });
+  const load = useCallback(async () => {
+    const res = await sendJson<Record<string, T[]>>(url, undefined, "GET");
+    setState(res.ok ? { items: res.data[key] ?? [], loading: false, error: null } : { items: [], loading: false, error: res.error });
+  }, [url, key]);
+  useEffect(() => {
+    let cancelled = false;
+    sendJson<Record<string, T[]>>(url, undefined, "GET").then((res) => {
+      if (!cancelled)
+        setState(res.ok ? { items: res.data[key] ?? [], loading: false, error: null } : { items: [], loading: false, error: res.error });
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [url, key]);
+  return { ...state, reload: load, setItems: (items: T[]) => setState((s) => ({ ...s, items })) };
+}
+
+const useOrders = () => useAccountList<Order>("/api/account/orders", "orders");
+const useAddresses = () => useAccountList<Address>("/api/account/addresses", "addresses");
+
+function ListSkeleton() {
+  return (
+    <div className="space-y-3" role="status" aria-label="Loading">
+      <Skeleton className="h-16 w-full" />
+      <Skeleton className="h-16 w-full" />
+    </div>
+  );
+}
+
+function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <p role="alert" className="flex flex-wrap items-center gap-3 text-[0.9rem] text-danger">
+      {message}
+      <button type="button" onClick={onRetry} className="text-ink underline underline-offset-4">
+        Try again
+      </button>
+    </p>
+  );
+}
 
 function PageTitle({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
   return (
@@ -30,8 +74,8 @@ function PageTitle({ children, action }: { children: React.ReactNode; action?: R
 /* -------------------------------- Overview ------------------------------- */
 export function AccountOverview() {
   const user = sessionStore.useStore();
-  const orders = orderStore.useStore();
-  const addresses = addressStore.useStore();
+  const { items: orders, loading } = useOrders();
+  const { items: addresses } = useAddresses();
   const defaultAddress = addresses.find((a) => a.isDefault) ?? addresses[0];
 
   return (
@@ -42,7 +86,9 @@ export function AccountOverview() {
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-card border border-line p-6">
           <h2 className="eyebrow text-accent-ink">Recent order</h2>
-          {orders[0] ? (
+          {loading ? (
+            <Skeleton className="mt-4 h-24 w-full" />
+          ) : orders[0] ? (
             <div className="mt-4">
               <p className="font-serif text-2xl">{orders[0].number}</p>
               <p className="mt-1 text-[0.88rem] text-muted">
@@ -89,11 +135,15 @@ export function AccountOverview() {
 
 /* --------------------------------- Orders -------------------------------- */
 export function OrderList() {
-  const orders = orderStore.useStore();
+  const { items: orders, loading, error, reload } = useOrders();
   return (
     <>
       <PageTitle>Orders</PageTitle>
-      {orders.length === 0 ? (
+      {loading ? (
+        <ListSkeleton />
+      ) : error ? (
+        <LoadError message={error} onRetry={reload} />
+      ) : orders.length === 0 ? (
         <EmptyState
           icon={<Package className="size-6 stroke-[1.25]" />}
           title="No orders yet"
@@ -133,7 +183,9 @@ export function OrderList() {
 }
 
 export function AccountOrder({ id }: { id: string }) {
-  const order: Order | undefined = orderStore.useStore((orders) => orders.find((o) => o.id === id));
+  const { items: orders, loading } = useOrders();
+  const order: Order | undefined = orders.find((o) => o.id === id);
+  if (loading) return <ListSkeleton />;
   if (!order) {
     return (
       <EmptyState
@@ -167,16 +219,28 @@ export function AccountOrder({ id }: { id: string }) {
 type AddressValues = z.input<typeof addressSchema>;
 
 export function AddressBook() {
-  const addresses = addressStore.useStore();
+  const { items: addresses, loading, error, reload, setItems } = useAddresses();
   const [editing, setEditing] = useState<Address | "new" | null>(null);
 
+  /** Saves the whole list; the server keeps exactly one default. */
+  const save = async (next: Address[], message: string) => {
+    const previous = addresses;
+    setItems(next);
+    const res = await sendJson<{ addresses: Address[] }>("/api/account/addresses", { addresses: next }, "PUT");
+    if (res.ok) {
+      setItems(res.data.addresses);
+      toast.success(message);
+      return true;
+    }
+    setItems(previous);
+    toast.error(res.error);
+    return false;
+  };
+
   const remove = (id: string) => {
-    addressStore.set((list) => {
-      const next = list.filter((a) => a.id !== id);
-      if (next.length && !next.some((a) => a.isDefault)) next[0] = { ...next[0], isDefault: true };
-      return next;
-    });
-    toast("Address removed");
+    const next = addresses.filter((a) => a.id !== id);
+    if (next.length && !next.some((a) => a.isDefault)) next[0] = { ...next[0], isDefault: true };
+    void save(next, "Address removed");
   };
 
   return (
@@ -190,7 +254,11 @@ export function AddressBook() {
       >
         Addresses
       </PageTitle>
-      {addresses.length === 0 ? (
+      {loading ? (
+        <ListSkeleton />
+      ) : error ? (
+        <LoadError message={error} onRetry={reload} />
+      ) : addresses.length === 0 ? (
         <EmptyState
           icon={<MapPin className="size-6 stroke-[1.25]" />}
           title="No saved addresses"
@@ -221,7 +289,12 @@ export function AddressBook() {
                 {!a.isDefault && (
                   <button
                     type="button"
-                    onClick={() => addressStore.set((list) => list.map((x) => ({ ...x, isDefault: x.id === a.id })))}
+                    onClick={() =>
+                      void save(
+                        addresses.map((x) => ({ ...x, isDefault: x.id === a.id })),
+                        "Default address updated",
+                      )
+                    }
                     className="hover:text-brand"
                   >
                     Make default
@@ -245,15 +318,11 @@ export function AddressBook() {
         {editing !== null && (
           <AddressForm
             initial={editing === "new" ? undefined : editing}
-            onSaved={(addr, makeDefault) => {
-              addressStore.set((list) => {
-                const exists = list.some((x) => x.id === addr.id);
-                let next = exists ? list.map((x) => (x.id === addr.id ? addr : x)) : [...list, addr];
-                if (makeDefault || next.length === 1) next = next.map((x) => ({ ...x, isDefault: x.id === addr.id }));
-                return next;
-              });
-              toast.success("Address saved");
-              setEditing(null);
+            onSaved={async (addr, makeDefault) => {
+              const exists = addresses.some((x) => x.id === addr.id);
+              let next = exists ? addresses.map((x) => (x.id === addr.id ? addr : x)) : [...addresses, addr];
+              if (makeDefault || next.length === 1) next = next.map((x) => ({ ...x, isDefault: x.id === addr.id }));
+              if (await save(next, "Address saved")) setEditing(null);
             }}
           />
         )}
@@ -262,7 +331,7 @@ export function AddressBook() {
   );
 }
 
-function AddressForm({ initial, onSaved }: { initial?: Address; onSaved: (a: Address, makeDefault: boolean) => void }) {
+function AddressForm({ initial, onSaved }: { initial?: Address; onSaved: (a: Address, makeDefault: boolean) => void | Promise<void> }) {
   const [makeDefault, setMakeDefault] = useState(initial?.isDefault ?? false);
   const { register, handleSubmit, formState } = useForm<AddressValues, unknown, z.output<typeof addressSchema>>({
     resolver: zodResolver(addressSchema),
@@ -341,8 +410,12 @@ export function ProfileSettings() {
           noValidate
           className="space-y-5"
           onSubmit={profile.handleSubmit(async (v) => {
-            await new Promise((r) => setTimeout(r, 400));
-            sessionStore.set({ name: v.name, email: v.email, phone: v.phone || undefined });
+            const res = await sendJson<{ user: { name: string; email: string; phone?: string } }>("/api/account/profile", v, "PUT");
+            if (!res.ok) {
+              profile.setError(res.status === 409 ? "email" : "name", { message: res.error });
+              return;
+            }
+            signIn(res.data.user);
             toast.success("Profile updated");
           })}
         >
@@ -350,12 +423,7 @@ export function ProfileSettings() {
           <Field label="Full name" htmlFor="p-name" error={pe.name?.message}>
             <Input autoComplete="name" {...fieldAria("p-name", pe.name?.message)} {...profile.register("name")} />
           </Field>
-          <Field
-            label="Email"
-            htmlFor="p-email"
-            error={pe.email?.message}
-            hint="Changing your email will require verification once email is connected."
-          >
+          <Field label="Email" htmlFor="p-email" error={pe.email?.message} hint="You'll use this email to sign in.">
             <Input type="email" autoComplete="email" {...fieldAria("p-email", pe.email?.message, true)} {...profile.register("email")} />
           </Field>
           <Field label="Mobile number" htmlFor="p-phone" optional error={pe.phone?.message}>
@@ -369,10 +437,14 @@ export function ProfileSettings() {
         <form
           noValidate
           className="space-y-5"
-          onSubmit={password.handleSubmit(async () => {
-            await new Promise((r) => setTimeout(r, 500));
+          onSubmit={password.handleSubmit(async (v) => {
+            const res = await sendJson("/api/account/password/change", v);
+            if (!res.ok) {
+              password.setError(res.status === 400 ? "currentPassword" : "password", { message: res.error });
+              return;
+            }
             password.reset();
-            toast.success("Password changed", { description: "Demo mode — no credentials are stored." });
+            toast.success("Password changed");
           })}
         >
           <h2 className="font-serif text-2xl">Change password</h2>

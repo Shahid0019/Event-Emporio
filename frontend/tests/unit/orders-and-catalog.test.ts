@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { listProducts, parseListParams, searchSuggestions } from "@/lib/catalog";
 import { canTransition, nextStatuses } from "@/lib/order-status";
+import { getDb } from "@/lib/db/client";
 import { buildQuote } from "@/lib/quote";
 import { checkoutSchema, customOrderSchema } from "@/lib/validations";
 
@@ -62,15 +63,15 @@ describe("catalogue queries", () => {
 });
 
 describe("server quote", () => {
-  it("prices from catalogue data, ignoring anything but ids and quantities", () => {
-    const q = buildQuote({ lines: [{ productId: "p_001", variantId: "ee-mb-rose-v2", quantity: 2 }], shippingMethod: "standard" });
+  it("prices from catalogue data, ignoring anything but ids and quantities", async () => {
+    const q = await buildQuote({ lines: [{ productId: "p_001", variantId: "ee-mb-rose-v2", quantity: 2 }], shippingMethod: "standard" });
     expect(q.lines[0].unitPrice).toBe(219900);
     expect(q.totals.subtotal).toBe(439800);
     expect(q.issues).toHaveLength(0);
   });
 
-  it("drops out-of-stock items and clamps quantities to available stock", () => {
-    const q = buildQuote({
+  it("drops out-of-stock items and clamps quantities to available stock", async () => {
+    const q = await buildQuote({
       lines: [
         { productId: "p_001", variantId: "ee-mb-rose-v3", quantity: 1 }, // stock 0
         { productId: "p_011", variantId: "ee-lh-mac-v2", quantity: 5 }, // stock 2
@@ -82,13 +83,56 @@ describe("server quote", () => {
     expect(q.issues).toHaveLength(2);
   });
 
-  it("validates coupons server-side", () => {
-    const q = buildQuote(
+  it("validates coupons server-side", async () => {
+    await (await getDb()).collection("coupons").updateOne(
+      { code: "WELCOME10" },
+      {
+        $set: {
+          code: "WELCOME10",
+          type: "percentage",
+          value: 10,
+          minSubtotal: 0,
+          startsAt: "2026-01-01T00:00:00Z",
+          expiresAt: "2027-01-01T00:00:00Z",
+          usedCount: 0,
+          isActive: true,
+        },
+      },
+      { upsert: true },
+    );
+    const q = await buildQuote(
       { lines: [{ productId: "p_007", variantId: "ee-bh-dry-v1", quantity: 1 }], couponCode: "welcome10", shippingMethod: "standard" },
       new Date("2026-10-09T00:00:00Z"),
     );
     expect(q.couponApplied).toBe("WELCOME10");
     expect(q.totals.discount).toBe(32990);
+  });
+
+  it("lists the shop's offers for the bag: ones that apply first, private codes hidden", async () => {
+    const coupons = (await getDb()).collection("coupons");
+    const base = { type: "fixed", startsAt: "2026-01-01T00:00:00Z", expiresAt: "2027-01-01T00:00:00Z", usedCount: 0, isActive: true };
+    await coupons.updateOne(
+      { code: "BIG5000" },
+      { $set: { ...base, code: "BIG5000", value: 50000, minSubtotal: 50000000 } },
+      { upsert: true },
+    );
+    await coupons.updateOne({ code: "FLAT100" }, { $set: { ...base, code: "FLAT100", value: 10000, minSubtotal: 0 } }, { upsert: true });
+    await coupons.updateOne(
+      { code: "SECRET" },
+      { $set: { ...base, code: "SECRET", value: 10000, minSubtotal: 0, showInBag: false } },
+      { upsert: true },
+    );
+    const lines = [{ productId: "p_007", variantId: "ee-bh-dry-v1", quantity: 1 }];
+    const q = await buildQuote({ lines, shippingMethod: "standard", includeOffers: true }, new Date("2026-10-09T00:00:00Z"));
+    const codes = q.offers!.map((o) => o.code);
+    expect(codes).not.toContain("SECRET");
+    expect(codes.indexOf("FLAT100")).toBeLessThan(codes.indexOf("BIG5000"));
+    expect(q.offers!.find((o) => o.code === "FLAT100")).toMatchObject({ applies: true, saving: 10000, headline: "₹100 off" });
+    expect(q.offers!.find((o) => o.code === "BIG5000")).toMatchObject({ applies: false });
+    expect(q.offers!.find((o) => o.code === "BIG5000")?.reason).toMatch(/Add items worth/);
+
+    // Checkout's own quote doesn't spend time on the list.
+    expect((await buildQuote({ lines, shippingMethod: "standard" })).offers).toBeUndefined();
   });
 });
 

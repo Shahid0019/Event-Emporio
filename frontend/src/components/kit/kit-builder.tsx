@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
@@ -9,6 +9,7 @@ import { applyKitParams, kitChatHiddenStore, kitStore, queryOf, setChatHidden, t
 import { kitQueryString } from "@/lib/kit/url";
 import { cn } from "@/lib/utils";
 import { KitChat } from "./kit-chat";
+import { GiveawaySheet } from "./kit-giveaways";
 import { KitPanel, kitSummary } from "./kit-panel";
 import { useKit } from "./use-kit";
 
@@ -42,6 +43,17 @@ export function KitBuilder() {
   const query = kitQueryString(queryOf(state));
   // The chat can only be minimised once there's a kit to look at.
   const chatHidden = kitChatHiddenStore.useStore() && state.occasion !== null;
+
+  // Once the last question is answered, let the closing message show, then tuck the chat away
+  // so the finished kit has the room. Only for a step reached just now — never on page load.
+  const lastFurthest = useRef(state.furthest);
+  useEffect(() => {
+    const was = lastFurthest.current;
+    lastFurthest.current = state.furthest;
+    if (was !== 4 || state.furthest !== 5 || !state.occasion) return;
+    const timer = setTimeout(() => withViewTransition(() => setChatHidden(true)), 1600);
+    return () => clearTimeout(timer);
+  }, [state.furthest, state.occasion]);
 
   // Load ?ready / ?occasion / shared links once on arrival.
   useEffect(() => {
@@ -119,13 +131,14 @@ export function KitBuilder() {
         open={sheetOpen && !chatHidden}
         onOpenChange={setSheetOpen}
         side="bottom"
-        title="Aapka kit"
+        title="Your kit"
         description={kitSummary(state) || undefined}
         className="h-[94dvh] max-h-[94dvh] bg-raised"
         bodyClassName={cn("p-0", thinScroll)}
       >
         <KitPanel showHeader={false} />
       </Sheet>
+      <GiveawaySheet />
     </div>
   );
 }
@@ -133,7 +146,7 @@ export function KitBuilder() {
 /** The minimised chat: a one-line bar on phones, a slim rail beside the kit on larger screens. */
 function ChatLauncher({ state, onOpen }: { state: KitState; onOpen: () => void }) {
   const done = state.furthest >= 5;
-  const status = done ? "Kit tayyar · jawab badlein" : `Sawaal ${state.furthest + 1} / 5 baaki`;
+  const status = done ? "Kit ready · change your answers" : `Question ${state.furthest + 1} of 5`;
   return (
     <button
       id="kit-chat-open"
@@ -156,7 +169,7 @@ function ChatLauncher({ state, onOpen }: { state: KitState; onOpen: () => void }
       </span>
 
       <span className="min-w-0 flex-1 md:flex-none md:rotate-180 md:[writing-mode:vertical-rl]">
-        <span className="block text-[0.95rem] font-medium md:text-[0.78rem] md:uppercase md:tracking-[0.16em]">Chat kholiye</span>
+        <span className="block text-[0.95rem] font-medium md:text-[0.78rem] md:uppercase md:tracking-[0.16em]">Open chat</span>
         <span className="block truncate text-[0.8rem] text-muted md:hidden">{status}</span>
       </span>
 

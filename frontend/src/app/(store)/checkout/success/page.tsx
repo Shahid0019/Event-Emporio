@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { OrderConfirmation } from "@/components/checkout/order-confirmation";
 import { Skeleton } from "@/components/ui/primitives";
+import { orderForToken } from "@/lib/server/orders";
 
 export const metadata: Metadata = {
   title: "Order Confirmed",
@@ -19,7 +21,9 @@ export default function CheckoutSuccessPage({ searchParams }: PageProps<"/checko
 }
 
 async function ConfirmationContent({ searchParams }: { searchParams: PageProps<"/checkout/success">["searchParams"] }) {
+  await connection(); // always the live order
   const raw = await searchParams;
-  const number = (Array.isArray(raw.order) ? raw.order[0] : raw.order)?.slice(0, 30) ?? "";
-  return <OrderConfirmation number={number} />;
+  const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?.slice(0, 80) ?? "";
+  const order = await orderForToken(first(raw.order), first(raw.t));
+  return <OrderConfirmation order={order} />;
 }

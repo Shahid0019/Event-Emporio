@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Heart } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState, Skeleton } from "@/components/ui/primitives";
-import type { ProductSummary } from "@/lib/catalog";
+import type { ProductSummary } from "@/lib/catalog-shared";
 import { wishlistStore } from "@/lib/store";
 import { ProductGrid } from "./product-grid";
 

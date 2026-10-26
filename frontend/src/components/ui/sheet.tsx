@@ -16,6 +16,8 @@ interface SheetProps {
   className?: string;
   bodyClassName?: string;
   footer?: ReactNode;
+  /** Shown in the header beside the close button, e.g. a "View bag" link. */
+  headerAction?: ReactNode;
   children: ReactNode;
 }
 
@@ -40,6 +42,7 @@ export function Sheet({
   className,
   bodyClassName,
   footer,
+  headerAction,
   children,
 }: SheetProps) {
   return (
@@ -70,12 +73,15 @@ export function Sheet({
                 <Dialog.Description className="sr-only">{typeof title === "string" ? title : "Dialog"}</Dialog.Description>
               )}
             </div>
-            <Dialog.Close
-              className="-mr-2 -mt-1 grid size-10 shrink-0 place-items-center rounded-full text-ink transition-colors hover:bg-surface"
-              aria-label="Close"
-            >
-              <X className="size-5" strokeWidth={1.5} />
-            </Dialog.Close>
+            <div className="-mr-2 -mt-1 flex shrink-0 items-center gap-1">
+              {headerAction}
+              <Dialog.Close
+                className="grid size-10 shrink-0 place-items-center rounded-full text-ink transition-colors hover:bg-surface"
+                aria-label="Close"
+              >
+                <X className="size-5" strokeWidth={1.5} />
+              </Dialog.Close>
+            </div>
           </div>
           <div className={cn("min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5", bodyClassName)}>{children}</div>
           {footer && <div className="border-t border-line px-6 py-5">{footer}</div>}

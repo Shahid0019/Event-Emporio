@@ -5,10 +5,11 @@ import { Check } from "lucide-react";
 import { OrderDetail } from "@/components/account/order-detail";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/primitives";
-import { orderStore, sessionStore } from "@/lib/store";
+import { sessionStore } from "@/lib/store";
+import type { Order } from "@/lib/types";
+import { formatPrice } from "@/lib/utils";
 
-export function OrderConfirmation({ number }: { number: string }) {
-  const order = orderStore.useStore((orders) => orders.find((o) => o.number === number));
+export function OrderConfirmation({ order }: { order: Order | null }) {
   const user = sessionStore.useStore();
 
   if (!order) {
@@ -36,8 +37,12 @@ export function OrderConfirmation({ number }: { number: string }) {
           Thank you, <em className="text-brand">{order.customer.name.split(" ")[0]}</em>
         </h1>
         <p className="mx-auto mt-5 max-w-lg leading-relaxed text-muted">
-          Your order is confirmed. A confirmation will be sent to <span className="text-ink">{order.customer.email}</span> once email
-          notifications are connected.
+          {order.paymentStatus === "paid"
+            ? "Your order is confirmed."
+            : order.paymentMethod === "cod" && order.status === "confirmed"
+              ? `Your order is confirmed. Please keep ${formatPrice(order.totals.total)} ready in cash for delivery.`
+              : "We're confirming your payment — this page updates in a moment."}{" "}
+          We&apos;ll send updates to <span className="text-ink">{order.customer.email}</span>.
         </p>
       </header>
 

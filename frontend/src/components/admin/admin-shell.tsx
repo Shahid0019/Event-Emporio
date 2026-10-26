@@ -1,86 +1,114 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
-import { toast } from "sonner";
 import {
   BadgePercent,
   Boxes,
-  ClipboardList,
   ExternalLink,
   FolderTree,
-  GalleryHorizontal,
+  History,
   Inbox,
   LayoutDashboard,
-  Layers,
-  Mail,
+  LogOut,
   Menu,
   MessageSquareQuote,
   Package,
-  PanelsTopLeft,
-  RotateCcw,
+  PackageOpen,
+  PackagePlus,
+  PartyPopper,
+  Puzzle,
   Settings,
-  ShieldCheck,
   ShoppingCart,
   Sparkles,
+  Star,
   Users,
+  type LucideIcon,
 } from "lucide-react";
+import { adminSignOut } from "@/app/(auth)/admin-login/actions";
 import { Sheet } from "@/components/ui/sheet";
-import { resetAdminData } from "@/lib/store/admin-store";
+import type { AdminData } from "@/lib/admin-data";
+import { adminStore } from "@/lib/store/admin-store";
 import { cn } from "@/lib/utils";
 
-const groups = [
+interface NavItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  /** How many things here need attention (shown as a badge). */
+  count?: (d: AdminData) => number;
+}
+
+const toPack = (d: AdminData) => d.orders.filter((o) => o.status === "confirmed" || o.status === "processing");
+const ofKind = (d: AdminData, kind: string) => toPack(d).filter((o) => o.kinds?.includes(kind as never)).length;
+
+const groups: { label: string; items: NavItem[] }[] = [
+  { label: "Overview", items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }] },
   {
-    label: "Overview",
-    items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }],
+    label: "Orders",
+    items: [
+      { href: "/admin/orders", label: "All orders", icon: ShoppingCart, count: (d) => toPack(d).length },
+      { href: "/admin/orders?kind=regular", label: "Product orders", icon: Package, count: (d) => ofKind(d, "regular") },
+      { href: "/admin/orders?kind=built-kit", label: "Built kit orders", icon: Puzzle, count: (d) => ofKind(d, "built-kit") },
+    ],
   },
   {
     label: "Catalogue",
     items: [
       { href: "/admin/products", label: "Products", icon: Package },
+      { href: "/admin/functions", label: "Functions", icon: PartyPopper },
+      { href: "/admin/kit-products", label: "Kit products", icon: PackagePlus },
       { href: "/admin/categories", label: "Categories", icon: FolderTree },
-      { href: "/admin/collections", label: "Collections", icon: Layers },
-      { href: "/admin/inventory", label: "Inventory", icon: Boxes },
+      { href: "/admin/inventory", label: "Stock levels", icon: Boxes },
     ],
   },
   {
-    label: "Sales",
+    label: "Customers",
     items: [
-      { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
       { href: "/admin/customers", label: "Customers", icon: Users },
-      { href: "/admin/coupons", label: "Coupons", icon: BadgePercent },
-    ],
-  },
-  {
-    label: "Content",
-    items: [
-      { href: "/admin/banners", label: "Homepage & banners", icon: PanelsTopLeft },
-      { href: "/admin/testimonials", label: "Testimonials", icon: MessageSquareQuote },
-      { href: "/admin/gallery", label: "Gallery", icon: GalleryHorizontal },
+      { href: "/admin/kits", label: "Kits for customers", icon: PackageOpen },
     ],
   },
   {
     label: "Inbox",
     items: [
-      { href: "/admin/custom-orders", label: "Custom orders", icon: Sparkles },
-      { href: "/admin/enquiries", label: "Contact enquiries", icon: Inbox },
-      { href: "/admin/newsletter", label: "Newsletter", icon: Mail },
+      {
+        href: "/admin/custom-orders",
+        label: "Custom order requests",
+        icon: Sparkles,
+        count: (d) => d.customRequests.filter((r) => r.status === "new").length,
+      },
+      { href: "/admin/enquiries", label: "Messages", icon: Inbox, count: (d) => d.enquiries.filter((e) => e.status === "new").length },
+      {
+        href: "/admin/product-reviews",
+        label: "Product reviews",
+        icon: Star,
+        count: (d) => d.productReviews.filter((r) => r.status === "pending").length,
+      },
+    ],
+  },
+  {
+    label: "Marketing",
+    items: [
+      { href: "/admin/coupons", label: "Discount codes", icon: BadgePercent },
+      { href: "/admin/testimonials", label: "Home testimonials", icon: MessageSquareQuote },
     ],
   },
   {
     label: "Store",
     items: [
       { href: "/admin/settings", label: "Settings", icon: Settings },
-      { href: "/admin/users", label: "Admin users", icon: ShieldCheck },
+      { href: "/admin/users", label: "Access & activity", icon: History },
     ],
   },
 ];
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+  const adminEmail = adminStore.useStore((d) => d.adminEmail);
   return (
-    <div className="min-h-dvh bg-[#f7f4ef] lg:grid lg:grid-cols-[16rem_1fr]">
+    <div className="min-h-dvh bg-[#f7f4ef] lg:grid lg:grid-cols-[16.5rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line bg-canvas lg:flex">
         <SidebarContents />
       </aside>
@@ -91,34 +119,30 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             type="button"
             onClick={() => setOpen(true)}
             aria-label="Open admin menu"
-            className="-ml-2 grid size-10 place-items-center lg:hidden"
+            className="-ml-2 grid size-10 place-items-center rounded-full hover:bg-surface lg:hidden"
           >
             <Menu className="size-5" />
           </button>
-          <p className="hidden items-center gap-2 text-[0.78rem] text-muted sm:flex">
-            <span className="rounded-full border border-accent/60 bg-accent-soft/50 px-2.5 py-0.5 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-ink">
-              Demo mode
-            </span>
-            Changes are saved in this browser only.
-          </p>
+          <Link href="/admin" className="font-serif text-lg lg:hidden">
+            Events <em className="text-brand">Emporio</em>
+          </Link>
           <div className="ml-auto flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                resetAdminData();
-                toast("Demo data reset");
-              }}
-              className="inline-flex h-9 items-center gap-2 rounded-full px-3 text-[0.78rem] text-muted hover:bg-surface hover:text-ink"
-            >
-              <RotateCcw className="size-3.5" /> Reset demo
-            </button>
+            <span className="hidden text-[0.78rem] text-muted md:inline">{adminEmail}</span>
             <Link
               href="/"
               target="_blank"
               className="inline-flex h-9 items-center gap-2 rounded-full border border-line-strong px-4 text-[0.78rem] hover:border-ink"
             >
-              View store <ExternalLink className="size-3.5" />
+              View shop <ExternalLink className="size-3.5" />
             </Link>
+            <form action={adminSignOut}>
+              <button
+                type="submit"
+                className="inline-flex h-9 items-center gap-2 rounded-full px-3 text-[0.78rem] text-muted hover:bg-surface hover:text-ink"
+              >
+                <LogOut className="size-3.5" /> Sign out
+              </button>
+            </form>
           </div>
         </header>
         <main id="main" className="px-4 py-8 sm:px-6 lg:px-10">
@@ -146,29 +170,35 @@ function SidebarContents({ compact }: { compact?: boolean }) {
           </Link>
         </div>
       )}
-      <Suspense fallback={<Nav pathname={null} />}>
+      <Suspense fallback={<Nav pathname={null} kind={null} />}>
         <NavWithPath />
       </Suspense>
-      <div className="border-t border-line px-6 py-4 text-[0.78rem] text-muted">
-        Signed in as <span className="text-ink">Store Owner (demo)</span>
-      </div>
     </>
   );
 }
 
 function NavWithPath() {
-  return <Nav pathname={usePathname()} />;
+  return <Nav pathname={usePathname()} kind={useSearchParams().get("kind")} />;
 }
 
-function Nav({ pathname }: { pathname: string | null }) {
+function Nav({ pathname, kind }: { pathname: string | null; kind: string | null }) {
+  const data = adminStore.useStore();
   return (
     <nav aria-label="Admin" className="min-h-0 flex-1 overflow-y-auto px-3 py-5">
       {groups.map((g) => (
         <div key={g.label} className="mb-5">
           <p className="mb-1.5 px-3 text-[0.62rem] font-medium uppercase tracking-[0.18em] text-muted">{g.label}</p>
           <ul>
-            {g.items.map(({ href, label, icon: Icon }) => {
-              const active = href === "/admin" ? pathname === "/admin" : pathname?.startsWith(href);
+            {g.items.map(({ href, label, icon: Icon, count }) => {
+              const [path, query] = href.split("?");
+              const itemKind = query ? new URLSearchParams(query).get("kind") : null;
+              const active =
+                path === "/admin"
+                  ? pathname === "/admin"
+                  : path === "/admin/orders"
+                    ? pathname === "/admin/orders" && kind === itemKind
+                    : Boolean(pathname?.startsWith(path));
+              const n = count?.(data) ?? 0;
               return (
                 <li key={href}>
                   <Link
@@ -180,7 +210,18 @@ function Nav({ pathname }: { pathname: string | null }) {
                     )}
                   >
                     <Icon className="size-4 shrink-0 stroke-[1.6]" />
-                    {label}
+                    <span className="min-w-0 flex-1 truncate">{label}</span>
+                    {n > 0 && (
+                      <span
+                        className={cn(
+                          "grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[0.68rem] font-medium tabular-nums",
+                          active ? "bg-brand-ink text-brand" : "bg-brand text-brand-ink",
+                        )}
+                        aria-label={`${n} need attention`}
+                      >
+                        {n}
+                      </span>
+                    )}
                   </Link>
                 </li>
               );
@@ -188,10 +229,6 @@ function Nav({ pathname }: { pathname: string | null }) {
           </ul>
         </div>
       ))}
-      <p className="px-3 text-[0.72rem] leading-relaxed text-muted">
-        <ClipboardList className="mb-1 inline size-3.5" /> Every action here becomes an authenticated, role-checked and audit-logged API
-        call once the backend is connected.
-      </p>
     </nav>
   );
 }

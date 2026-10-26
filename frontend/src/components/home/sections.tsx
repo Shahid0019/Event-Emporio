@@ -1,10 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { Parallax, Reveal } from "@/components/motion/reveal";
 import { buttonVariants } from "@/components/ui/button";
-import { DemoNote, SectionHeading } from "@/components/ui/primitives";
-import { gallery, homepage, testimonials } from "@/lib/data/content";
+import { homepage } from "@/lib/data/content";
 import { storeSettings } from "@/lib/data/settings";
 
 /* ------------------------- Editorial banner -------------------------- */
@@ -125,87 +123,6 @@ export function Benefits() {
           </li>
         ))}
       </ul>
-    </section>
-  );
-}
-
-/* ------------------------------ Testimonials ------------------------- */
-export function Testimonials() {
-  const approved = testimonials.filter((t) => t.isApproved);
-  if (!approved.length) return null;
-  const hasSamples = approved.some((t) => t.isSample);
-
-  return (
-    <section aria-labelledby="reviews-title" className="section-y">
-      <div className="container-luxe">
-        <SectionHeading eyebrow="Kind words" title={<span id="reviews-title">From our customers</span>} align="center" />
-        {hasSamples && (
-          <DemoNote className="mx-auto mt-5 max-w-md text-center">
-            Sample reviews for preview only — replace with approved customer reviews.
-          </DemoNote>
-        )}
-        <Reveal stagger={0.1} className="mt-14 grid gap-px overflow-hidden rounded-card border border-line bg-line md:grid-cols-3">
-          {approved.map((t) => (
-            <figure key={t.id} data-reveal className="flex flex-col bg-canvas px-6 py-10 md:px-10">
-              {t.rating ? (
-                <p className="mb-6 h-5 text-accent-ink" aria-label={`Rated ${t.rating} out of 5`}>
-                  {"★".repeat(t.rating)}
-                  <span className="text-line-strong">{"★".repeat(5 - t.rating)}</span>
-                </p>
-              ) : (
-                <span aria-hidden className="mb-6 block h-5" />
-              )}
-              <blockquote className="font-serif text-[1.45rem] leading-snug text-ink">“{t.text}”</blockquote>
-              <figcaption className="mt-auto pt-8 text-[0.82rem] text-muted">
-                <span className="font-medium text-ink">{t.displayName}</span>
-                {t.productName && <span className="block">on {t.productName}</span>}
-              </figcaption>
-            </figure>
-          ))}
-        </Reveal>
-      </div>
-    </section>
-  );
-}
-
-/* --------------------------------- Gallery --------------------------- */
-export function InstagramGallery() {
-  return (
-    <section aria-labelledby="gallery-title" className="pb-[clamp(4rem,2.5rem+6vw,9rem)]">
-      <div className="container-luxe">
-        <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-          <div>
-            <p className="eyebrow text-accent-ink">Follow along</p>
-            <h2 id="gallery-title" className="mt-4 text-h2">
-              <a href={storeSettings.social.instagram} target="_blank" rel="noopener noreferrer" className="hover:text-brand">
-                {storeSettings.social.instagramHandle}
-              </a>
-            </h2>
-          </div>
-          <a
-            href={storeSettings.social.instagram}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline"
-          >
-            Open Instagram <ArrowUpRight className="size-3.5" />
-          </a>
-        </div>
-        <Reveal stagger={0.05} className="mt-10 grid grid-cols-3 gap-1.5 sm:gap-3 lg:grid-cols-6">
-          {gallery.map((g) => (
-            <Link key={g.id} href={g.href} data-reveal className="group relative aspect-square overflow-hidden rounded-card bg-surface">
-              <Image
-                src={g.image.src}
-                alt={g.image.alt}
-                fill
-                sizes="(min-width: 1024px) 16vw, 33vw"
-                className="object-cover transition-transform duration-[1.2s] ease-[var(--ease-luxe)] group-hover:scale-105"
-              />
-              <span className="absolute inset-0 bg-ink/0 transition-colors duration-500 group-hover:bg-ink/25" />
-            </Link>
-          ))}
-        </Reveal>
-      </div>
     </section>
   );
 }

@@ -18,9 +18,9 @@ const nav = [
 ];
 
 /**
- * DEMO GUARD: hides account UI when no demo session exists. In production
- * every account route and API is protected on the server from the
- * session cookie — this client check is only a UX convenience.
+ * Shows the account area only when signed in. The data itself comes from
+ * account APIs that check the HTTP-only session cookie on the server —
+ * this client check only decides what to show.
  */
 export function AccountShell({ children }: { children: React.ReactNode }) {
   const user = sessionStore.useStore();

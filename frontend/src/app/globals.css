@@ -81,6 +81,14 @@
   --animate-drawer-left: drawer-left 0.45s var(--ease-luxe);
   --animate-overlay-in: fade 0.3s ease-out;
   --animate-unveil: unveil 1.6s var(--ease-luxe) both;
+  /* Endless vertical scroll for review columns: the track holds two copies, so -50% loops seamlessly. */
+  --animate-marquee-up: marquee-up var(--marquee-duration, 45s) linear infinite;
+
+  @keyframes marquee-up {
+    to {
+      transform: translateY(-50%);
+    }
+  }
 
   @keyframes unveil {
     from {

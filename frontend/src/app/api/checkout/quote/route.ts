@@ -17,5 +17,10 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: "Invalid checkout request" }, { status: 422 });
   }
-  return NextResponse.json(buildQuote(parsed.data), { headers: { "Cache-Control": "no-store" } });
+  try {
+    return NextResponse.json(await buildQuote(parsed.data), { headers: { "Cache-Control": "no-store" } });
+  } catch (err) {
+    console.error("quote failed", err);
+    return NextResponse.json({ error: "We couldn't price your bag right now. Please try again." }, { status: 503 });
+  }
 }

@@ -5,18 +5,18 @@ import { ShoppingBag } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/primitives";
 import { cartCount } from "@/lib/store";
-import { CartLineItem, CouponForm, TotalsTable } from "./cart-parts";
+import { CartEntries, CouponForm, TotalsTable } from "./cart-parts";
 import { useCartTotals } from "./use-cart-totals";
 
 export function CartView() {
-  const { lines, code, coupon, totals } = useCartTotals();
+  const { lines, code, coupon, offers, totals } = useCartTotals();
 
   if (!lines.length) {
     return (
       <EmptyState
         icon={<ShoppingBag className="size-6 stroke-[1.25]" />}
         title="Your bag is empty"
-        description="Looks like you haven't added anything yet. Explore the collections to find something special."
+        description="Looks like you haven't added anything yet. Explore the shop to find something special."
         action={
           <Link href="/shop" className={buttonVariants()}>
             Continue shopping
@@ -32,11 +32,9 @@ export function CartView() {
         <p className="border-b border-line pb-4 text-[0.85rem] text-muted">
           {cartCount(lines)} {cartCount(lines) === 1 ? "item" : "items"}
         </p>
-        <ul className="divide-y divide-line border-b border-line">
-          {lines.map((line) => (
-            <CartLineItem key={line.key} line={line} />
-          ))}
-        </ul>
+        <div className="border-b border-line">
+          <CartEntries lines={lines} />
+        </div>
         <Link href="/shop" className="mt-8 inline-block text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline">
           Continue shopping
         </Link>
@@ -45,7 +43,7 @@ export function CartView() {
       <aside aria-label="Order summary" className="lg:col-span-5 xl:col-span-4">
         <div className="space-y-6 rounded-card bg-surface p-6 sm:p-8 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
           <h2 className="font-serif text-3xl">Summary</h2>
-          <CouponForm coupon={coupon} code={code} />
+          <CouponForm coupon={coupon} code={code} offers={offers} />
           <TotalsTable totals={totals} shippingLabel="Shipping (estimate)" />
           <Link href="/checkout" className={buttonVariants({ size: "lg", className: "w-full" })}>
             Proceed to checkout

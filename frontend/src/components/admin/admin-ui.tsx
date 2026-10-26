@@ -352,7 +352,7 @@ export function DataTable<T>({
   );
 }
 
-/** Downloads rows as CSV (client-side export of the current demo data). */
+/** Downloads rows as a CSV file (opens in Excel or Google Sheets). */
 export function downloadCsv(filename: string, rows: (string | number)[][]) {
   const csv = rows.map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
   const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));

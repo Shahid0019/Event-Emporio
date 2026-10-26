@@ -8,29 +8,81 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { AlertCircle, Lock, ShoppingBag } from "lucide-react";
-import { CouponForm, TotalsTable } from "@/components/cart/cart-parts";
+import { AlertCircle, Banknote, Lock, ShoppingBag } from "lucide-react";
+import { CouponForm, KitMosaic, TotalsTable } from "@/components/cart/cart-parts";
+import { groupCart } from "@/lib/cart-groups";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox, Field, fieldAria, Input, Select, Textarea } from "@/components/ui/field";
-import { DemoNote, EmptyState, Skeleton } from "@/components/ui/primitives";
+import { EmptyState, Skeleton } from "@/components/ui/primitives";
 import { Sheet } from "@/components/ui/sheet";
+import { useStoreSettings } from "@/components/providers/store-data";
+import { useCartTotals } from "@/components/cart/use-cart-totals";
+import type { CheckoutStart } from "@/app/api/checkout/order/route";
 import { storeSettings } from "@/lib/data/settings";
-import type { Quote } from "@/lib/quote";
-import { addressStore, cartStore, clearCart, couponStore, orderStore, sessionStore } from "@/lib/store";
-import type { Order } from "@/lib/types";
+import { SHIPPING_METHODS, shippingPrice } from "@/lib/settings";
+import { clearCart, couponStore, sessionStore } from "@/lib/store";
+import type { Address } from "@/lib/types";
 import { checkoutSchema, indianStates } from "@/lib/validations";
 import { cn, formatPrice } from "@/lib/utils";
 
 type Values = z.input<typeof checkoutSchema>;
 type Parsed = z.output<typeof checkoutSchema>;
 
+interface RazorpayResponse {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+interface RazorpayInstance {
+  open(): void;
+  on(event: "payment.failed", cb: (r: { error?: { description?: string } }) => void): void;
+}
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
+  }
+}
+
+/** Loads Razorpay Checkout once. */
+function loadRazorpay(): Promise<boolean> {
+  if (window.Razorpay) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
+const reportFailed = (start: CheckoutStart, reason: string) =>
+  fetch("/api/checkout/failed", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId: start.orderId, token: start.token, reason }),
+  }).catch(() => undefined);
+
 export function CheckoutForm() {
   const router = useRouter();
-  const lines = cartStore.useStore();
-  const couponCode = couponStore.useStore();
+  const settings = useStoreSettings();
   const user = sessionStore.useStore();
-  const addresses = addressStore.useStore();
+  const [addresses, setAddresses] = useState<Address[]>([]);
   const defaultAddress = addresses.find((a) => a.isDefault) ?? addresses[0];
+
+  // Signed-in customers get their saved delivery address filled in.
+  useEffect(() => {
+    if (!user) return;
+    let cancelled = false;
+    fetch("/api/account/addresses")
+      .then((r) => (r.ok ? (r.json() as Promise<{ addresses: Address[] }>) : null))
+      .then((data) => {
+        if (!cancelled && data) setAddresses(data.addresses);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
 
   const form = useForm<Values, unknown, Parsed>({
     resolver: zodResolver(checkoutSchema),
@@ -49,6 +101,7 @@ export function CheckoutForm() {
       },
       deliveryInstructions: "",
       shippingMethod: "standard",
+      paymentMethod: "razorpay",
       saveAddress: false,
     },
     resetOptions: { keepDirtyValues: true },
@@ -56,39 +109,14 @@ export function CheckoutForm() {
   const { register, handleSubmit, control, formState } = form;
   const errors = formState.errors;
   const shippingMethod = useWatch({ control, name: "shippingMethod" });
+  // If the shop turns cash on delivery off, a COD choice falls back to paying online.
+  const codEnabled = settings.payments.codEnabled;
+  const chosenPayment = useWatch({ control, name: "paymentMethod" });
+  const paymentMethod = codEnabled && chosenPayment === "cod" ? "cod" : "razorpay";
 
-  const [quote, setQuote] = useState<Quote | null>(null);
-  const [quoteError, setQuoteError] = useState(false);
-  const [paying, setPaying] = useState<Parsed | null>(null);
+  const { lines, code: couponCode, quote, failed: quoteError } = useCartTotals(shippingMethod);
+  const [testPayment, setTestPayment] = useState<CheckoutStart | null>(null);
   const [processing, setProcessing] = useState(false);
-
-  const quoteKey = JSON.stringify([lines.map((l) => [l.productId, l.variantId, l.quantity]), couponCode, shippingMethod]);
-
-  // Authoritative totals from the server whenever the bag, coupon or delivery method changes.
-  useEffect(() => {
-    const [items, code, method] = JSON.parse(quoteKey) as [[string, string, number][], string | null, string];
-    if (!items.length) return;
-    const controller = new AbortController();
-    fetch("/api/checkout/quote", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        lines: items.map(([productId, variantId, quantity]) => ({ productId, variantId, quantity })),
-        couponCode: code ?? undefined,
-        shippingMethod: method,
-      }),
-      signal: controller.signal,
-    })
-      .then((r) => (r.ok ? (r.json() as Promise<Quote>) : Promise.reject(new Error("quote failed"))))
-      .then((q) => {
-        setQuote(q);
-        setQuoteError(false);
-      })
-      .catch((e: unknown) => {
-        if ((e as Error).name !== "AbortError") setQuoteError(true);
-      });
-    return () => controller.abort();
-  }, [quoteKey]);
 
   if (!lines.length) {
     return (
@@ -105,80 +133,132 @@ export function CheckoutForm() {
     );
   }
 
-  const onSubmit = handleSubmit((values) => {
+  const finish = (start: CheckoutStart) => {
+    clearCart();
+    couponStore.set(null);
+    router.replace(`/checkout/success?order=${encodeURIComponent(start.number)}&t=${encodeURIComponent(start.token)}`);
+  };
+
+  const saveAddressToAccount = (values: Parsed) =>
+    fetch("/api/account/addresses", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...values.shipping, phone: values.phone }),
+    }).catch(() => undefined);
+
+  const onSubmit = handleSubmit(async (values) => {
     if (!quote || quote.lines.length === 0) {
       toast.error("We couldn't confirm your bag. Please refresh and try again.");
       return;
     }
-    setPaying(values);
-  });
-
-  /** DEMO: stands in for Razorpay Checkout + server-side signature verification. */
-  const completePayment = async (outcome: "success" | "failure") => {
-    if (!paying || !quote) return;
     setProcessing(true);
-    await new Promise((r) => setTimeout(r, 900));
-    setProcessing(false);
+    const res = await fetch("/api/checkout/order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...values,
+        paymentMethod,
+        couponCode: couponCode ?? undefined,
+        lines: lines.map((l) => ({
+          productId: l.productId,
+          variantId: l.variantId,
+          quantity: l.quantity,
+          ...(l.giftMessage && { giftMessage: l.giftMessage }),
+          ...(l.bundle && {
+            bundle: {
+              id: l.bundle.id,
+              name: l.bundle.name,
+              summary: l.bundle.summary,
+            },
+          }),
+        })),
+      }),
+    }).catch(() => null);
+    const data: unknown = await res?.json().catch(() => null);
+    if (!res?.ok) {
+      setProcessing(false);
+      const message = data && typeof data === "object" && "error" in data ? String((data as { error: unknown }).error) : "";
+      toast.error(
+        message ||
+          (paymentMethod === "cod"
+            ? "We couldn't place your order. Please try again."
+            : "We couldn't start your payment. Please try again."),
+      );
+      return;
+    }
+    const start = data as CheckoutStart;
+    if (values.saveAddress && user) void saveAddressToAccount(values);
 
-    if (outcome === "failure") {
-      setPaying(null);
-      toast.error("Payment didn't go through", { description: "You haven't been charged. Your bag is saved — please try again." });
+    if (start.mode === "cod") {
+      finish(start);
       return;
     }
 
-    const now = new Date();
-    const number = `EE${now.getFullYear().toString().slice(2)}${String(now.getTime()).slice(-6)}`;
-    const method = storeSettings.shipping.methods.find((m) => m.id === paying.shippingMethod)!;
-    const order: Order = {
-      id: number.toLowerCase(),
-      number,
-      createdAt: now.toISOString(),
-      customer: { name: paying.shipping.fullName, email: paying.email, phone: paying.phone },
-      shippingAddress: { ...paying.shipping, phone: paying.phone, line2: paying.shipping.line2 || undefined },
-      deliveryInstructions: paying.deliveryInstructions || undefined,
-      lines: quote.lines.map((ql) => {
-        const local = lines.find((l) => l.variantId === ql.variantId)!;
-        return {
-          productId: ql.productId,
-          variantId: ql.variantId,
-          slug: local.slug,
-          name: ql.name,
-          variantLabel: ql.variantLabel,
-          image: local.image,
-          unitPrice: ql.unitPrice,
-          quantity: ql.quantity,
-          giftMessage: local.giftMessage,
-        };
-      }),
-      totals: quote.totals,
-      couponCode: quote.couponApplied,
-      status: "confirmed",
-      paymentStatus: "paid",
-      paymentMethod: "razorpay",
-      paymentReference: `pay_DEMO${String(now.getTime()).slice(-8)}`,
-      shippingMethod: method.label,
-      history: [
-        { status: "pending", at: now.toISOString(), note: "Order placed" },
-        { status: "confirmed", at: now.toISOString(), note: "Payment received (demo)" },
-      ],
-    };
-
-    orderStore.set((orders) => [order, ...orders]);
-    if (paying.saveAddress && user) {
-      addressStore.set((list) => [
-        ...list,
-        {
-          id: `addr_${now.getTime()}`,
-          ...paying.shipping,
-          phone: paying.phone,
-          line2: paying.shipping.line2 || undefined,
-          isDefault: list.length === 0,
-        },
-      ]);
+    if (start.mode === "test") {
+      setProcessing(false);
+      setTestPayment(start);
+      return;
     }
-    clearCart();
-    couponStore.set(null);
-    router.replace(`/checkout/success?order=${number}`);
+
+    if (!(await loadRazorpay()) || !window.Razorpay || !start.razorpay) {
+      setProcessing(false);
+      toast.error("Couldn't open the payment window. Check your connection and try again.");
+      return;
+    }
+    const checkout = new window.Razorpay({
+      key: start.razorpay.keyId,
+      amount: start.amount,
+      currency: "INR",
+      name: storeSettings.name,
+      description: `Order ${start.number}`,
+      order_id: start.razorpay.orderId,
+      prefill: start.prefill,
+      theme: { color: "#5a2334" },
+      handler: async (response: RazorpayResponse) => {
+        const confirm = await fetch("/api/checkout/confirm", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(response),
+        }).catch(() => null);
+        if (confirm?.ok) finish(start);
+        else {
+          setProcessing(false);
+          toast.error("We couldn't confirm your payment", {
+            description: `If money was taken, it's safe — contact us with order ${start.number} and we'll sort it out.`,
+          });
+        }
+      },
+      modal: {
+        ondismiss: () => {
+          setProcessing(false);
+          void reportFailed(start, "Payment window closed");
+          toast("Payment not completed", { description: "You haven't been charged. Your bag is saved." });
+        },
+      },
+    });
+    checkout.on("payment.failed", (r) => {
+      void reportFailed(start, r.error?.description ?? "Payment failed");
+      toast.error("Payment didn't go through", { description: "You haven't been charged. Try again or use another method." });
+    });
+    checkout.open();
+  });
+
+  /** Local development only (no Razorpay keys): finish or fail the payment by hand. */
+  const completeTestPayment = async (outcome: "success" | "failure") => {
+    if (!testPayment) return;
+    setProcessing(true);
+    const res = await fetch("/api/checkout/test-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ orderId: testPayment.orderId, token: testPayment.token, outcome }),
+    }).catch(() => null);
+    setProcessing(false);
+    if (outcome === "success" && res?.ok) {
+      finish(testPayment);
+      return;
+    }
+    setTestPayment(null);
+    toast.error("Payment didn't go through", { description: "You haven't been charged. Your bag is saved — please try again." });
   };
 
   return (
@@ -288,7 +368,7 @@ export function CheckoutForm() {
           <fieldset>
             <legend className="sr-only">Choose a delivery method</legend>
             <div className="grid gap-3">
-              {storeSettings.shipping.methods.map((m) => (
+              {SHIPPING_METHODS.map((m) => (
                 <label
                   key={m.id}
                   className={cn(
@@ -301,36 +381,79 @@ export function CheckoutForm() {
                     <span className="block text-[0.95rem] font-medium">{m.label}</span>
                     <span className="block text-[0.82rem] text-muted">{m.description}</span>
                   </span>
-                  <span className="text-[0.9rem]">{formatPrice(m.price)}</span>
+                  <span className="text-[0.9rem]">{formatPrice(shippingPrice(settings, m.id))}</span>
                 </label>
               ))}
             </div>
-            {storeSettings.shipping.freeShippingThreshold !== null && (
+            {settings.shipping.freeShippingThreshold !== null && (
               <p className="mt-3 text-[0.8rem] text-muted">
-                Free delivery on orders over {formatPrice(storeSettings.shipping.freeShippingThreshold)} — applied automatically.
+                Free delivery on orders over {formatPrice(settings.shipping.freeShippingThreshold)} — applied automatically.
               </p>
             )}
           </fieldset>
         </Section>
 
         <Section step={4} title="Payment">
-          <div className="flex items-start gap-4 rounded-control border border-line-strong bg-raised px-5 py-4">
-            <Lock className="mt-0.5 size-4 shrink-0" />
-            <div>
-              <p className="text-[0.95rem] font-medium">Pay securely with Razorpay</p>
-              <p className="mt-1 text-[0.82rem] text-muted">
-                UPI, cards, net banking and wallets. You&apos;ll complete payment in Razorpay&apos;s secure window.
-              </p>
-            </div>
-          </div>
-          {!storeSettings.payments.codEnabled && (
-            <p className="mt-3 text-[0.8rem] text-muted">Cash on delivery is not currently available.</p>
+          {codEnabled ? (
+            <fieldset>
+              <legend className="sr-only">Choose how to pay</legend>
+              <div className="grid gap-3">
+                {(
+                  [
+                    {
+                      id: "razorpay",
+                      icon: Lock,
+                      title: "Pay online",
+                      text: "UPI, cards, net banking and wallets, in Razorpay's secure window.",
+                    },
+                    {
+                      id: "cod",
+                      icon: Banknote,
+                      title: "Cash on delivery",
+                      text: "Pay in cash when your order arrives.",
+                    },
+                  ] as const
+                ).map(({ id, icon: Icon, title, text }) => (
+                  <label
+                    key={id}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-4 rounded-control border bg-raised px-5 py-4 transition-colors",
+                      paymentMethod === id ? "border-ink" : "border-line-strong hover:border-muted",
+                    )}
+                  >
+                    <input type="radio" value={id} className="size-4 accent-[var(--brand)]" {...register("paymentMethod")} />
+                    <span className="flex-1">
+                      <span className="block text-[0.95rem] font-medium">{title}</span>
+                      <span className="block text-[0.82rem] text-muted">{text}</span>
+                    </span>
+                    <Icon aria-hidden className="size-4 shrink-0 text-muted" />
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ) : (
+            <>
+              <div className="flex items-start gap-4 rounded-control border border-line-strong bg-raised px-5 py-4">
+                <Lock className="mt-0.5 size-4 shrink-0" />
+                <div>
+                  <p className="text-[0.95rem] font-medium">Pay securely with Razorpay</p>
+                  <p className="mt-1 text-[0.82rem] text-muted">
+                    UPI, cards, net banking and wallets. You&apos;ll complete payment in Razorpay&apos;s secure window.
+                  </p>
+                </div>
+              </div>
+              <p className="mt-3 text-[0.8rem] text-muted">Cash on delivery is not currently available.</p>
+            </>
           )}
         </Section>
 
         <div className="space-y-4">
-          <Button type="submit" size="lg" className="w-full" disabled={!quote || quote.lines.length === 0}>
-            {quote ? `Pay ${formatPrice(quote.totals.total)}` : "Confirming your bag…"}
+          <Button type="submit" size="lg" className="w-full" loading={processing} disabled={!quote || quote.lines.length === 0}>
+            {!quote
+              ? "Confirming your bag…"
+              : paymentMethod === "cod"
+                ? `Place order · ${formatPrice(quote.totals.total)}`
+                : `Pay ${formatPrice(quote.totals.total)}`}
           </Button>
           <p className="text-center text-[0.78rem] leading-relaxed text-muted">
             By placing your order you agree to our{" "}
@@ -350,21 +473,36 @@ export function CheckoutForm() {
         <div className="space-y-6 rounded-card bg-surface p-6 sm:p-8 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
           <h2 className="font-serif text-3xl">Order summary</h2>
           <ul className="space-y-4">
-            {lines.map((l) => (
-              <li key={l.key} className="flex items-center gap-4">
-                <span className="relative aspect-[4/5] w-16 shrink-0 overflow-hidden rounded-chip bg-canvas">
-                  <Image src={l.image.src} alt="" fill sizes="64px" className="object-cover" />
-                  <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-ink text-[0.65rem] text-canvas">
-                    {l.quantity}
+            {groupCart(lines).map((entry) => {
+              if (entry.type === "kit") {
+                return (
+                  <li key={entry.key} className="flex items-center gap-4">
+                    <KitMosaic lines={entry.lines} className="w-16" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-serif text-lg leading-tight">{entry.bundle.name}</span>
+                      <span className="text-[0.8rem] text-muted">{entry.bundle.summary}</span>
+                    </span>
+                    <span className="text-[0.9rem]">{formatPrice(entry.total)}</span>
+                  </li>
+                );
+              }
+              const l = entry.line;
+              return (
+                <li key={l.key} className="flex items-center gap-4">
+                  <span className="relative aspect-[4/5] w-16 shrink-0 overflow-hidden rounded-chip bg-canvas">
+                    <Image src={l.image.src} alt="" fill sizes="64px" className="object-cover" />
+                    <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-ink text-[0.65rem] text-canvas">
+                      {l.quantity}
+                    </span>
                   </span>
-                </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-serif text-lg leading-tight">{l.name}</span>
-                  {l.variantLabel && <span className="text-[0.8rem] text-muted">{l.variantLabel}</span>}
-                </span>
-                <span className="text-[0.9rem]">{formatPrice(l.unitPrice * l.quantity)}</span>
-              </li>
-            ))}
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate font-serif text-lg leading-tight">{l.name}</span>
+                    {l.variantLabel && <span className="text-[0.8rem] text-muted">{l.variantLabel}</span>}
+                  </span>
+                  <span className="text-[0.9rem]">{formatPrice(l.unitPrice * l.quantity)}</span>
+                </li>
+              );
+            })}
           </ul>
 
           {quote?.issues.map((issue) => (
@@ -374,7 +512,11 @@ export function CheckoutForm() {
             </p>
           ))}
 
-          <CouponForm code={couponCode} coupon={quote?.couponError ? { ok: false, reason: quote.couponError } : null} />
+          <CouponForm
+            code={couponCode}
+            coupon={quote?.couponError ? { ok: false, reason: quote.couponError } : null}
+            offers={quote?.offers}
+          />
 
           {quote ? (
             <TotalsTable totals={quote.totals} />
@@ -394,21 +536,22 @@ export function CheckoutForm() {
       </aside>
 
       <Sheet
-        open={paying !== null}
-        onOpenChange={(open) => !open && !processing && setPaying(null)}
-        title="Complete payment"
-        description={quote ? `Amount due: ${formatPrice(quote.totals.total)}` : undefined}
+        open={testPayment !== null}
+        onOpenChange={(open) => !open && !processing && setTestPayment(null)}
+        title="Test payment"
+        description={testPayment ? `Order ${testPayment.number} · ${formatPrice(testPayment.amount)}` : undefined}
         side="center"
       >
-        <DemoNote>
-          Razorpay isn&apos;t connected in this frontend build. In production this window is Razorpay Checkout, and the order is only
-          confirmed after the server verifies the payment signature and webhook.
-        </DemoNote>
+        <p className="rounded-control border border-accent/50 bg-accent-soft/40 px-4 py-3 text-[0.85rem] leading-relaxed">
+          Razorpay keys aren&apos;t set on this computer, so this stands in for the payment window. Add{" "}
+          <code className="text-[0.8rem]">RAZORPAY_KEY_ID</code> and <code className="text-[0.8rem]">RAZORPAY_KEY_SECRET</code> to{" "}
+          <code className="text-[0.8rem]">.env.local</code> to use real Razorpay test mode. This never appears on the live site.
+        </p>
         <div className="mt-6 grid gap-3">
-          <Button size="lg" loading={processing} onClick={() => completePayment("success")}>
+          <Button size="lg" loading={processing} onClick={() => completeTestPayment("success")}>
             Simulate successful payment
           </Button>
-          <Button size="lg" variant="outline" disabled={processing} onClick={() => completePayment("failure")}>
+          <Button size="lg" variant="outline" disabled={processing} onClick={() => completeTestPayment("failure")}>
             Simulate failed payment
           </Button>
         </div>

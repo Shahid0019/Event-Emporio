@@ -6,7 +6,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Select } from "@/components/ui/field";
-import { sortOptions, type ListParams, type ListResult } from "@/lib/catalog";
+import { sortOptions, type ListParams, type ListResult } from "@/lib/catalog-shared";
 import { cn } from "@/lib/utils";
 
 const priceBands = [

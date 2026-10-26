@@ -22,9 +22,6 @@ export default function PrivacyPolicyPage() {
           <li>
             <strong>Enquiries:</strong> information you send through contact and custom-order forms.
           </li>
-          <li>
-            <strong>Newsletter:</strong> your email, only with your explicit consent.
-          </li>
         </ul>
         <h2>Payments</h2>
         <p>
@@ -39,7 +36,7 @@ export default function PrivacyPolicyPage() {
         <p>We share data only with service providers needed to run the store (payments, delivery, email) and never sell it.</p>
         <h2>Retention & your rights</h2>
         <p>
-          You can ask to access, correct or delete your data, and withdraw marketing consent at any time. Retention periods:{" "}
+          You can ask to access, correct or delete your data at any time. Retention periods:{" "}
           <Tbc>retention schedule</Tbc>.
         </p>
       </Prose>

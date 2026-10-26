@@ -1,12 +1,15 @@
 import type { Metadata } from "next";
 import { ContentPage, Prose, Tbc } from "@/components/layout/content-page";
 import { storeSettings } from "@/lib/data/settings";
+import { loadSettings } from "@/lib/db/queries";
+import { SHIPPING_METHODS, shippingPrice } from "@/lib/settings";
 import { formatPrice } from "@/lib/utils";
 
 export const metadata: Metadata = { title: "Shipping Policy", alternates: { canonical: "/shipping-policy" } };
 
-export default function ShippingPolicyPage() {
-  const { shipping } = storeSettings;
+export default async function ShippingPolicyPage() {
+  const settings = await loadSettings();
+  const { shipping } = settings;
   return (
     <ContentPage eyebrow="Policies" title="Shipping Policy" draft>
       <Prose>
@@ -16,9 +19,9 @@ export default function ShippingPolicyPage() {
         </p>
         <h2>Delivery charges</h2>
         <ul>
-          {shipping.methods.map((m) => (
+          {SHIPPING_METHODS.map((m) => (
             <li key={m.id}>
-              <strong>{m.label}:</strong> {formatPrice(m.price)}
+              <strong>{m.label}:</strong> {formatPrice(shippingPrice(settings, m.id))}
             </li>
           ))}
           {shipping.freeShippingThreshold !== null && <li>Free delivery on orders over {formatPrice(shipping.freeShippingThreshold)}.</li>}

@@ -33,7 +33,6 @@ function toProduct(item: KitItem): Product {
       "Building a whole function? The kit builder counts every item per trami for you.",
     ],
     categorySlug: "decorative-disposables",
-    collectionSlugs: [],
     images: [kitImage(item)],
     options: [{ name: item.optionName, values: item.variants.map((v) => v.name) }],
     variants: item.variants.map((v, i) => ({
@@ -44,6 +43,7 @@ function toProduct(item: KitItem): Product {
       stock: DEMO_STOCK,
     })),
     attributes: { "Suggested quantity": per, Sold: "Per piece" },
+    kit: { itemId: item.id, category: item.category, perTrami: item.perTrami, ...(item.occasions && { occasions: item.occasions }) },
     maxPerOrder: KIT_MAX_PER_ORDER,
     isFeatured: false,
     isNewArrival: false,

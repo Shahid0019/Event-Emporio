@@ -4,6 +4,8 @@
  * floating-point rounding errors.
  */
 
+import type { KitCategory, Occasion } from "./kit/config";
+
 export type Paise = number;
 
 export interface ImageAsset {
@@ -26,17 +28,6 @@ export interface Category {
   seoDescription?: string;
 }
 
-export interface Collection {
-  id: string;
-  slug: string;
-  name: string;
-  tagline: string;
-  description: string;
-  image: ImageAsset;
-  isFeatured: boolean;
-  displayOrder: number;
-}
-
 export interface ProductOption {
   name: string;
   values: string[];
@@ -50,7 +41,10 @@ export interface ProductVariant {
   price: Paise;
   compareAtPrice?: Paise;
   stock: number;
+  /** The image shown when this variant is picked (index into `images`). */
   imageIndex?: number;
+  /** All of this variant's own photos, in order (the first equals `imageIndex`). */
+  imageIndexes?: number[];
 }
 
 export interface ProductCustomization {
@@ -62,6 +56,18 @@ export interface ProductCustomization {
 
 export type ProductStatus = "active" | "draft" | "archived";
 
+/** Present on products sold through the kit builder ("kit products"). */
+export interface ProductKitInfo {
+  /** Short id used by the kit engine and kit links, e.g. "spoon". */
+  itemId: string;
+  /** Section of the kit: Serving, Drinking, Take-home packing… */
+  category: KitCategory;
+  /** Units needed per trami (four guests). Fractions mean "1 per N trami". */
+  perTrami: number;
+  /** Only these occasions include it; omitted means every occasion. */
+  occasions?: Occasion[];
+}
+
 export interface Product {
   id: string;
   slug: string;
@@ -70,13 +76,14 @@ export interface Product {
   shortDescription: string;
   description: string[];
   categorySlug: string;
-  collectionSlugs: string[];
   images: ImageAsset[];
   options: ProductOption[];
   variants: ProductVariant[];
   attributes: Record<string, string>;
   careInfo?: string;
   customization?: ProductCustomization;
+  /** Set for kit products; plain catalogue products don't have it. */
+  kit?: ProductKitInfo;
   /** Per-line order cap for bulk items (e.g. kit disposables). Defaults to MAX_LINE_QUANTITY. */
   maxPerOrder?: number;
   colour?: string;
@@ -102,6 +109,39 @@ export interface Review {
   isApproved: boolean;
 }
 
+/** "pending" until the shop approves it; "hidden" when the shop takes it down. */
+export type ProductReviewStatus = "pending" | "approved" | "hidden";
+
+/** A review a signed-in customer wrote on a product page — one per customer per product. */
+export interface ProductReview {
+  id: string;
+  productId: string;
+  productSlug: string;
+  productName: string;
+  customerId: string;
+  /** "Aisha K." — first name and initial, from the account. */
+  displayName: string;
+  rating: number;
+  title?: string;
+  text: string;
+  /** The customer has a paid order with this product. */
+  verifiedPurchase: boolean;
+  status: ProductReviewStatus;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** A whole kit added from the kit builder; its items share this tag in the cart. */
+export interface CartBundle {
+  id: string;
+  /** e.g. "Wazwan kit · 50 trami" */
+  name: string;
+  /** e.g. "Standard · Bio items" */
+  summary: string;
+  /** The kit itself (encoded, same format as shared kit links), so "Edit kit" reopens it exactly. */
+  kit: string;
+}
+
 export interface CartLine {
   key: string;
   productId: string;
@@ -118,6 +158,8 @@ export interface CartLine {
   /** Bulk cap copied from the product; absent means the normal per-line cap. */
   maxPerOrder?: number;
   giftMessage?: string;
+  /** Set when this line is part of a kit; the cart shows the kit as one item. */
+  bundle?: CartBundle;
 }
 
 export type CouponType = "percentage" | "fixed";
@@ -134,8 +176,9 @@ export interface Coupon {
   usageLimit?: number;
   usedCount: number;
   perCustomerLimit?: number;
-  categorySlugs?: string[];
   isActive: boolean;
+  /** Public codes are listed in the bag for shoppers to tap; private ones (false) only work when typed. Unset counts as public. */
+  showInBag?: boolean;
 }
 
 export type OrderStatus = "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
@@ -166,7 +209,12 @@ export interface OrderLine {
   unitPrice: Paise;
   quantity: number;
   giftMessage?: string;
+  /** Set when the line was part of a kit; the admin shows the kit as one group. */
+  bundle?: { id: string; name: string; summary: string };
 }
+
+/** What an order contains — orders are filed under each kind they include. */
+export type OrderKind = "regular" | "built-kit";
 
 export interface OrderTotals {
   subtotal: Paise;
@@ -199,4 +247,37 @@ export interface Order {
   shippingMethod: string;
   tracking?: { carrier: string; number: string; url?: string };
   history: OrderEvent[];
+  /** Regular products, built kits — an order can include both. */
+  kinds: OrderKind[];
+  /** Signed-in customer who placed it, if any. */
+  customerId?: string;
+  /** Private note for the shop team; never shown to the customer. */
+  staffNote?: string;
+}
+
+/* ------------------------------- Inbox ------------------------------- */
+
+export interface Enquiry {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject: string;
+  message: string;
+  receivedAt: string;
+  status: "new" | "replied" | "closed";
+}
+
+export interface CustomRequest {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  occasion: string;
+  eventDate?: string;
+  quantity: number;
+  budget: string;
+  details: string;
+  receivedAt: string;
+  status: "new" | "quoted" | "accepted" | "declined";
 }

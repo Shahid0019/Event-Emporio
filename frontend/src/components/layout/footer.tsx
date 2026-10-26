@@ -3,32 +3,15 @@ import { ArrowUpRight } from "lucide-react";
 import { Logo } from "@/components/ui/primitives";
 import { getCategories } from "@/lib/catalog";
 import { storeSettings } from "@/lib/data/settings";
+import { loadSettings } from "@/lib/db/queries";
 import { footerNav } from "@/lib/site";
-import { NewsletterForm } from "./newsletter-form";
 
 export async function Footer() {
-  const categories = await getCategories();
-  const { contact, social, location } = storeSettings;
+  const [categories, { contact }] = await Promise.all([getCategories(), loadSettings()]);
+  const { social, location } = storeSettings;
 
   return (
     <footer>
-      <section aria-labelledby="newsletter-title" className="bg-surface">
-        <div className="container-luxe grid items-end gap-10 py-20 lg:grid-cols-12 lg:py-24">
-          <div className="lg:col-span-6">
-            <p className="eyebrow text-accent-ink">The guest list</p>
-            <h2 id="newsletter-title" className="mt-5 text-h2">
-              First to know, <em className="text-brand">first to gift.</em>
-            </h2>
-            <p className="mt-5 max-w-md leading-relaxed text-muted">
-              New collections, seasonal edits and studio announcements — delivered occasionally, never spam.
-            </p>
-          </div>
-          <div className="lg:col-span-5 lg:col-start-8">
-            <NewsletterForm idPrefix="footer-nl" />
-          </div>
-        </div>
-      </section>
-
       <div className="bg-brand-deep text-canvas">
         <div className="container-luxe pt-20 pb-10 sm:pt-24">
           <div className="grid gap-14 lg:grid-cols-12 lg:gap-10">
@@ -69,9 +52,9 @@ export async function Footer() {
             <div>
               <p className="eyebrow mb-3 text-accent">Visit</p>
               <address className="not-italic leading-relaxed text-canvas/80">
-                {contact.addressLine && (
+                {contact.address && (
                   <>
-                    {contact.addressLine}
+                    {contact.address}
                     <br />
                   </>
                 )}
@@ -121,7 +104,6 @@ export async function Footer() {
           <div className="mt-14 flex flex-col gap-4 border-t border-canvas/15 pt-8 text-[0.75rem] text-canvas/60 md:flex-row md:items-center md:justify-between">
             <p>© {storeSettings.name}. All rights reserved.</p>
             <p>Secure online payments via Razorpay · Prices in INR</p>
-            {storeSettings.isDemo && <p className="text-canvas/50">Demo storefront — products, prices and imagery are placeholders.</p>}
           </div>
         </div>
       </div>

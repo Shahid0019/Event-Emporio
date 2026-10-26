@@ -1,10 +1,11 @@
 import { z } from "zod";
-import { findCoupon } from "./data/content";
-import { products } from "./data/products";
-import { storeSettings } from "./data/settings";
+import { getDb, plain, plainAll } from "./db/client";
+import { loadSettings } from "./db/queries";
 import { computeTotals, evaluateCoupon, lineCap } from "./pricing";
-import type { OrderTotals } from "./types";
-import { variantLabel } from "./utils";
+import { shippingPrice, type ShippingMethodId } from "./settings";
+import type { Coupon, OrderTotals, Product } from "./types";
+import { KIT_MAX_PER_ORDER } from "./kit/config";
+import { formatPrice, variantLabel } from "./utils";
 
 export const quoteRequestSchema = z.object({
   lines: z
@@ -13,12 +14,17 @@ export const quoteRequestSchema = z.object({
         productId: z.string().max(40),
         variantId: z.string().max(60),
         quantity: z.number().int().min(1).max(100000),
+        /** Part of a kit: bought in bulk, so only stock limits it (giveaways for every guest). */
+        inKit: z.boolean().optional(),
       }),
     )
     .min(1)
-    .max(50),
+    // Kits add one line per item (up to ~20 each), so allow a few kits plus single products.
+    .max(200),
   couponCode: z.string().trim().max(30).optional(),
   shippingMethod: z.enum(["standard", "express"]).default("standard"),
+  /** Also list the shop's coupons, each checked against this bag (for the coupon picker). */
+  includeOffers: z.boolean().optional(),
 });
 
 export type QuoteRequest = z.input<typeof quoteRequestSchema>;
@@ -31,6 +37,23 @@ export interface QuoteLine {
   unitPrice: number;
   quantity: number;
   available: number;
+  categorySlug: string;
+  /** Position of this line in the request (lines that can't be sold are skipped). */
+  index: number;
+}
+
+/** A coupon as the bag lists it, already checked against the shopper's items. */
+export interface CouponOffer {
+  code: string;
+  /** "10% off" or "₹200 off" */
+  headline: string;
+  /** "On orders over ₹999 · Up to ₹500 off · Ends 31 Dec" */
+  details: string;
+  applies: boolean;
+  /** What it takes off this bag, when it applies. */
+  saving?: number;
+  /** Why it doesn't apply yet, e.g. "Add items worth ₹999 or more to use this code." */
+  reason?: string;
 }
 
 export interface Quote {
@@ -39,19 +62,37 @@ export interface Quote {
   totals: OrderTotals;
   couponError?: string;
   couponApplied?: string;
+  /** Only when asked for with `includeOffers`. Codes that apply come first, biggest saving first. */
+  offers?: CouponOffer[];
+}
+
+export async function findCouponByCode(code: string): Promise<Coupon | undefined> {
+  const db = await getDb();
+  return plain<Coupon>(await db.collection("coupons").findOne({ code: code.trim().toUpperCase() })) ?? undefined;
 }
 
 /**
- * Builds an authoritative quote from trusted catalogue data. Only product
- * and variant IDs and quantities come from the client; every price, stock
- * level, discount and shipping charge is looked up or computed here.
+ * Builds an authoritative quote from the database. Only product and variant
+ * ids and quantities come from the browser; every price, stock level,
+ * discount and shipping charge is looked up or computed here. Reads
+ * products fresh (not cached) so stock is current.
  */
-export function buildQuote(input: z.infer<typeof quoteRequestSchema>, now = new Date()): Quote {
-  const issues: Quote["issues"] = [];
-  const lines: (QuoteLine & { categorySlug: string })[] = [];
+export async function buildQuote(input: z.infer<typeof quoteRequestSchema>, now = new Date()): Promise<Quote> {
+  const db = await getDb();
+  const ids = [...new Set(input.lines.map((l) => l.productId))];
+  const [products, settings] = await Promise.all([
+    db
+      .collection("products")
+      .find({ _id: { $in: ids as never[] }, status: "active" })
+      .toArray()
+      .then((docs) => plainAll<Product>(docs)),
+    loadSettings(),
+  ]);
 
-  for (const requested of input.lines) {
-    const product = products.find((p) => p.id === requested.productId && p.status === "active");
+  const issues: Quote["issues"] = [];
+  const lines: QuoteLine[] = [];
+  for (const [index, requested] of input.lines.entries()) {
+    const product = products.find((p) => p.id === requested.productId);
     const variant = product?.variants.find((v) => v.id === requested.variantId);
     if (!product || !variant) {
       issues.push({ variantId: requested.variantId, message: "This item is no longer available and was left out." });
@@ -61,7 +102,10 @@ export function buildQuote(input: z.infer<typeof quoteRequestSchema>, now = new 
       issues.push({ variantId: variant.id, message: `${product.name} is now out of stock.` });
       continue;
     }
-    const quantity = Math.min(requested.quantity, lineCap(variant.stock, product.maxPerOrder));
+    const cap = requested.inKit
+      ? Math.min(variant.stock, Math.max(product.maxPerOrder ?? 0, KIT_MAX_PER_ORDER))
+      : lineCap(variant.stock, product.maxPerOrder);
+    const quantity = Math.min(requested.quantity, cap);
     if (quantity < requested.quantity) {
       const message =
         quantity === variant.stock
@@ -78,29 +122,59 @@ export function buildQuote(input: z.infer<typeof quoteRequestSchema>, now = new 
       quantity,
       available: variant.stock,
       categorySlug: product.categorySlug,
+      index,
     });
   }
 
-  const method = storeSettings.shipping.methods.find((m) => m.id === input.shippingMethod) ?? storeSettings.shipping.methods[0];
-  const coupon = input.couponCode ? evaluateCoupon(findCoupon(input.couponCode), lines, now) : null;
+  const coupon = input.couponCode ? evaluateCoupon(await findCouponByCode(input.couponCode), lines, now) : null;
   const totals = computeTotals(lines, coupon?.ok ? coupon.discount : 0, {
-    methodPrice: method.price,
-    freeShippingThreshold: storeSettings.shipping.freeShippingThreshold,
+    methodPrice: shippingPrice(settings, input.shippingMethod as ShippingMethodId),
+    freeShippingThreshold: settings.shipping.freeShippingThreshold,
   });
 
   return {
-    lines: lines.map((line) => ({
-      productId: line.productId,
-      variantId: line.variantId,
-      name: line.name,
-      variantLabel: line.variantLabel,
-      unitPrice: line.unitPrice,
-      quantity: line.quantity,
-      available: line.available,
-    })),
+    lines,
     issues,
     totals,
     couponApplied: coupon?.ok ? coupon.coupon.code : undefined,
     couponError: coupon && !coupon.ok ? coupon.reason : undefined,
+    ...(input.includeOffers && { offers: await listOffers(lines, now) }),
   };
+}
+
+/**
+ * The shop's public coupons that can be used now, each checked against the
+ * bag with the same rules checkout uses. Private codes, used-up or
+ * out-of-date ones aren't listed.
+ */
+async function listOffers(lines: QuoteLine[], now: Date): Promise<CouponOffer[]> {
+  const db = await getDb();
+  const coupons = plainAll<Coupon>(
+    await db
+      .collection("coupons")
+      .find({ isActive: true, showInBag: { $ne: false } })
+      .toArray(),
+  );
+  const ends = (iso: string) => new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
+
+  return coupons
+    .filter(
+      (c) => now >= new Date(c.startsAt) && now <= new Date(c.expiresAt) && (c.usageLimit === undefined || c.usedCount < c.usageLimit),
+    )
+    .map((c): CouponOffer => {
+      const result = evaluateCoupon(c, lines, now);
+      const details = [
+        c.minSubtotal > 0 && `On orders over ${formatPrice(c.minSubtotal)}`,
+        c.type === "percentage" && c.maxDiscount && `Up to ${formatPrice(c.maxDiscount)} off`,
+        `Ends ${ends(c.expiresAt)}`,
+      ].filter(Boolean);
+      return {
+        code: c.code,
+        headline: c.type === "percentage" ? `${c.value}% off` : `${formatPrice(c.value)} off`,
+        details: details.join(" · "),
+        applies: result.ok,
+        ...(result.ok ? { saving: result.discount } : { reason: result.reason }),
+      };
+    })
+    .sort((a, b) => Number(b.applies) - Number(a.applies) || (b.saving ?? 0) - (a.saving ?? 0) || a.code.localeCompare(b.code));
 }

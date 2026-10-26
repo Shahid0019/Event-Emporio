@@ -8,6 +8,7 @@ import { Download, Plus } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Select } from "@/components/ui/field";
 import { Badge } from "@/components/ui/primitives";
+import { isKitProduct } from "@/lib/kit/kit-product";
 import { adminStore, updateAdmin } from "@/lib/store/admin-store";
 import type { Product, ProductStatus } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
@@ -16,7 +17,9 @@ import { AdminHeader, DataTable, downloadCsv, type Column } from "./admin-ui";
 const statusTone = { active: "success", draft: "muted", archived: "danger" } as const;
 
 export function ProductsAdmin() {
-  const { products, categories } = adminStore.useStore();
+  const { products: allProducts, categories } = adminStore.useStore();
+  // Kit products have their own section (Kit products); this list is everyday products only.
+  const products = allProducts.filter((p) => !isKitProduct(p));
   const [status, setStatus] = useState<"all" | ProductStatus>("all");
   const [category, setCategory] = useState("all");
 
@@ -119,6 +122,7 @@ export function ProductsAdmin() {
         rowKey={(p) => p.id}
         searchText={(p) => `${p.name} ${p.sku} ${p.variants.map((v) => v.sku).join(" ")}`}
         searchPlaceholder="Search name or SKU"
+        empty="No products match. Kit items are under Kit products."
         selectable
         initialSort={{ key: "name", dir: "asc" }}
         toolbar={

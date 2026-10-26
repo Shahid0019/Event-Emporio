@@ -1,28 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, Send } from "lucide-react";
 import { OrderDetail } from "@/components/account/order-detail";
 import { Button } from "@/components/ui/button";
 import { Field, fieldAria, Input, Select, Textarea } from "@/components/ui/field";
-import { DemoNote } from "@/components/ui/primitives";
-import { orderStore } from "@/lib/store";
+import { sendJson } from "@/lib/api-client";
+import { sessionStore } from "@/lib/store";
 import type { Order } from "@/lib/types";
 import { contactSchema, customOrderSchema, trackOrderSchema } from "@/lib/validations";
-
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function Submitted({ title, children, onReset }: { title: string; children: React.ReactNode; onReset: () => void }) {
   return (
     <div role="status" className="rounded-card border border-line bg-surface p-8 sm:p-10">
       <CheckCircle2 className="size-8 stroke-[1.5] text-success" />
-      <h2 className="mt-6 font-serif text-3xl">{title}</h2>
+      <h2 className="mt-6 font-serif text-3xl">{title}</h2>cd
       <div className="mt-3 leading-relaxed text-muted">{children}</div>
-      <DemoNote className="mt-6">Nothing was sent — enquiries are delivered by email once the backend is connected.</DemoNote>
       <button type="button" onClick={onReset} className="mt-6 text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline">
         Send another
       </button>
@@ -31,24 +29,43 @@ function Submitted({ title, children, onReset }: { title: string; children: Reac
 }
 
 /* --------------------------------- Contact ------------------------------- */
+const topics = [
+  { value: "product", label: "A product", placeholder: "Which product, and what would you like to know?" },
+  { value: "order", label: "My order", placeholder: "Your order number (e.g. EE2600123) and how we can help." },
+  { value: "custom", label: "Custom or bulk", placeholder: "The occasion, rough quantity and date — we'll take it from there." },
+  { value: "other", label: "Something else", placeholder: "How can we help?" },
+] as const;
+
 export function ContactForm() {
-  const [done, setDone] = useState<string | null>(null);
-  const { register, handleSubmit, reset, formState } = useForm<z.input<typeof contactSchema>>({
+  const [done, setDone] = useState<{ name: string; email: string } | null>(null);
+  const { register, handleSubmit, reset, formState, control, getValues, setValue } = useForm<z.input<typeof contactSchema>>({
     resolver: zodResolver(contactSchema),
-    defaultValues: { subject: "product" },
+    defaultValues: { subject: "product", name: "", email: "", phone: "", message: "" },
   });
   const e = formState.errors;
+  const [subject, message] = useWatch({ control, name: ["subject", "message"] });
+  const topic = topics.find((t) => t.value === subject) ?? topics[0];
+
+  // Signed-in customers don't retype their name and email.
+  const user = sessionStore.useStore();
+  useEffect(() => {
+    if (!user) return;
+    if (!getValues("name")) setValue("name", user.name);
+    if (!getValues("email")) setValue("email", user.email);
+    if (!getValues("phone") && user.phone) setValue("phone", user.phone);
+  }, [user, getValues, setValue]);
 
   if (done) {
     return (
       <Submitted
         title="Message received"
         onReset={() => {
-          reset();
+          reset({ subject: "product", name: done.name, email: done.email, phone: getValues("phone"), message: "" });
           setDone(null);
         }}
       >
-        Thank you, {done}. We&apos;ll reply to your email as soon as we can.
+        Thank you, {done.name.split(" ")[0]}. We&apos;ll reply to <span className="font-medium text-ink">{done.email}</span> as soon as we
+        can.
       </Submitted>
     );
   }
@@ -56,43 +73,65 @@ export function ContactForm() {
   return (
     <form
       noValidate
-      className="grid gap-5 sm:grid-cols-2"
+      aria-label="Contact"
+      className="grid gap-6 sm:grid-cols-2"
       onSubmit={handleSubmit(async (v) => {
-        await wait(600);
-        setDone(v.name.split(" ")[0]);
+        const res = await sendJson("/api/forms/contact", v);
+        if (!res.ok) {
+          toast.error(res.error);
+          return;
+        }
+        setDone({ name: v.name.trim(), email: v.email.trim() });
       })}
     >
+      <fieldset className="sm:col-span-2">
+        <legend className="mb-3 text-[0.85rem] font-medium">What&apos;s it about?</legend>
+        <div className="flex flex-wrap gap-2">
+          {topics.map((t) => (
+            <label key={t.value} className="cursor-pointer">
+              <input type="radio" value={t.value} className="peer sr-only" {...register("subject")} />
+              <span className="inline-flex min-h-11 items-center rounded-full border border-line-strong px-4 text-[0.88rem] transition-colors hover:border-ink peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink">
+                {t.label}
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
       <Field label="Full name" htmlFor="c-name" error={e.name?.message}>
         <Input autoComplete="name" {...fieldAria("c-name", e.name?.message)} {...register("name")} />
       </Field>
-      <Field label="Email" htmlFor="c-email" error={e.email?.message}>
-        <Input type="email" autoComplete="email" {...fieldAria("c-email", e.email?.message)} {...register("email")} />
+      <Field label="Email" htmlFor="c-email" error={e.email?.message} hint={e.email ? undefined : "We'll reply here"}>
+        <Input type="email" autoComplete="email" {...fieldAria("c-email", e.email?.message, !e.email)} {...register("email")} />
       </Field>
-      <Field label="Mobile number" htmlFor="c-phone" optional error={e.phone?.message}>
-        <Input type="tel" autoComplete="tel" {...fieldAria("c-phone", e.phone?.message)} {...register("phone")} />
+      <Field label="Mobile number" htmlFor="c-phone" optional error={e.phone?.message} className="sm:col-span-2">
+        <Input type="tel" inputMode="tel" autoComplete="tel" {...fieldAria("c-phone", e.phone?.message)} {...register("phone")} />
       </Field>
-      <Field label="Topic" htmlFor="c-subject" error={e.subject?.message}>
-        <Select {...fieldAria("c-subject", e.subject?.message)} {...register("subject")}>
-          <option value="product">A product question</option>
-          <option value="order">An existing order</option>
-          <option value="custom">Custom or bulk order</option>
-          <option value="other">Something else</option>
-        </Select>
+      <Field
+        label="Message"
+        htmlFor="c-message"
+        error={e.message?.message}
+        hint={e.message ? undefined : `${(message ?? "").trim().length} / 2000`}
+        className="sm:col-span-2"
+      >
+        <Textarea
+          rows={6}
+          maxLength={2000}
+          placeholder={topic.placeholder}
+          {...fieldAria("c-message", e.message?.message, !e.message)}
+          {...register("message")}
+        />
       </Field>
-      <Field label="Message" htmlFor="c-message" error={e.message?.message} className="sm:col-span-2">
-        <Textarea rows={6} {...fieldAria("c-message", e.message?.message)} {...register("message")} />
-      </Field>
-      <div className="sm:col-span-2">
-        <Button type="submit" size="lg" loading={formState.isSubmitting}>
-          Send message
-        </Button>
-        <p className="mt-4 text-[0.78rem] text-muted">
-          We use your details only to respond to this enquiry. See our{" "}
+      <div className="flex flex-col gap-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-[0.78rem] text-muted sm:max-w-sm">
+          We use your details only to reply to this message. See our{" "}
           <Link href="/privacy-policy" className="underline underline-offset-4">
             privacy policy
           </Link>
           .
         </p>
+        <Button type="submit" size="lg" loading={formState.isSubmitting} className="sm:shrink-0">
+          <Send /> Send message
+        </Button>
       </div>
     </form>
   );
@@ -130,7 +169,11 @@ export function CustomOrderForm() {
       noValidate
       className="grid gap-5 sm:grid-cols-2"
       onSubmit={handleSubmit(async (v) => {
-        await wait(700);
+        const res = await sendJson("/api/forms/custom-order", v);
+        if (!res.ok) {
+          toast.error(res.error);
+          return;
+        }
         setDone(v.name.split(" ")[0]);
       })}
     >
@@ -201,13 +244,12 @@ export function TrackOrderForm() {
       <form
         noValidate
         className="grid gap-5 sm:grid-cols-[1fr_1fr_auto] sm:items-start"
-        onSubmit={handleSubmit(async ({ orderNumber, email }) => {
-          await wait(500);
+        onSubmit={handleSubmit(async (v) => {
           // Both values must match — an order number alone never reveals order details.
-          const found = orderStore
-            .get()
-            .find((o) => o.number.toLowerCase() === orderNumber.trim().toLowerCase() && o.customer.email.toLowerCase() === email);
-          setResult(found ?? "missing");
+          const res = await sendJson<{ order: Order }>("/api/orders/track", v);
+          if (res.ok) setResult(res.data.order);
+          else if (res.status === 404) setResult("missing");
+          else toast.error(res.error);
         })}
       >
         <Field label="Order number" htmlFor="t-number" error={e.orderNumber?.message}>

@@ -1,4 +1,4 @@
-import type { ProductSummary } from "@/lib/catalog";
+import type { ProductSummary } from "@/lib/catalog-shared";
 import { cn } from "@/lib/utils";
 import { ProductCard } from "./product-card";
 

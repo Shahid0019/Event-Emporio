@@ -9,9 +9,9 @@ import { toast } from "sonner";
 import type { z } from "zod";
 import { Eye, EyeOff, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox, Field, fieldAria, Input } from "@/components/ui/field";
-import { DemoNote } from "@/components/ui/primitives";
-import { signIn } from "@/lib/store";
+import { Field, fieldAria, Input } from "@/components/ui/field";
+import { sendJson } from "@/lib/api-client";
+import { signIn, type SessionUser } from "@/lib/store";
 import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "@/lib/validations";
 
 /** Only allow same-site relative redirects (prevents open-redirects via ?next=). */
@@ -20,9 +20,26 @@ function safeNext(fallback = "/account") {
   return next && next.startsWith("/") && !next.startsWith("//") ? next : fallback;
 }
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+/** Sign in ↔ create account, keeping where the shopper was heading (e.g. back to write a review). */
+function SwitchLink({ href, children }: { href: "/login" | "/register"; children: React.ReactNode }) {
+  const router = useRouter();
+  return (
+    <Link
+      href={href}
+      onClick={(e) => {
+        const next = safeNext("");
+        if (!next) return;
+        e.preventDefault();
+        router.push(`${href}?next=${encodeURIComponent(next)}`);
+      }}
+      className="text-ink underline underline-offset-4"
+    >
+      {children}
+    </Link>
+  );
+}
 
-function PasswordInput({ id, error, autoComplete, ...props }: React.ComponentProps<"input"> & { id: string; error?: string }) {
+export function PasswordInput({ id, error, autoComplete, ...props }: React.ComponentProps<"input"> & { id: string; error?: string }) {
   const [visible, setVisible] = useState(false);
   return (
     <div className="relative">
@@ -39,7 +56,7 @@ function PasswordInput({ id, error, autoComplete, ...props }: React.ComponentPro
   );
 }
 
-function AuthHeading({ eyebrow, title, children }: { eyebrow: string; title: React.ReactNode; children?: React.ReactNode }) {
+export function AuthHeading({ eyebrow, title, children }: { eyebrow: string; title: React.ReactNode; children?: React.ReactNode }) {
   return (
     <div className="mb-10">
       <p className="eyebrow text-accent-ink">{eyebrow}</p>
@@ -49,26 +66,20 @@ function AuthHeading({ eyebrow, title, children }: { eyebrow: string; title: Rea
   );
 }
 
-const demoNotice = (
-  <DemoNote className="mt-8">
-    Demo mode: accounts are simulated in this browser. Real sign-in uses secure HTTP-only sessions once the backend is connected.
-  </DemoNote>
-);
-
 /* --------------------------------- Login -------------------------------- */
 export function LoginForm() {
   const router = useRouter();
-  const { register, handleSubmit, formState } = useForm<z.input<typeof loginSchema>>({ resolver: zodResolver(loginSchema) });
+  const { register, handleSubmit, formState, setError } = useForm<z.input<typeof loginSchema>>({ resolver: zodResolver(loginSchema) });
   const { errors, isSubmitting } = formState;
 
-  const onSubmit = handleSubmit(async ({ email }) => {
-    await wait(500);
-    const name = email
-      .split("@")[0]
-      .replace(/[._-]+/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase());
-    signIn({ name, email });
-    toast.success("Welcome back");
+  const onSubmit = handleSubmit(async (values) => {
+    const res = await sendJson<{ user: SessionUser }>("/api/account/login", values);
+    if (!res.ok) {
+      setError("password", { message: res.error });
+      return;
+    }
+    signIn(res.data.user);
+    toast.success(`Welcome back, ${res.data.user.name.split(" ")[0]}`);
     router.replace(safeNext());
   });
 
@@ -99,12 +110,8 @@ export function LoginForm() {
         </Button>
       </form>
       <p className="mt-8 text-center text-[0.9rem] text-muted">
-        New to Events Emporio?{" "}
-        <Link href="/register" className="text-ink underline underline-offset-4">
-          Create an account
-        </Link>
+        New to Events Emporio? <SwitchLink href="/register">Create an account</SwitchLink>
       </p>
-      {demoNotice}
     </>
   );
 }
@@ -112,15 +119,19 @@ export function LoginForm() {
 /* -------------------------------- Register ------------------------------ */
 export function RegisterForm() {
   const router = useRouter();
-  const { register, handleSubmit, formState } = useForm<z.input<typeof registerSchema>>({
+  const { register, handleSubmit, formState, setError } = useForm<z.input<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
     mode: "onTouched",
   });
   const { errors, isSubmitting } = formState;
 
-  const onSubmit = handleSubmit(async ({ name, email }) => {
-    await wait(600);
-    signIn({ name, email });
+  const onSubmit = handleSubmit(async (values) => {
+    const res = await sendJson<{ user: SessionUser }>("/api/account/register", values);
+    if (!res.ok) {
+      setError(res.status === 409 ? "email" : "password", { message: res.error });
+      return;
+    }
+    signIn(res.data.user);
     toast.success("Your account is ready", { description: "Welcome to Events Emporio." });
     router.replace(safeNext());
   });
@@ -160,18 +171,13 @@ export function RegisterForm() {
             {...register("confirmPassword")}
           />
         </Field>
-        <Checkbox label="Email me about new collections (optional)" {...register("marketing")} />
         <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
           Create account
         </Button>
       </form>
       <p className="mt-8 text-center text-[0.9rem] text-muted">
-        Already have an account?{" "}
-        <Link href="/login" className="text-ink underline underline-offset-4">
-          Sign in
-        </Link>
+        Already have an account? <SwitchLink href="/login">Sign in</SwitchLink>
       </p>
-      {demoNotice}
     </>
   );
 }
@@ -179,14 +185,18 @@ export function RegisterForm() {
 /* ----------------------------- Forgot password -------------------------- */
 export function ForgotPasswordForm() {
   const [sentTo, setSentTo] = useState<string | null>(null);
-  const { register, handleSubmit, formState } = useForm<z.input<typeof forgotPasswordSchema>>({
+  const { register, handleSubmit, formState, setError } = useForm<z.input<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
   });
   const { errors, isSubmitting } = formState;
 
-  const onSubmit = handleSubmit(async ({ email }) => {
-    await wait(600);
-    setSentTo(email);
+  const onSubmit = handleSubmit(async (values) => {
+    const res = await sendJson("/api/account/password/forgot", values);
+    if (!res.ok) {
+      setError("email", { message: res.error });
+      return;
+    }
+    setSentTo(values.email);
   });
 
   if (sentTo) {
@@ -203,7 +213,6 @@ export function ForgotPasswordForm() {
         <Link href="/login" className="mt-10 inline-block text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline">
           Back to sign in
         </Link>
-        {demoNotice}
       </div>
     );
   }
@@ -234,14 +243,19 @@ export function ForgotPasswordForm() {
 /* ------------------------------ Reset password -------------------------- */
 export function ResetPasswordForm() {
   const router = useRouter();
-  const { register, handleSubmit, formState } = useForm<z.input<typeof resetPasswordSchema>>({
+  const { register, handleSubmit, formState, setError } = useForm<z.input<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
     mode: "onTouched",
   });
   const { errors, isSubmitting } = formState;
 
-  const onSubmit = handleSubmit(async () => {
-    await wait(600);
+  const onSubmit = handleSubmit(async (values) => {
+    const token = new URLSearchParams(window.location.search).get("token") ?? "";
+    const res = await sendJson("/api/account/password/reset", { ...values, token });
+    if (!res.ok) {
+      setError("password", { message: res.error });
+      return;
+    }
     toast.success("Password updated", { description: "You can now sign in with your new password." });
     router.replace("/login");
   });
@@ -270,7 +284,6 @@ export function ResetPasswordForm() {
           Update password
         </Button>
       </form>
-      {demoNotice}
     </>
   );
 }

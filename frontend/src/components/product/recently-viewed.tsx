@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { ProductSummary } from "@/lib/catalog";
+import type { ProductSummary } from "@/lib/catalog-shared";
 import { recentStore } from "@/lib/store";
 import { ProductRail } from "./product-rail";
 

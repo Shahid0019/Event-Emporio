@@ -1,4 +1,4 @@
-import type { OrderStatus, PaymentStatus } from "./types";
+import type { Order, OrderStatus, PaymentStatus } from "./types";
 
 /** Allowed fulfilment transitions. Anything not listed is rejected. */
 const transitions: Record<OrderStatus, OrderStatus[]> = {
@@ -38,6 +38,14 @@ export const paymentStatusLabel: Record<PaymentStatus, string> = {
   failed: "Failed",
   refunded: "Refunded",
 };
+
+/** A placed cash-on-delivery order whose cash hasn't been collected yet. */
+export const cashDue = (o: Pick<Order, "paymentMethod" | "paymentStatus" | "status">) =>
+  o.paymentMethod === "cod" && o.paymentStatus === "pending" && o.status !== "pending" && o.status !== "cancelled";
+
+/** Payment status as people read it: an unpaid COD order is "Cash on delivery", not "Awaiting payment". */
+export const paymentLabel = (o: Pick<Order, "paymentMethod" | "paymentStatus" | "status">) =>
+  cashDue(o) ? "Cash on delivery" : paymentStatusLabel[o.paymentStatus];
 
 /** The customer-facing progress steps, in order. */
 export const fulfilmentSteps: OrderStatus[] = ["confirmed", "processing", "shipped", "delivered"];

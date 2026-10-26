@@ -4,7 +4,6 @@ export const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:30
 export const mainNav = [
   { label: "Home", href: "/" },
   { label: "Shop", href: "/shop", mega: true },
-  { label: "Collections", href: "/collections" },
   { label: "Wedding Essentials", href: "/category/wedding-essentials" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },

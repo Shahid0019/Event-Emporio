@@ -11,12 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Field, fieldAria, Input, Select, Textarea } from "@/components/ui/field";
 import { Badge } from "@/components/ui/primitives";
 import { Sheet } from "@/components/ui/sheet";
-import { demoImage } from "@/lib/data/images";
 import { adminStore, updateAdmin } from "@/lib/store/admin-store";
-import type { Category, Collection } from "@/lib/types";
+import type { Category, ImageAsset } from "@/lib/types";
 import { formatDateTime, slugify, variantLabel, newId } from "@/lib/utils";
 import { categoryFormSchema } from "@/lib/validations";
 import { AdminHeader, ConfirmAction, DataTable, Panel, Toggle, type Column } from "./admin-ui";
+import { ImageField } from "./image-upload";
 
 /* -------------------------------- Categories ----------------------------- */
 type CategoryValues = z.input<typeof categoryFormSchema>;
@@ -138,6 +138,7 @@ export function CategoriesAdmin() {
 
 function CategoryForm({ category, parents, onDone }: { category?: Category; parents: Category[]; onDone: () => void }) {
   const [isActive, setIsActive] = useState(category?.isActive ?? true);
+  const [image, setImage] = useState<ImageAsset | undefined>(category?.image);
   const { register, handleSubmit, formState, setValue, getValues, setError } = useForm<
     CategoryValues,
     unknown,
@@ -161,6 +162,10 @@ function CategoryForm({ category, parents, onDone }: { category?: Category; pare
       noValidate
       className="space-y-5"
       onSubmit={handleSubmit((v) => {
+        if (!image) {
+          toast.error("Add a category image");
+          return;
+        }
         if (adminStore.get().categories.some((c) => c.slug === v.slug && c.id !== category?.id)) {
           setError("slug", { message: "Slug already in use" });
           return;
@@ -171,7 +176,7 @@ function CategoryForm({ category, parents, onDone }: { category?: Category; pare
             slug: v.slug,
             name: v.name,
             description: v.description,
-            image: category?.image ?? demoImage("gift-boxes-white", v.name),
+            image: { ...image, alt: image.alt.trim() || v.name },
             parentId: v.parentId || null,
             displayOrder: v.displayOrder,
             isActive,
@@ -190,6 +195,15 @@ function CategoryForm({ category, parents, onDone }: { category?: Category; pare
         onDone();
       })}
     >
+      <ImageField
+        id="cat-image"
+        label="Category image"
+        value={image}
+        onChange={setImage}
+        folder="categories"
+        aspect="aspect-[4/5]"
+        removable={false}
+      />
       <Field label="Name" htmlFor="cat-name" error={e.name?.message}>
         <Input
           {...fieldAria("cat-name", e.name?.message)}
@@ -228,119 +242,6 @@ function CategoryForm({ category, parents, onDone }: { category?: Category; pare
         Save category
       </Button>
     </form>
-  );
-}
-
-/* -------------------------------- Collections ---------------------------- */
-export function CollectionsAdmin() {
-  const { collections, products } = adminStore.useStore();
-  const [editing, setEditing] = useState<Collection | "new" | null>(null);
-  const [draft, setDraft] = useState({ name: "", tagline: "", description: "", isFeatured: false });
-
-  const open = (c: Collection | "new") => {
-    setEditing(c);
-    setDraft(
-      c === "new"
-        ? { name: "", tagline: "", description: "", isFeatured: false }
-        : { name: c.name, tagline: c.tagline, description: c.description, isFeatured: c.isFeatured },
-    );
-  };
-
-  return (
-    <>
-      <AdminHeader
-        title="Collections"
-        description="Curated edits shown on /collections and in the menu."
-        actions={
-          <Button size="sm" onClick={() => open("new")}>
-            <Plus /> Add collection
-          </Button>
-        }
-      />
-      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {collections.map((c) => (
-          <article key={c.id} className="overflow-hidden rounded-card border border-line bg-raised">
-            <div className="relative aspect-[4/3] bg-surface">
-              <Image src={c.image.src} alt="" fill sizes="(min-width: 1280px) 20vw, 45vw" className="object-cover" />
-            </div>
-            <div className="p-4">
-              <div className="flex items-start justify-between gap-2">
-                <h2 className="font-medium">{c.name}</h2>
-                {c.isFeatured && <Badge tone="accent">Featured</Badge>}
-              </div>
-              <p className="mt-1 text-[0.8rem] text-muted">
-                {products.filter((p) => p.collectionSlugs.includes(c.slug)).length} products · /collections/{c.slug}
-              </p>
-              <Button variant="outline" size="sm" className="mt-4" onClick={() => open(c)}>
-                <Pencil /> Edit
-              </Button>
-            </div>
-          </article>
-        ))}
-      </div>
-      <Sheet
-        open={editing !== null}
-        onOpenChange={(o) => !o && setEditing(null)}
-        title={editing === "new" ? "New collection" : "Edit collection"}
-      >
-        <form
-          className="space-y-5"
-          onSubmit={(ev) => {
-            ev.preventDefault();
-            if (draft.name.trim().length < 2) {
-              toast.error("Name is required");
-              return;
-            }
-            updateAdmin((d) => {
-              if (editing === "new") {
-                d.collections.push({
-                  id: newId("col"),
-                  slug: slugify(draft.name),
-                  name: draft.name.trim(),
-                  tagline: draft.tagline.trim(),
-                  description: draft.description.trim(),
-                  image: demoImage("gift-gold-ribbon", draft.name),
-                  isFeatured: draft.isFeatured,
-                  displayOrder: d.collections.length + 1,
-                });
-              } else if (editing) {
-                Object.assign(
-                  d.collections.find((x) => x.id === editing.id)!,
-                  { ...draft, name: draft.name.trim() },
-                );
-              }
-            });
-            toast.success("Collection saved");
-            setEditing(null);
-          }}
-        >
-          <Field label="Name" htmlFor="col-name">
-            <Input id="col-name" value={draft.name} onChange={(e) => setDraft({ ...draft, name: e.target.value })} />
-          </Field>
-          <Field label="Tagline" htmlFor="col-tag">
-            <Input id="col-tag" value={draft.tagline} onChange={(e) => setDraft({ ...draft, tagline: e.target.value })} />
-          </Field>
-          <Field label="Description" htmlFor="col-desc">
-            <Textarea
-              id="col-desc"
-              rows={4}
-              value={draft.description}
-              onChange={(e) => setDraft({ ...draft, description: e.target.value })}
-            />
-          </Field>
-          <Toggle
-            checked={draft.isFeatured}
-            onChange={(v) => setDraft({ ...draft, isFeatured: v })}
-            label="Featured"
-            description="Eligible for the menu spotlight"
-          />
-          <p className="text-[0.8rem] text-muted">Assign products to collections from each product&apos;s edit page.</p>
-          <Button type="submit" className="w-full">
-            Save collection
-          </Button>
-        </form>
-      </Sheet>
-    </>
   );
 }
 

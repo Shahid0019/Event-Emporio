@@ -1,17 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingBag } from "lucide-react";
+import { ArrowRight, ShoppingBag } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/primitives";
+import { storeSettings } from "@/lib/data/settings";
 import { cartCount, setCartOpen, uiStore } from "@/lib/store";
-import { CartLineItem, CouponForm, TotalsTable } from "./cart-parts";
+import { formatPrice } from "@/lib/utils";
+import { CartEntries, CouponForm, TotalsTable } from "./cart-parts";
 import { useCartTotals } from "./use-cart-totals";
 
 export function CartDrawer() {
   const open = uiStore.useStore((s) => s.cartOpen);
-  const { lines, code, coupon, totals } = useCartTotals();
+  const { lines, code, coupon, offers, totals } = useCartTotals();
   const close = () => setCartOpen(false);
   const count = cartCount(lines);
 
@@ -22,17 +24,30 @@ export function CartDrawer() {
       title={`Your bag${count ? ` (${count})` : ""}`}
       side="right"
       bodyClassName="py-0"
+      headerAction={
+        lines.length > 0 && (
+          <Link
+            href="/cart"
+            onClick={close}
+            className="mr-1 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-muted underline-offset-4 transition-colors hover:text-ink hover:underline"
+          >
+            View bag
+          </Link>
+        )
+      }
       footer={
         lines.length > 0 ? (
-          <div className="space-y-5">
-            <CouponForm coupon={coupon} code={code} />
-            <TotalsTable totals={totals} shippingLabel="Shipping (estimate)" />
-            <div className="grid gap-2">
-              <Link href="/checkout" onClick={close} className={buttonVariants({ size: "lg", className: "w-full" })}>
-                Checkout
-              </Link>
-              <Link href="/cart" onClick={close} className={buttonVariants({ variant: "ghost", size: "md", className: "w-full" })}>
-                View bag
+          <div className="space-y-4">
+            <CouponForm coupon={coupon} code={code} offers={offers} />
+            <TotalsTable totals={totals} shippingLabel="Shipping (estimate)" showTotal={false} />
+            <div className="flex items-center justify-between gap-4 border-t border-line pt-4">
+              <div className="min-w-0">
+                <p className="text-[0.7rem] font-medium uppercase tracking-[0.14em] text-muted">Total</p>
+                <p className="mt-1 font-serif text-[1.6rem] leading-none tabular-nums">{formatPrice(totals.total)}</p>
+                {storeSettings.pricesIncludeTax && <p className="mt-1 text-[0.7rem] text-muted">Incl. taxes</p>}
+              </div>
+              <Link href="/checkout" onClick={close} className={buttonVariants({ size: "md", className: "shrink-0" })}>
+                Checkout <ArrowRight />
               </Link>
             </div>
           </div>
@@ -51,11 +66,7 @@ export function CartDrawer() {
           }
         />
       ) : (
-        <ul className="divide-y divide-line">
-          {lines.map((line) => (
-            <CartLineItem key={line.key} line={line} onNavigate={close} compact />
-          ))}
-        </ul>
+        <CartEntries lines={lines} onNavigate={close} compact />
       )}
     </Sheet>
   );

@@ -35,7 +35,6 @@ export const products: Product[] = [
       "Each basket is arranged by hand, so florals vary slightly from piece to piece.",
     ],
     categorySlug: "mehndi-baskets",
-    collectionSlugs: ["mehndi-night"],
     images: [
       demoImage("rose-basket", "Wicker basket filled with blush roses on a white table"),
       demoImage("mehndi-hands", "Hands decorated with intricate henna patterns"),
@@ -67,7 +66,6 @@ export const products: Product[] = [
       "Pairs beautifully with pastel outfits and spring celebrations.",
     ],
     categorySlug: "mehndi-baskets",
-    collectionSlugs: ["mehndi-night"],
     images: [
       demoImage("lilac-basket", "Woman carrying a woven basket filled with lilac flowers"),
       demoImage("flower-arranging", "Florist arranging flowers in wicker baskets"),
@@ -97,7 +95,6 @@ export const products: Product[] = [
       "Contents can be tailored for larger orders — use the custom order form for quotes above 100 pieces.",
     ],
     categorySlug: "mehndi-baskets",
-    collectionSlugs: ["mehndi-night"],
     images: [
       demoImage("mehndi-celebration", "Bride with friends showing henna-decorated palms"),
       demoImage("mehndi-portrait", "Woman displaying fresh henna on her hands"),
@@ -125,7 +122,6 @@ export const products: Product[] = [
     shortDescription: "A presentation tray for henna cones, rings and small rituals.",
     description: ["A presentation tray to hold henna cones, rings or ceremony essentials, finished for photographs as much as for use."],
     categorySlug: "mehndi-baskets",
-    collectionSlugs: ["mehndi-night", "the-bridal-edit"],
     images: [
       demoImage("mehndi-rings", "Hands with henna exchanging wedding rings"),
       demoImage("mehndi-hands", "Close-up of henna-patterned hands"),
@@ -152,7 +148,6 @@ export const products: Product[] = [
       "Fill it with your own pieces, or ask us to curate the contents for you.",
     ],
     categorySlug: "bridal-hampers",
-    collectionSlugs: ["the-bridal-edit"],
     images: [
       demoImage("gift-candlelight", "Wrapped gift box beside amber candle holders"),
       demoImage("gift-kraft", "Kraft-wrapped box with a black velvet bow"),
@@ -180,7 +175,6 @@ export const products: Product[] = [
     shortDescription: "Two matching ivory boxes tied in black ribbon — one for each family.",
     description: ["A matched pair of ivory hamper boxes tied with black satin, made for exchanging between families."],
     categorySlug: "bridal-hampers",
-    collectionSlugs: ["the-bridal-edit", "thoughtful-gifting"],
     images: [
       demoImage("gift-boxes-white", "Two white gift boxes tied with black ribbon"),
       demoImage("gift-kraft", "Kraft gift with black velvet bow"),
@@ -207,7 +201,6 @@ export const products: Product[] = [
       "Contents vary with seasonal availability; we confirm the selection before dispatch.",
     ],
     categorySlug: "bridal-hampers",
-    collectionSlugs: ["the-bridal-edit"],
     images: [
       demoImage("dry-fruits-brass", "Bowl of mixed nuts with a brass spoon"),
       demoImage("dry-fruits-bowl", "Glass bowl of mixed nuts"),
@@ -235,7 +228,6 @@ export const products: Product[] = [
     shortDescription: "An ornate brass-finish tray with scalloped handles — for sweets, rings or tea.",
     description: ["An ornate brass-finish tray with scalloped edges and handles, made to present sweets, rings or kehwa cups."],
     categorySlug: "wedding-essentials",
-    collectionSlugs: ["the-bridal-edit", "the-celebration-table"],
     images: [
       demoImage("brass-tray", "Ornate brass tray holding biscuits on marble"),
       demoImage("brass-pitcher", "Engraved brass pitcher with dried flowers"),
@@ -261,7 +253,6 @@ export const products: Product[] = [
       "A decorative engraved pitcher with a curved spout — lovely with dried stems, or as a centrepiece on the ceremony table.",
     ],
     categorySlug: "wedding-essentials",
-    collectionSlugs: ["the-celebration-table"],
     images: [demoImage("brass-pitcher", "Engraved brass pitcher holding dried lavender"), demoImage("brass-tray", "Brass tray on marble")],
     options: [],
     variants: single("EE-WE-PITCH", 189900, 0),
@@ -285,7 +276,6 @@ export const products: Product[] = [
       "Assortments change with availability — we'll confirm before dispatch.",
     ],
     categorySlug: "luxury-hampers",
-    collectionSlugs: ["thoughtful-gifting"],
     images: [
       demoImage("chocolates-assorted", "Box of assorted chocolates"),
       demoImage("chocolates-box", "Assorted chocolates in a dark tray"),
@@ -313,7 +303,6 @@ export const products: Product[] = [
     shortDescription: "Pastel macarons in a windowed box, tied with a satin bow.",
     description: ["Pastel macarons in a windowed white box, finished with a satin bow and a gift tag."],
     categorySlug: "luxury-hampers",
-    collectionSlugs: ["thoughtful-gifting", "mehndi-night"],
     images: [
       demoImage("macaron-box", "White box of pastel macarons tied with a pink ribbon"),
       demoImage("macarons-pastel", "Stack of pastel macarons"),
@@ -341,7 +330,6 @@ export const products: Product[] = [
     shortDescription: "Individually wrapped three-macaron favours for guests.",
     description: ["Three-macaron favour stacks, individually wrapped and tied — an easy, elegant thank you for guests."],
     categorySlug: "luxury-hampers",
-    collectionSlugs: ["mehndi-night"],
     images: [demoImage("macarons-stack", "Three pastel macarons stacked"), demoImage("macarons-pastel", "Pastel macarons")],
     options: [{ name: "Pack", values: ["Set of 10", "Set of 25"] }],
     variants: variants("EE-LH-TOWER", [
@@ -366,7 +354,6 @@ export const products: Product[] = [
     shortDescription: "A glass jar candle and reed diffuser, boxed together.",
     description: ["A glass jar candle paired with a reed diffuser in a soft, warm fragrance — boxed and ready to give."],
     categorySlug: "luxury-hampers",
-    collectionSlugs: ["thoughtful-gifting"],
     images: [
       demoImage("candles-diffuser", "Reed diffuser beside two pillar candles"),
       demoImage("candle-jar", "Lit candle inside a glass jar"),
@@ -394,7 +381,6 @@ export const products: Product[] = [
     shortDescription: "A kraft gift box with metallic gold ribbon and a blank card for your message.",
     description: ["A sturdy kraft gift box with metallic gold ribbon and a blank card for your message."],
     categorySlug: "customised-gifts",
-    collectionSlugs: ["thoughtful-gifting"],
     images: [
       demoImage("gift-gold-ribbon", "Kraft gift boxes with gold ribbon and blank card"),
       demoImage("gift-kraft", "Kraft-wrapped gift"),
@@ -425,7 +411,6 @@ export const products: Product[] = [
       "The listed price is a starting point for the base hamper. Personalisation is quoted after we discuss your requirements.",
     ],
     categorySlug: "customised-gifts",
-    collectionSlugs: ["the-bridal-edit", "thoughtful-gifting"],
     images: [
       demoImage("gift-kraft", "Kraft gift box tied with a velvet bow"),
       demoImage("gift-boxes-white", "Ivory gift boxes with black ribbon"),
@@ -449,7 +434,6 @@ export const products: Product[] = [
     shortDescription: "A refined gift box for teams and clients, available in bulk.",
     description: ["A refined gift box for teams and clients. Order up to 20 online — for larger quantities, request a bulk quote."],
     categorySlug: "customised-gifts",
-    collectionSlugs: ["thoughtful-gifting"],
     images: [
       demoImage("gift-boxes-white", "Two ivory gift boxes tied with black ribbon"),
       demoImage("chocolates-teal", "Box of six chocolate truffles"),
@@ -473,7 +457,6 @@ export const products: Product[] = [
     shortDescription: "A long-lasting floral arrangement in blush, red and ivory roses.",
     description: ["A long-lasting arrangement of blush, red and ivory roses, presented in a keepsake box."],
     categorySlug: "customised-gifts",
-    collectionSlugs: ["thoughtful-gifting"],
     images: [
       demoImage("roses-pink", "Bouquet of red, pink and white roses on a pink background"),
       demoImage("florals-vase", "Pink roses and cornflowers in a glass vase"),
@@ -497,7 +480,6 @@ export const products: Product[] = [
     shortDescription: "Soft essentials and keepsakes to welcome a new arrival.",
     description: ["Soft essentials and keepsakes, arranged in a gift box to welcome a new arrival to the family."],
     categorySlug: "luxury-hampers",
-    collectionSlugs: ["thoughtful-gifting"],
     images: [
       demoImage("hamper-newborn", "Baby gift hamper with its contents laid out"),
       demoImage("gift-pink", "Pink gift box with gold ribbon"),
@@ -523,7 +505,6 @@ export const products: Product[] = [
       "Coordinated disposable plates, cups and linen-look napkins in muted, earthy tones — elegant on the table, simple to clear.",
     ],
     categorySlug: "decorative-disposables",
-    collectionSlugs: ["the-celebration-table"],
     images: [
       demoImage("table-setting", "Table dressed with rust linen and ceramic place settings"),
       demoImage("dinner-table", "Long dinner table set with glasses and plates"),
@@ -550,7 +531,6 @@ export const products: Product[] = [
     shortDescription: "Sturdy decorative disposable dinner plates with a subtle gilded rim.",
     description: ["Sturdy disposable dinner plates with a subtle gilded rim — made for full meals at large gatherings."],
     categorySlug: "decorative-disposables",
-    collectionSlugs: ["the-celebration-table"],
     images: [
       demoImage("dinner-table", "Formal dinner table set with plates and glasses"),
       demoImage("table-setting", "Earth-toned table setting"),
@@ -577,7 +557,6 @@ export const products: Product[] = [
     shortDescription: "Taper candles, holders and greenery for a long reception table.",
     description: ["Taper candles, holders and faux greenery to dress a long reception table in warm candlelight."],
     categorySlug: "wedding-essentials",
-    collectionSlugs: ["the-celebration-table"],
     images: [
       demoImage("candlelit-table", "Table lit with taper candles and fairy lights"),
       demoImage("candle-jar", "Candle glowing in a glass jar"),
@@ -601,7 +580,6 @@ export const products: Product[] = [
     shortDescription: "A red gift box with gold satin bow and a tag for your note.",
     description: ["A glossy red gift box with a gold satin bow and a tag for your note — festive, classic, ready to fill."],
     categorySlug: "customised-gifts",
-    collectionSlugs: ["thoughtful-gifting"],
     images: [
       demoImage("gift-red", "Red gift box with gold bow on a dark surface"),
       demoImage("gift-red-tag", "Red gift box with gold ribbon and a tag"),
@@ -625,7 +603,6 @@ export const products: Product[] = [
     shortDescription: "Six hand-finished truffles in a keepsake box.",
     description: ["Six hand-finished truffles in a keepsake box — a small, generous thank you."],
     categorySlug: "luxury-hampers",
-    collectionSlugs: ["thoughtful-gifting"],
     images: [demoImage("chocolates-teal", "Six truffles in a teal box"), demoImage("chocolates-assorted", "Assorted chocolates")],
     options: [],
     variants: single("EE-LH-TRUF", 79900, 18),
@@ -647,7 +624,6 @@ export const products: Product[] = [
     shortDescription: "A full arrangement of roses and cornflowers in a clear glass vase.",
     description: ["A full, romantic arrangement of roses and cornflowers in a clear glass vase — made for head tables."],
     categorySlug: "wedding-essentials",
-    collectionSlugs: ["the-celebration-table"],
     images: [
       demoImage("florals-vase", "Pink roses and blue cornflowers in a glass vase"),
       demoImage("hero-florals", "Lush floral arrangement in deep pink and burgundy"),

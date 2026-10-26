@@ -12,7 +12,6 @@ export function lineCap(stock: number, maxPerOrder?: number): number {
 export interface PricingLine {
   unitPrice: Paise;
   quantity: number;
-  categorySlug?: string;
 }
 
 export interface ShippingRules {
@@ -42,20 +41,16 @@ export function evaluateCoupon(coupon: Coupon | undefined, lines: PricingLine[],
     return { ok: false, reason: "You've already used this code." };
   }
 
-  const eligible = coupon.categorySlugs?.length
-    ? lines.filter((l) => l.categorySlug && coupon.categorySlugs!.includes(l.categorySlug))
-    : lines;
-  const eligibleSubtotal = subtotalOf(eligible);
-
-  if (eligibleSubtotal === 0) return { ok: false, reason: "This code doesn't apply to items in your bag." };
-  if (subtotalOf(lines) < coupon.minSubtotal) {
+  const subtotal = subtotalOf(lines);
+  if (subtotal === 0) return { ok: false, reason: "Add something to your bag to use this code." };
+  if (subtotal < coupon.minSubtotal) {
     return { ok: false, reason: `Add items worth ${formatPrice(coupon.minSubtotal)} or more to use this code.` };
   }
 
-  let discount =
-    coupon.type === "percentage" ? Math.floor((eligibleSubtotal * coupon.value) / 100) : Math.min(coupon.value, eligibleSubtotal);
+  let discount = coupon.type === "percentage" ? Math.floor((subtotal * coupon.value) / 100) : Math.min(coupon.value, subtotal);
 
-  if (coupon.maxDiscount !== undefined) discount = Math.min(discount, coupon.maxDiscount);
+  // A cap of 0 (or none) means no cap.
+  if (coupon.maxDiscount) discount = Math.min(discount, coupon.maxDiscount);
   return { ok: true, coupon, discount };
 }
 

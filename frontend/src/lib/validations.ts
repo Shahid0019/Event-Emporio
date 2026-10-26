@@ -17,11 +17,6 @@ const pincode = z
   .trim()
   .regex(/^[1-9]\d{5}$/, "Enter a valid 6-digit PIN code");
 
-export const newsletterSchema = z.object({
-  email,
-  consent: z.literal(true, { error: "Please confirm you'd like to receive emails" }),
-});
-
 export const addressSchema = z.object({
   fullName: name,
   phone,
@@ -39,6 +34,8 @@ export const checkoutSchema = z.object({
   shipping: addressSchema.omit({ phone: true }),
   deliveryInstructions: z.string().trim().max(300, "Please keep instructions under 300 characters").optional().or(z.literal("")),
   shippingMethod: z.enum(["standard", "express"]),
+  /** "cod" is accepted only while the shop has cash on delivery turned on (checked on the server). */
+  paymentMethod: z.enum(["razorpay", "cod"]).default("razorpay"),
   saveAddress: z.boolean().optional(),
 });
 
@@ -60,7 +57,6 @@ export const registerSchema = z
     email,
     password,
     confirmPassword: z.string(),
-    marketing: z.boolean().optional(),
   })
   .refine((d) => d.password === d.confirmPassword, { path: ["confirmPassword"], message: "Passwords don't match" });
 
@@ -113,16 +109,16 @@ export const productFormSchema = z
   .object({
     name: z.string().trim().min(2, "Product name is required").max(120),
     slug,
+    // Left blank, the editor makes one from the product name before saving.
     sku: z
       .string()
       .trim()
-      .min(2, "SKU is required")
       .max(40)
-      .regex(/^[A-Z0-9-]+$/i, "Letters, numbers and hyphens only"),
+      .regex(/^[A-Z0-9-]*$/i, "Letters, numbers and hyphens only")
+      .refine((v) => v === "" || v.length >= 2, "At least 2 characters"),
     shortDescription: z.string().trim().min(10, "Add a short description").max(200),
     description: z.string().trim().min(10, "Add a description").max(4000),
     categorySlug: z.string().min(1, "Choose a category"),
-    collectionSlugs: z.array(z.string()),
     status: z.enum(["active", "draft", "archived"]),
     isFeatured: z.boolean(),
     isNewArrival: z.boolean(),
@@ -150,7 +146,12 @@ export const productFormSchema = z
       .array(
         z.object({
           id: z.string(),
-          sku: z.string().trim().min(2, "SKU required").max(50),
+          // Blank SKUs are filled in from the product code when saving.
+          sku: z
+            .string()
+            .trim()
+            .max(50)
+            .refine((v) => v === "" || v.length >= 2, "At least 2 characters"),
           label: z.string(),
           options: z.record(z.string(), z.string()),
           price: rupees.refine((v) => v > 0, "Price must be above zero"),
@@ -171,7 +172,7 @@ export const productFormSchema = z
         Number(v.compareAtPrice) > 0 &&
         Number(v.compareAtPrice) <= Number(v.price)
       ) {
-        ctx.addIssue({ code: "custom", path: ["variants", i, "compareAtPrice"], message: "Must be higher than the price" });
+        ctx.addIssue({ code: "custom", path: ["variants", i, "compareAtPrice"], message: "Must be higher than the selling price" });
       }
     });
     const skus = d.variants.map((v) => v.sku.toUpperCase());
@@ -203,16 +204,23 @@ export const couponFormSchema = z
     type: z.enum(["percentage", "fixed"]),
     value: z.coerce.number<string | number>().positive("Must be above zero"),
     minSubtotal: rupees,
-    maxDiscount: rupees.optional().or(z.literal("")),
-    usageLimit: z.coerce.number<string | number>().int().min(1).optional().or(z.literal("")),
-    perCustomerLimit: z.coerce.number<string | number>().int().min(1).optional().or(z.literal("")),
+    // Empty means "no limit" — checked first, or "" would be read as 0.
+    maxDiscount: z.literal("").or(rupees.optional()),
+    usageLimit: z.literal("").or(z.coerce.number<string | number>().int().min(1).optional()),
+    perCustomerLimit: z.literal("").or(z.coerce.number<string | number>().int().min(1).optional()),
     startsAt: z.string().min(1, "Start date required"),
     expiresAt: z.string().min(1, "End date required"),
-    categorySlugs: z.array(z.string()),
     isActive: z.boolean(),
   })
   .refine((d) => d.type !== "percentage" || d.value <= 90, { path: ["value"], message: "Percentage discounts are capped at 90%" })
   .refine((d) => new Date(d.expiresAt) > new Date(d.startsAt), { path: ["expiresAt"], message: "End date must be after the start date" });
+
+export const reviewSchema = z.object({
+  productId: z.string().min(1).max(40),
+  rating: z.number().int().min(1, "Choose a star rating").max(5),
+  title: z.string().trim().max(80, "Keep the title under 80 characters").optional().or(z.literal("")),
+  text: z.string().trim().min(10, "Tell us a little more — at least 10 characters").max(1500, "Please keep it under 1500 characters"),
+});
 
 export const indianStates = [
   "Andaman and Nicobar Islands",

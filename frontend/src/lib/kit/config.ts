@@ -1,4 +1,5 @@
-import type { Paise } from "../types";
+import { demoImage } from "../data/images";
+import type { ImageAsset, Paise } from "../types";
 import { rupeesToPaise } from "../utils";
 
 /**
@@ -16,8 +17,18 @@ import { rupeesToPaise } from "../utils";
 
 export const GUESTS_PER_TRAMI = 4;
 
-export const OCCASION_IDS = ["wazwan", "nikkah", "mehndi", "walima"] as const;
-export type Occasion = (typeof OCCASION_IDS)[number];
+/**
+ * A function's id ("wazwan", "engagement"…). Functions are created by the
+ * shop in Admin → Functions; `CUSTOM_FUNCTION` is a shopper's own function
+ * that isn't on the shop's list (it gets the everyday items only).
+ */
+export type Occasion = string;
+export const CUSTOM_FUNCTION = "other";
+/** Function ids are short slugs, used in links: /kit?occasion=<id>. */
+export const FUNCTION_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const FUNCTION_ID_MAX = 40;
+/** Longest name a shopper (or the shop) can give a function. */
+export const FUNCTION_TITLE_MAX = 60;
 
 export const TIER_IDS = ["basic", "standard", "premium"] as const;
 export type Tier = (typeof TIER_IDS)[number];
@@ -28,19 +39,59 @@ export type KitCategory = (typeof KIT_CATEGORY_IDS)[number];
 export const DATE_IDS = ["this-week", "two-weeks", "next-month", "undecided"] as const;
 export type FunctionDate = (typeof DATE_IDS)[number];
 
-export interface OccasionConfig {
+/** A function the shop offers in the kit builder (Admin → Functions). */
+export interface KitFunction {
   id: Occasion;
   name: string;
+  /** One short line under the name: "Main wedding feast", "Adds potli". */
   description: string;
-  /** Short note on what this occasion adds to the base kit. */
-  adds?: string;
+  /** Kit item whose picture stands for this function. */
+  icon?: string;
+  /** Photo for the home page "Which function is it for?" cards. */
+  image?: ImageAsset;
+  /** Hidden functions stay on old kits but aren't offered to new ones. */
+  isActive: boolean;
+  sortOrder: number;
 }
 
-export const occasions: OccasionConfig[] = [
-  { id: "wazwan", name: "Wazwan", description: "Main wedding feast" },
-  { id: "nikkah", name: "Nikkah", description: "The ceremony", adds: "Adds potli" },
-  { id: "mehndi", name: "Mehndi raat", description: "Henna night", adds: "Adds cones & cake items" },
-  { id: "walima", name: "Walima", description: "Reception", adds: "Adds cake items" },
+/** DEMO starting functions — copied into the database once; the shop edits them in the admin. */
+export const starterFunctions: KitFunction[] = [
+  {
+    id: "wazwan",
+    name: "Wazwan",
+    description: "Main wedding feast",
+    icon: "dastarkhan",
+    image: demoImage("dinner-table", "Long dinner table set for a feast"),
+    isActive: true,
+    sortOrder: 1,
+  },
+  {
+    id: "nikkah",
+    name: "Nikkah",
+    description: "Adds potli",
+    icon: "potli",
+    image: demoImage("mehndi-rings", "Hennaed hands with wedding rings"),
+    isActive: true,
+    sortOrder: 2,
+  },
+  {
+    id: "mehndi",
+    name: "Mehndi raat",
+    description: "Adds cones & cake items",
+    icon: "mehndi",
+    image: demoImage("mehndi-hands", "Hands decorated with intricate henna"),
+    isActive: true,
+    sortOrder: 3,
+  },
+  {
+    id: "walima",
+    name: "Walima",
+    description: "Adds cake items",
+    icon: "cakeplate",
+    image: demoImage("candlelit-table", "Candlelit reception table"),
+    isActive: true,
+    sortOrder: 4,
+  },
 ];
 
 export const tiers: { id: Tier; name: string; description: string }[] = [
@@ -50,10 +101,10 @@ export const tiers: { id: Tier; name: string; description: string }[] = [
 ];
 
 export const functionDates: { id: FunctionDate; label: string }[] = [
-  { id: "this-week", label: "Is hafte" },
-  { id: "two-weeks", label: "2 hafte mein" },
-  { id: "next-month", label: "Agle mahine" },
-  { id: "undecided", label: "Abhi tay nahi" },
+  { id: "this-week", label: "This week" },
+  { id: "two-weeks", label: "In 2 weeks" },
+  { id: "next-month", label: "Next month" },
+  { id: "undecided", label: "Not decided yet" },
 ];
 
 export const kitCategories: { id: KitCategory; label: string }[] = [
@@ -75,7 +126,7 @@ export interface KitItem {
   category: KitCategory;
   /** Units needed for one trami (four guests). Fractions mean "1 per N trami". */
   perTrami: number;
-  /** Omit for items every occasion needs. */
+  /** Function ids that include this item; omit for items every function needs. */
   occasions?: Occasion[];
   /** Label for the variant choice on the product page. */
   optionName: string;
@@ -264,19 +315,3 @@ export const TRAMI = { min: 1, max: 1000, step: 5, default: 50, quickPicks: [25,
 
 /** Bulk cap per cart line for kit products (normal products stay at 20). */
 export const KIT_MAX_PER_ORDER = 10000;
-
-export interface ReadyKit {
-  id: string;
-  occasion: Occasion;
-  trami: number;
-  tier: Tier;
-  badge: string;
-}
-
-export const readyKits: ReadyKit[] = [
-  { id: "50-standard", occasion: "wazwan", trami: 50, tier: "standard", badge: "Most popular" },
-  { id: "25-basic", occasion: "wazwan", trami: 25, tier: "basic", badge: "Budget" },
-  { id: "100-premium", occasion: "wazwan", trami: 100, tier: "premium", badge: "Big function" },
-];
-
-export const kitItemById = (id: string) => kitItems.find((i) => i.id === id);

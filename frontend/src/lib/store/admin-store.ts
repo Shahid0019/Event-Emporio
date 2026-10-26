@@ -1,123 +1,102 @@
 "use client";
 
-import { adminOrders, customRequests, enquiries, type CustomRequest, type Enquiry } from "../data/admin";
-import { categories, collections } from "../data/categories";
-import { announcements, coupons, gallery, homepage, testimonials } from "../data/content";
-import { products } from "../data/products";
-import { storeSettings } from "../data/settings";
-import type { Category, Collection, Coupon, ImageAsset, Order, Product, Review } from "../types";
-import { createPersistedStore } from "./create-store";
+import { useRouter } from "next/navigation";
+import { createContext, createElement, useContext, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { toast } from "sonner";
+import { saveAdminChanges } from "@/app/admin/actions";
+import { diffAdminData, hasChanges, type AdminData } from "../admin-data";
+import { buildKitCatalog, setKitCatalog } from "../kit/catalog";
 
 /**
- * DEMO ADMIN STATE — a browser-local copy of the catalogue and operations
- * data so every admin screen is genuinely editable without a backend.
- * Each mutation here maps 1:1 to a future authenticated API call that the
- * server must authorise, validate and audit-log.
+ * Admin data on the client. The admin layout loads everything from the
+ * database and passes it to <AdminDataProvider>. Screens read it with
+ * `adminStore.useStore()` and change it with `updateAdmin(draft => …)`:
+ * the change shows immediately, then only what changed is saved on the
+ * server. If the save fails the screen goes back and says why.
  */
 
-export interface StockMovement {
-  id: string;
-  at: string;
-  variantId: string;
-  productName: string;
-  variantLabel: string;
-  delta: number;
-  reason: string;
-}
+export type { AdminData, StockMovement } from "../admin-data";
 
-export interface AdminState {
-  version: 1;
-  products: Product[];
-  categories: Category[];
-  collections: Collection[];
-  orders: Order[];
-  coupons: Coupon[];
-  testimonials: Review[];
-  gallery: { id: string; image: ImageAsset; href: string }[];
-  announcements: { id: string; message: string; href?: string; isActive: boolean }[];
-  hero: {
-    eyebrow: string;
-    titleLines: [string, string];
-    description: string;
-    primaryCta: { label: string; href: string };
-    secondaryCta: { label: string; href: string };
-  };
-  settings: {
-    storeName: string;
-    tagline: string;
-    email: string;
-    phone: string;
-    whatsapp: string;
-    address: string;
-    instagram: string;
-    flatShipping: number;
-    freeShippingThreshold: number | null;
-    codEnabled: boolean;
-    pricesIncludeTax: boolean;
-    gstin: string;
-  };
-  stockMovements: StockMovement[];
-  enquiries: Enquiry[];
-  customRequests: CustomRequest[];
-}
+const AdminDataContext = createContext<AdminData | null>(null);
+
+// Latest data and the save function, for event handlers outside React render.
+let latest: AdminData | null = null;
+let mutateFn: ((mutator: (draft: AdminData) => void) => Promise<boolean>) | null = null;
 
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v)) as T;
 
-export function seedAdminState(): AdminState {
-  return {
-    version: 1,
-    products: clone(products),
-    categories: clone(categories),
-    collections: clone(collections),
-    orders: clone(adminOrders),
-    coupons: clone(coupons),
-    testimonials: clone(testimonials),
-    gallery: clone(gallery),
-    announcements: clone(announcements),
-    hero: {
-      eyebrow: homepage.hero.eyebrow,
-      titleLines: [homepage.hero.titleLines[0], homepage.hero.titleLines[1]],
-      description: homepage.hero.description,
-      primaryCta: { ...homepage.hero.primaryCta },
-      secondaryCta: { ...homepage.hero.secondaryCta },
-    },
-    settings: {
-      storeName: storeSettings.name,
-      tagline: storeSettings.tagline,
-      email: storeSettings.contact.email ?? "",
-      phone: storeSettings.contact.phone ?? "",
-      whatsapp: storeSettings.contact.whatsapp ?? "",
-      address: storeSettings.contact.addressLine ?? "",
-      instagram: storeSettings.social.instagram,
-      flatShipping: storeSettings.shipping.flatRate,
-      freeShippingThreshold: storeSettings.shipping.freeShippingThreshold,
-      codEnabled: storeSettings.payments.codEnabled,
-      pricesIncludeTax: storeSettings.pricesIncludeTax,
-      gstin: "",
-    },
-    stockMovements: [],
-    enquiries: clone(enquiries),
-    customRequests: clone(customRequests),
-  };
+export const adminStore = {
+  /** Current admin data (inside admin pages). */
+  useStore<S = AdminData>(selector?: (data: AdminData) => S): S {
+    const data = useContext(AdminDataContext);
+    if (!data) throw new Error("adminStore.useStore must be used inside the admin");
+    return selector ? selector(data) : (data as unknown as S);
+  },
+  /** Latest data, for click handlers. */
+  get(): AdminData {
+    if (!latest) throw new Error("Admin data isn't loaded yet");
+    return latest;
+  },
+};
+
+/** Change admin data; resolves to true once the server has saved it. */
+export function updateAdmin(mutator: (draft: AdminData) => void): Promise<boolean> {
+  if (!mutateFn) {
+    toast.error("Still loading — please try again in a moment.");
+    return Promise.resolve(false);
+  }
+  return mutateFn(mutator);
 }
 
-const initial = seedAdminState();
+export function AdminDataProvider({ initial, children }: { initial: AdminData; children: ReactNode }) {
+  const router = useRouter();
+  const [data, setData] = useState(initial);
+  const [base, setBase] = useState(initial);
+  // Fresh data from the server (after a save or navigation) replaces the local copy.
+  if (initial !== base) {
+    setBase(initial);
+    setData(initial);
+  }
+  const dataRef = useRef(data);
 
-export const adminStore = createPersistedStore<AdminState>(
-  "ee.admin.v1",
-  initial,
-  (v): v is AdminState =>
-    typeof v === "object" && v !== null && (v as AdminState).version === 1 && Array.isArray((v as AdminState).products),
-);
+  // The kit tools in the admin use the same live kit catalogue as the shop.
+  const [catalogFor, setCatalogFor] = useState<AdminData | null>(null);
+  if (catalogFor !== data) {
+    setKitCatalog(buildKitCatalog(data.products, data.kitFunctions));
+    setCatalogFor(data);
+  }
 
-export function resetAdminData() {
-  adminStore.set(seedAdminState());
-}
+  useLayoutEffect(() => {
+    dataRef.current = data;
+    latest = data;
+  }, [data]);
 
-export function updateAdmin(mutator: (draft: AdminState) => void) {
-  adminStore.set((prev) => {
-    const next = clone(prev);
-    mutator(next);
-    return next;
-  });
+  useLayoutEffect(() => {
+    mutateFn = async (mutator) => {
+      const before = dataRef.current;
+      const after = clone(before);
+      mutator(after);
+      const changes = diffAdminData(before, after);
+      if (!hasChanges(changes)) return true;
+
+      dataRef.current = after;
+      latest = after;
+      setData(after);
+      const result = await saveAdminChanges(changes);
+      if (!result.ok) {
+        dataRef.current = before;
+        latest = before;
+        setData(before);
+        toast.error("Not saved", { description: result.error });
+        return false;
+      }
+      router.refresh();
+      return true;
+    };
+    return () => {
+      mutateFn = null;
+    };
+  }, [router]);
+
+  return createElement(AdminDataContext.Provider, { value: data }, children);
 }
