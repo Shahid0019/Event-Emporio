@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ShoppingBag } from "lucide-react";
+import { ArrowRight, CircleCheck, ShoppingBag } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/primitives";
@@ -13,6 +13,7 @@ import { useCartTotals } from "./use-cart-totals";
 
 export function CartDrawer() {
   const open = uiStore.useStore((s) => s.cartOpen);
+  const notice = uiStore.useStore((s) => s.cartNotice);
   const { lines, code, coupon, offers, totals } = useCartTotals();
   const close = () => setCartOpen(false);
   const count = cartCount(lines);
@@ -66,7 +67,18 @@ export function CartDrawer() {
           }
         />
       ) : (
-        <CartEntries lines={lines} onNavigate={close} compact />
+        <>
+          {notice && (
+            <p
+              role="status"
+              className="mt-4 flex items-center gap-2.5 rounded-control bg-success/10 px-4 py-3 text-[0.85rem] font-medium text-success"
+            >
+              <CircleCheck aria-hidden className="size-4 shrink-0" />
+              {notice}
+            </p>
+          )}
+          <CartEntries lines={lines} onNavigate={close} compact />
+        </>
       )}
     </Sheet>
   );

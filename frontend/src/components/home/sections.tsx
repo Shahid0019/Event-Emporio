@@ -21,7 +21,7 @@ export function EditorialBanner() {
           <p className="eyebrow text-accent-ink">{e.eyebrow}</p>
           <h2 id="editorial-title" className="mt-6 text-h1">
             The Art of <br className="hidden sm:block" />
-            <em className="text-brand">Thoughtful</em> Gifting.
+            <em className="script-accent text-brand">Thoughtful</em> Gifting.
           </h2>
           <p className="mt-8 max-w-md text-[1.05rem] leading-relaxed text-muted">{e.body}</p>
           <Link href={e.cta.href} className={buttonVariants({ variant: "secondary", className: "mt-10" })}>
@@ -55,7 +55,7 @@ export function GiftingSection() {
           <p className="eyebrow text-accent">{g.eyebrow}</p>
           <h2 id="gifting-title" className="mt-6 text-h1">
             Made Personal. <br />
-            <em className="text-accent-soft">Made Memorable.</em>
+            <em className="script-accent text-accent-soft">Made Memorable.</em>
           </h2>
           <p className="mt-7 max-w-lg text-[1.02rem] leading-relaxed text-canvas/75">{g.intro}</p>
 
@@ -93,14 +93,16 @@ export function BrandStory() {
         <Reveal className="lg:col-span-6 lg:pl-10 xl:col-span-6 xl:col-start-7 xl:pl-0">
           <p className="eyebrow text-accent-ink">{s.eyebrow}</p>
           <h2 id="story-title" className="mt-6 text-h2">
-            Every Celebration Deserves Something <em className="text-brand">Extraordinary.</em>
+            Every Celebration Deserves Something <em className="script-accent text-brand">Extraordinary.</em>
           </h2>
           {s.body.map((para) => (
             <p key={para} className="mt-6 max-w-lg text-[1.05rem] leading-relaxed text-muted">
               {para}
             </p>
           ))}
-          <p className="mt-10 font-serif text-2xl italic text-accent-ink">“{storeSettings.tagline}.”</p>
+          <p className="mt-10 text-3xl text-accent-ink">
+            <span className="script-accent">“{storeSettings.tagline}.”</span>
+          </p>
           <Link href={s.cta.href} className={buttonVariants({ variant: "link", className: "mt-10 text-[0.72rem]" })}>
             {s.cta.label}
           </Link>

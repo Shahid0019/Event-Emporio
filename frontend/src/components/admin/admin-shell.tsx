@@ -108,7 +108,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const adminEmail = adminStore.useStore((d) => d.adminEmail);
   return (
-    <div className="min-h-dvh bg-[#f7f4ef] lg:grid lg:grid-cols-[16.5rem_1fr]">
+    <div data-admin className="min-h-dvh bg-[#f7f4ef] lg:grid lg:grid-cols-[16.5rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line bg-canvas lg:flex">
         <SidebarContents />
       </aside>

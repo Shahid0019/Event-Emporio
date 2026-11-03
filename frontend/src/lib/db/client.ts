@@ -1,4 +1,7 @@
+import dns from "node:dns";
 import { MongoBulkWriteError, MongoClient, type Db, type Document } from "mongodb";
+import { KIT_PHOTO_IDS, kitImage } from "../kit/products";
+import type { Product } from "../types";
 import { seedDocuments } from "./seed";
 
 /**
@@ -14,6 +17,7 @@ declare global {
   var __eeMongo: Promise<MongoClient> | undefined;
   var __eeDbReady: Promise<void> | undefined;
   var __eeFunctionsReady: Promise<void> | undefined;
+  var __eeKitPhotosReady: Promise<void> | undefined;
 }
 
 export const COLLECTIONS = [
@@ -98,9 +102,35 @@ async function seedKitFunctions(db: Db) {
   await counters.updateOne({ _id: "seeded:kitFunctions" }, { $setOnInsert: { at: new Date() } }, { upsert: true });
 }
 
+/**
+ * Kit products seeded before the product photos existed still point at their
+ * line illustration. Swap only that exact illustration for the item's photo;
+ * anything the shop uploaded or picked itself is left alone. Runs once per photo set.
+ */
+async function upgradeKitPhotos(db: Db) {
+  const counters = db.collection<{ _id: string; at?: Date }>("counters");
+  const flag = `kitPhotos:${[...KIT_PHOTO_IDS].sort().join(",")}`;
+  if (await counters.findOne({ _id: flag })) return;
+  const products = db.collection<Product & { _id: string }>("products");
+  for (const itemId of KIT_PHOTO_IDS) {
+    const illustration = `/images/kit/${itemId}.svg`;
+    const product = await products.findOne({ "kit.itemId": itemId, "images.src": illustration });
+    if (!product) continue;
+    const images = product.images.map((img) => (img.src === illustration ? kitImage({ id: itemId, name: product.name }) : img));
+    await products.updateOne({ _id: product._id, "images.src": illustration }, { $set: { images } });
+  }
+  await counters.updateOne({ _id: flag }, { $setOnInsert: { at: new Date() } }, { upsert: true });
+}
+
 export async function getDb(): Promise<Db> {
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new DatabaseNotConfiguredError();
+  // Some machines hand Node a resolver (e.g. 127.0.0.1) that refuses SRV queries,
+  // which breaks mongodb+srv:// with "querySrv ECONNREFUSED". Try public DNS first,
+  // keeping the system servers as fallback. Only affects dns.resolve*, not normal lookups.
+  if (uri.startsWith("mongodb+srv://") && !globalThis.__eeMongo) {
+    dns.setServers([...new Set(["1.1.1.1", "8.8.8.8", ...dns.getServers()])]);
+  }
   globalThis.__eeMongo ??= new MongoClient(uri, { maxPoolSize: 10, serverSelectionTimeoutMS: 8000, ignoreUndefined: true }).connect();
   let client: MongoClient;
   try {
@@ -121,6 +151,11 @@ export async function getDb(): Promise<Db> {
     throw err;
   });
   await globalThis.__eeFunctionsReady;
+  globalThis.__eeKitPhotosReady ??= upgradeKitPhotos(db).catch((err) => {
+    globalThis.__eeKitPhotosReady = undefined;
+    throw err;
+  });
+  await globalThis.__eeKitPhotosReady;
   return db;
 }
 

@@ -30,7 +30,7 @@ import {
   kitStore,
   type KitState,
 } from "@/lib/kit/store";
-import { cartStore, openCart } from "@/lib/store";
+import { cartStore, openCartWithNotice } from "@/lib/store";
 import { occasionName, sizeLabel, tierName } from "@/lib/kit/url";
 import { cn } from "@/lib/utils";
 import { AddItemsSheet, announceAdd } from "./kit-add-items";
@@ -528,10 +528,8 @@ function KitFooter({
     if (!kit) return;
     const id = saveKitToCart(kit, lines, inBag ? bundleId : undefined);
     markKitInCart(id);
-    toast.success(inBag ? "Kit updated in your bag" : "Kit added to your bag", {
-      description: "It's one item in your bag — tap Edit kit there to change it.",
-      action: { label: "View bag", onClick: openCart },
-    });
+    // Show the bag itself so the change is unmistakable; the notice replaces the old toast.
+    openCartWithNotice(inBag ? "Kit updated in your bag" : "Kit added to your bag");
   };
 
   return (

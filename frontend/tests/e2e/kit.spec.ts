@@ -127,6 +127,12 @@ test.describe("build my kit", () => {
     await page.goto("/kit?occasion=wazwan&trami=25&tier=basic");
     const panel = await kitPanel(page, false);
     await panel.getByRole("button", { name: "Add kit to bag" }).click();
+    // The bag opens straight away so the shopper sees where the kit went.
+    const drawer = page.getByRole("dialog", { name: /Your bag/ });
+    await expect(drawer.getByRole("status")).toHaveText("Kit added to your bag");
+    await expect(drawer.getByText("Wazwan kit · 25 trami")).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
     await expect(panel.getByRole("link", { name: "✓ Kit in bag · View bag" })).toBeVisible();
     await expect(panel.getByRole("status").filter({ hasText: "Kit added to your bag." })).toHaveCount(1);
     await openChat(page);
@@ -141,6 +147,9 @@ test.describe("build my kit", () => {
     await expect(row(panel, "Spoon")).toContainText("100 pcs");
     await spoonQty.getByRole("textbox").fill("110"); // or typed
     await panel.getByRole("button", { name: "Update kit in bag" }).click();
+    await expect(drawer.getByRole("status")).toHaveText("Kit updated in your bag");
+    await page.keyboard.press("Escape");
+    await expect(drawer).toBeHidden();
 
     await panel.getByRole("link", { name: "✓ Kit in bag · View bag" }).click();
     await expect(page).toHaveURL(/\/cart$/);

@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import { Cormorant_Upright, DM_Sans } from "next/font/google";
 import { Toaster } from "sonner";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+const cormorant = Cormorant_Upright({
   variable: "--font-cormorant",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  style: ["normal", "italic"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal"],
   display: "swap",
 });
 

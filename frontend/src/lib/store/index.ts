@@ -139,9 +139,12 @@ export function rememberViewed(slug: string) {
 }
 
 /* ------------------------------- UI state ----------------------------- */
-export const uiStore = createUIStore({ cartOpen: false, searchOpen: false, menuOpen: false });
+export const uiStore = createUIStore({ cartOpen: false, searchOpen: false, menuOpen: false, cartNotice: null as string | null });
 
-export const openCart = () => uiStore.set((s) => ({ ...s, cartOpen: true, searchOpen: false, menuOpen: false }));
-export const setCartOpen = (cartOpen: boolean) => uiStore.set((s) => ({ ...s, cartOpen }));
+export const openCart = () => uiStore.set((s) => ({ ...s, cartOpen: true, searchOpen: false, menuOpen: false, cartNotice: null }));
+/** Opens the bag with a confirmation line at the top, e.g. right after adding something. */
+export const openCartWithNotice = (cartNotice: string) =>
+  uiStore.set((s) => ({ ...s, cartOpen: true, searchOpen: false, menuOpen: false, cartNotice }));
+export const setCartOpen = (cartOpen: boolean) => uiStore.set((s) => ({ ...s, cartOpen, cartNotice: cartOpen ? s.cartNotice : null }));
 export const setSearchOpen = (searchOpen: boolean) => uiStore.set((s) => ({ ...s, searchOpen, menuOpen: false }));
 export const setMenuOpen = (menuOpen: boolean) => uiStore.set((s) => ({ ...s, menuOpen }));

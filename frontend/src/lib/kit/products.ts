@@ -5,15 +5,26 @@ import { KIT_MAX_PER_ORDER, kitItems, type KitItem } from "./config";
 /**
  * Kit items as catalogue products. Generated from the kit config so a
  * price lives in exactly one place; `products.ts` includes these in the
- * one catalogue list. DEMO — prices and stock are placeholders, and the
- * line illustrations in /public/images/kit stand in for product photos.
+ * one catalogue list. DEMO — prices and stock are placeholders.
  */
 
 const DEMO_STOCK = 20000;
 
-/** Illustration for a kit item; swap the file for a real product photo (keep the 4:5 shape). */
+/**
+ * Items with a product photo at /public/images/kit/<id>.jpg (960×1200, 4:5).
+ * Sources and licences: /public/images/kit/CREDITS.md. Items not listed keep
+ * their line illustration until the shop uploads a photo.
+ */
+export const KIT_PHOTO_IDS: ReadonlySet<string> = new Set([
+  "dastarkhan", "salad", "gostab", "spoon", "knife", "wglass", "pglass", "box", "outer", "inner", "passpass",
+  "zip", "foil", "napkin", "tissue", "trash", "potli", "mehndi", "cakeplate", "cakespoon",
+]);
+
+/** Picture for a kit item: its product photo when there is one, else its illustration. */
 export function kitImage(item: Pick<KitItem, "id" | "name">): ImageAsset {
-  return { src: `/images/kit/${item.id}.svg`, alt: `${item.name} illustration`, width: 400, height: 500 };
+  return KIT_PHOTO_IDS.has(item.id)
+    ? { src: `/images/kit/${item.id}.jpg`, alt: item.name, width: 960, height: 1200 }
+    : { src: `/images/kit/${item.id}.svg`, alt: `${item.name} illustration`, width: 400, height: 500 };
 }
 
 export const kitProductId = (itemId: string) => `kit_${itemId}`;

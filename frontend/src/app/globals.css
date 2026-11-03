@@ -51,8 +51,10 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
 
-  --font-serif: var(--font-cormorant), "Cormorant Garamond", Georgia, serif;
+  --font-serif: var(--font-cormorant), "Cormorant Upright", Georgia, serif;
+  --font-display: var(--font-cormorant), "Cormorant Upright", Georgia, serif;
   --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-script: var(--font-pinyon), "Pinyon Script", "Snell Roundhand", cursive;
 
   /* Fluid type scale */
   --text-display: clamp(3rem, 1.6rem + 6.2vw, 7.75rem);
@@ -167,6 +169,31 @@
   font-weight: 500;
 }
 
+/* Calligraphic accent. The script has one upright weight, so cancel the
+   italic/bold a heading <em> would otherwise fake, and size up to match
+   Cormorant's taller x-height. */
+@utility script-accent {
+  font-family: var(--font-script);
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-size: 1.15em;
+  line-height: 1;
+}
+
+/* Admin is a work tool: plain DM Sans throughout, no display serif, script or
+   italics. Scoped through body:has() so dialogs and sheets portalled to <body>
+   are covered too. Lives in the utilities layer so it outranks .font-serif etc. */
+@layer utilities {
+  body:has([data-admin]) :is(h1, h2, h3, h4, h5, h6, .font-serif, .script-accent) {
+    font-family: var(--font-sans);
+    letter-spacing: normal;
+  }
+  body:has([data-admin]) :is(em, i, .italic) {
+    font-style: normal;
+  }
+}
+
 @utility link-underline {
   background-image: linear-gradient(currentColor, currentColor);
   background-size: 100% 1px;
@@ -202,10 +229,15 @@
   h2,
   h3,
   h4 {
-    font-family: var(--font-serif);
-    font-weight: 500;
+    font-family: var(--font-display);
+    font-weight: 700;
     letter-spacing: -0.01em;
     text-wrap: balance;
+  }
+  /* Cormorant Upright has no italic, so keep accent words upright rather than
+     letting the browser fake a slant; their colour sets them apart. */
+  :is(h1, h2, h3, h4) em {
+    font-style: normal;
   }
   p {
     text-wrap: pretty;
