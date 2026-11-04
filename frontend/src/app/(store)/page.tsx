@@ -6,9 +6,8 @@ import { Benefits, BrandStory, EditorialBanner, GiftingSection } from "@/compone
 import { ReviewWall, type WallReview } from "@/components/home/review-wall";
 import { Reveal } from "@/components/motion/reveal";
 import { ProductGrid } from "@/components/product/product-grid";
-import { ProductRail } from "@/components/product/product-rail";
 import { SectionHeading } from "@/components/ui/primitives";
-import { getBestsellers, getCategories, getNewArrivals } from "@/lib/catalog";
+import { getBestsellers, getCategories } from "@/lib/catalog";
 import { homepage } from "@/lib/data/content";
 import { loadCatalog, loadContent, loadLatestReviews, primeKitCatalog } from "@/lib/db/queries";
 import { storeSettings } from "@/lib/data/settings";
@@ -19,10 +18,9 @@ export const metadata = {
 };
 
 export default async function HomePage() {
-  const [categories, bestsellers, newArrivals, content, kitCatalog, latestReviews, catalog] = await Promise.all([
+  const [categories, bestsellers, content, kitCatalog, latestReviews, catalog] = await Promise.all([
     getCategories(),
     getBestsellers(8),
-    getNewArrivals(8),
     loadContent(),
     primeKitCatalog(),
     loadLatestReviews(),
@@ -101,29 +99,6 @@ export default async function HomePage() {
       </section>
 
       {/* <EditorialBanner /> */}
-
-      {newArrivals.length > 0 && (
-        <section aria-labelledby="new-title" className="section-y overflow-hidden">
-          <div className="container-luxe">
-            <SectionHeading
-              eyebrow="Just in"
-              title={
-                <span id="new-title">
-                  New <em className="text-brand">arrivals</em>
-                </span>
-              }
-              action={
-                <Link href="/shop?sort=newest" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
-                  View all new
-                </Link>
-              }
-            />
-            <div className="mt-10">
-              <ProductRail products={newArrivals} label="New arrivals" />
-            </div>
-          </div>
-        </section>
-      )}
 
       <GiftingSection />
       {/* <BrandStory /> */}

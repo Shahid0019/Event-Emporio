@@ -27,7 +27,10 @@ export const SAVED_KITS_MAX = 12;
 
 export const savedKitsStore = createPersistedStore<SavedKit[]>("ee.kit.saved.v1", [], isArray as (v: unknown) => v is SavedKit[]);
 
-/** Saves (or updates, if it was saved before) the current kit. Returns its id. */
+/**
+ * Saves the current kit. With `existingId` it replaces that saved kit;
+ * without, it's added as a new one (up to SAVED_KITS_MAX). Returns its id.
+ */
 export function saveKitForLater(kit: SharedKit, lines: KitLine[], existingId?: string): string {
   const { name, summary } = kitCartLabels(kit, activeLines(lines).length);
   const existing = existingId ? savedKitsStore.get().find((k) => k.id === existingId) : undefined;
@@ -53,4 +56,7 @@ export function openSavedKit(id: string): boolean {
   return true;
 }
 
-export const deleteSavedKit = (id: string) => savedKitsStore.set((list) => list.filter((k) => k.id !== id));
+/** True when the kit on screen is exactly this saved kit, unchanged since. */
+export const isSavedAs = (kit: SharedKit, saved: SavedKit | undefined) => !!saved && saved.kit === encodeSharedKit(kit);
+
+export const deleteSavedKit =(id: string) => savedKitsStore.set((list) => list.filter((k) => k.id !== id));

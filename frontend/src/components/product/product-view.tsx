@@ -322,8 +322,8 @@ export function ProductView({ product, categoryName }: { product: Product; categ
       <div
         aria-hidden={!showSticky}
         className={cn(
-          "fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-30 rounded-full border border-line bg-canvas/95 py-2 pl-5 pr-2 shadow-[0_15px_40px_-15px_rgb(36_32_32/0.45)] backdrop-blur transition-transform duration-500 ease-[var(--ease-luxe)] lg:hidden",
-          showSticky ? "translate-y-0" : "pointer-events-none translate-y-[calc(100%+2rem)]",
+          "fixed inset-x-3 bottom-[calc(var(--bottom-nav-h)+1.75rem)] z-30 rounded-full border border-line bg-canvas/95 py-2 pl-5 pr-2 shadow-[0_15px_40px_-15px_rgb(36_32_32/0.45)] backdrop-blur transition-transform duration-500 ease-[var(--ease-luxe)] lg:hidden",
+          showSticky ? "translate-y-0" : "pointer-events-none translate-y-[calc(100%+var(--bottom-nav-h)+2rem)]",
         )}
       >
         <div className="flex items-center gap-4">

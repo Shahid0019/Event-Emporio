@@ -46,14 +46,14 @@ const links = [
  * the customer's initials, opening a short menu with their name, the main
  * account pages and sign out.
  */
-export function AccountMenu() {
+export function AccountMenu({ className }: { className?: string }) {
   const user = sessionStore.useStore();
   const router = useRouter();
   const pathname = usePathname();
 
   if (!user) {
     return (
-      <Link href="/login" aria-label="Sign in" className={cn(iconLink, "hidden sm:grid")}>
+      <Link href="/login" aria-label="Sign in" className={cn(iconLink, "hidden sm:grid", className)}>
         <User />
       </Link>
     );

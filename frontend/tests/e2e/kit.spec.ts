@@ -262,20 +262,29 @@ test("saved kits come back on the next visit", async ({ page }) => {
   await page.getByRole("button", { name: "Minimise chat" }).click();
   const panel = page.locator('section[aria-labelledby="kit-title"]');
   await panel.getByRole("button", { name: "Save kit for later" }).click();
-  await expect(panel.getByRole("button", { name: "Update saved kit" })).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Kit saved" })).toBeVisible();
 
-  // Start a fresh kit: the saved one is offered right in the chat.
+  // A changed kit is saved alongside the first, not over it.
+  await panel.getByRole("button", { name: /^Cake plate / }).click();
+  await panel.getByRole("button", { name: "Remove Cake plate" }).click();
+  await panel.getByRole("button", { name: "Save kit for later" }).click();
+  await expect(panel.getByRole("button", { name: "Saved (2)" })).toBeVisible();
+  await expect(panel.getByRole("button", { name: "Kit saved" })).toBeVisible();
+
+  // Start a fresh kit: the saved ones are offered right in the chat, newest first.
   await openChat(page);
   await page.getByRole("button", { name: /Start over/ }).click();
   await expect(page.getByRole("list", { name: "Saved kits" })).toBeVisible();
-  await page.getByRole("button", { name: "Open saved kit: Walima kit · 60 trami" }).click();
+  await page.getByRole("button", { name: "Open saved kit: Walima kit · 60 trami" }).last().click();
   await expect(panel.getByText("Walima · 60 trami")).toBeVisible();
   await expect(panel.getByRole("button", { name: /^Cake plate / })).toBeVisible();
 
   // Also reachable from the kit header, and deletable.
-  await panel.getByRole("button", { name: "Saved (1)" }).click();
+  await panel.getByRole("button", { name: "Saved (2)" }).click();
   const dialog = page.getByRole("dialog", { name: "Saved kits" });
-  await dialog.getByRole("button", { name: "Delete saved kit: Walima kit · 60 trami" }).click();
+  const deleteButtons = dialog.getByRole("button", { name: "Delete saved kit: Walima kit · 60 trami" });
+  await deleteButtons.first().click();
+  await deleteButtons.first().click();
   await expect(dialog.getByRole("list", { name: "Saved kits" })).toHaveCount(0);
 });
 

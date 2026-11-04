@@ -75,7 +75,7 @@ Colors are defined once on `:root` and mapped to Tailwind via `@theme inline`, s
 
 Drawers are full-screen with square edges on phones (maximum space), and float with rounded corners from the `sm` breakpoint up.
 
-**Type:** Cormorant Upright (headings and `font-serif` details) + DM Sans (UI/body), via `next/font`. Fluid scale with `clamp()`: `text-display`, `text-h1`, `text-h2`, `text-h3`, plus `eyebrow`.
+**Type:** Playfair Display (headings and `font-serif` details, with true italics) + Pinyon Script (`script-accent` words) + DM Sans (UI/body), via `next/font`. Admin uses DM Sans only. Fluid scale with `clamp()`: `text-display`, `text-h1`, `text-h2`, `text-h3`, plus `eyebrow`.
 
 **Motion:** hero entrance is pure CSS (never hidden waiting for JS; protects LCP). GSAP handles scroll reveals and gentle parallax, wrapped in `gsap.matchMedia` so `prefers-reduced-motion` disables it, and cleaned up by `useGSAP`. Content is visible in server HTML even if scripts fail.
 

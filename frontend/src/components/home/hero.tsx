@@ -1,81 +1,78 @@
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import type { HeroContent } from "@/lib/settings";
 
-/** The table spread behind the hero: wazwan plate on a runner, with the shop's disposables around it. */
-const background = {
-  src: "/images/hero/table-spread.webp",
-  width: 3200,
-  height: 893,
-  alt: "A wazwan plate on a patterned runner, surrounded by cups, boxes, napkins and cutlery",
-};
+/**
+ * Art-directed spread: a wide table with a cream panel on the left for
+ * desktop, a portrait one with the cream space on top for phones. The text
+ * sits on that cream space in each, so it never covers the food.
+ */
+// Only the <source> that matches is downloaded; eager + high priority as it's the LCP image.
+const shared = { alt: "", sizes: "100vw", loading: "eager", fetchPriority: "high" } as const;
+const desktop = getImageProps({ ...shared, src: "/images/hero/hero-desktop-v2.webp", width: 1500, height: 844 });
+const mobile = getImageProps({ ...shared, src: "/images/hero/hero-mobile-v2.webp", width: 310, height: 400 });
+
+// Previous spreads, kept for now to switch back: "/images/hero/hero-desktop-v1.webp" (1672×478),
+// "/images/hero/table-spread-v2.webp" (2170×725), "/images/hero/table-spread.webp" (3200×893)
 
 /**
- * Centred hero over a full-width table spread. The headline sits on a soft
- * ivory glow so it stays readable over the photo; the picture's white
- * background blends into the page. Entrance motion is pure CSS so the
- * headline is never hidden waiting for JavaScript (good for LCP).
+ * Hero over the table spread. Entrance motion is pure CSS so the headline
+ * is never hidden waiting for JavaScript (good for LCP).
  */
-export function Hero({ hero, quickLinks }: { hero: HeroContent; quickLinks: { slug: string; name: string }[] }) {
+export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; name: string }[] }) {
   return (
-    <section aria-labelledby="hero-title" className="relative isolate overflow-hidden">
-      {/* Phones: the spread is a band under the text. Wider screens: it fills the whole hero. */}
-      <div aria-hidden className="absolute inset-x-0 bottom-0 -z-10 h-[38%] sm:h-[44%] lg:inset-0 lg:h-auto">
-        <Image
-          src={background.src}
+    // Bottom margin gives the next section's heading room to breathe below the photo.
+    <section aria-labelledby="hero-title" className="relative isolate mb-[clamp(2.5rem,1.5rem+4vw,5rem)] overflow-hidden bg-[#f4ede2]">
+      <picture>
+        <source media="(min-width: 48rem)" srcSet={desktop.props.srcSet} width={1500} height={844} />
+        <img
+          {...mobile.props}
           alt=""
-          fill
-          preload
-          sizes="100vw"
-          className="animate-fade object-cover object-center mix-blend-multiply"
+          aria-hidden
+          className="absolute inset-0 -z-10 size-full animate-fade object-cover object-bottom md:object-[30%_60%]"
         />
-        {/* Ivory glow behind the words; the edges of the spread stay clear. */}
-        <div className="absolute inset-0 bg-gradient-to-b from-canvas via-canvas/20 to-transparent lg:hidden" />
-        {/* Melts into the section below instead of ending on a hard line. */}
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-canvas to-transparent" />
-        <div className="absolute inset-0 hidden bg-[radial-gradient(ellipse_44%_62%_at_50%_50%,var(--canvas)_0%,color-mix(in_srgb,var(--canvas)_68%,transparent)_45%,transparent_100%)] lg:block" />
-      </div>
+      </picture>
 
-      <div className="container-luxe flex min-h-[calc(100svh-var(--header-h)-2.25rem)] flex-col items-center justify-start pb-[42%] pt-12 text-center sm:pb-[46%] sm:pt-16 lg:min-h-[clamp(36rem,calc(100vw/3.58+8rem),52rem)] lg:justify-center lg:pb-28 lg:pt-16">
-        {hero.eyebrow?.trim() && (
-          <p className="eyebrow mb-6 inline-flex animate-rise items-center gap-2 rounded-full bg-canvas/80 px-4 py-2 text-accent-ink backdrop-blur-sm [animation-delay:100ms]">
-            <Sparkles aria-hidden className="size-3.5" />
-            {hero.eyebrow}
-          </p>
-        )}
+      {/* Phones: text in the cream space above the plate (image is 310:400). Desktop: the cream panel on the left,
+          at the photo's own 1500:844 shape but never taller than the screen below the header. */}
+      <div className="container-luxe flex aspect-[310/400] flex-col items-center pt-[9%] text-center md:aspect-auto md:h-[clamp(24rem,calc(100vw*844/1500),calc(100svh-var(--header-h)))] md:items-start md:justify-center md:py-12 md:text-left">
+        <div className="w-full md:max-w-[44%] xl:max-w-[40%]">
+          {hero.eyebrow?.trim() && (
+            <p className="eyebrow mb-3 inline-flex animate-rise items-center gap-2 text-accent-ink [animation-delay:100ms] max-md:text-[0.68rem] md:mb-5">
+              <Sparkles aria-hidden className="size-3.5" />
+              {hero.eyebrow}
+            </p>
+          )}
 
-        <h1 id="hero-title" className="text-display font-medium tracking-[-0.025em]">
-          <span className="block animate-rise [animation-delay:200ms]">{hero.titleLines[0]}</span>
-          <span className="block animate-rise italic text-brand [animation-delay:340ms]">{hero.titleLines[1]}</span>
-        </h1>
+          <h1 id="hero-title" className="text-[clamp(2.4rem,1.2rem+5.5vw,3.4rem)] font-medium leading-[0.95] tracking-[-0.025em] md:text-[clamp(2.8rem,0.6rem+4.6vw,5.5rem)]">
+            <span className="block animate-rise [animation-delay:200ms]">{hero.titleLines[0]}</span>
+            <span className="block animate-rise italic text-brand [animation-delay:340ms]">{hero.titleLines[1]}</span>
+          </h1>
 
-        {/* <p className="mx-auto mt-6 max-w-xl animate-rise text-[1.05rem] leading-relaxed text-ink/75 [animation-delay:480ms] sm:text-[1.15rem]">
-          {hero.description}
-        </p> */}
+          <div className="mt-5 flex w-full animate-rise items-center justify-center gap-2.5 [animation-delay:600ms] md:mt-8 md:justify-start md:gap-3">
+            <Link
+              href={hero.primaryCta.href}
+              className={buttonVariants({ size: "lg", className: "px-5 shadow-[0_12px_30px_-12px_rgb(90_35_52/0.6)] max-md:h-11 sm:px-7" })}
+            >
+              {hero.primaryCta.label}
+              <ArrowRight aria-hidden />
+            </Link>
+            <Link href="/kit" className={buttonVariants({ variant: "outline", size: "lg", className: "bg-canvas/80 px-5 backdrop-blur-sm max-md:h-11 sm:px-7" })}>
+              Build my kit
+            </Link>
+          </div>
 
-        <div className="mt-9 flex w-full animate-rise flex-col items-stretch gap-3 [animation-delay:600ms] sm:w-auto sm:flex-row sm:items-center sm:justify-center">
-          <Link
-            href={hero.primaryCta.href}
-            className={buttonVariants({ size: "lg", className: "shadow-[0_12px_30px_-12px_rgb(90_35_52/0.6)]" })}
-          >
-            {hero.primaryCta.label}
-            <ArrowRight aria-hidden />
-          </Link>
-          <Link href="/kit" className={buttonVariants({ variant: "outline", size: "lg", className: "bg-canvas/80 backdrop-blur-sm" })}>
-            Build my kit
-          </Link>
+          {hero.secondaryCta.label?.trim() && hero.secondaryCta.href && hero.secondaryCta.href !== "/kit" && (
+            <Link
+              href={hero.secondaryCta.href}
+              className="mt-5 inline-block animate-rise text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline [animation-delay:700ms] max-md:hidden"
+            >
+              {hero.secondaryCta.label}
+            </Link>
+          )}
         </div>
-
-        {hero.secondaryCta.label?.trim() && hero.secondaryCta.href && (
-          <Link
-            href={hero.secondaryCta.href}
-            className="mt-5 animate-rise text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline [animation-delay:700ms]"
-          >
-            {hero.secondaryCta.label}
-          </Link>
-        )}
       </div>
     </section>
   );

@@ -32,6 +32,22 @@
   --r-media: clamp(1rem, 0.7rem + 1.2vw, 1.75rem); /* hero, category tiles, editorial imagery */
   --r-sheet: 1.5rem; /* dialogs, drawers, bottom sheets */
   --header-h: 4.5rem;
+  /* Phones and tablets get a tab bar at the bottom; fixed bars elsewhere sit above it. */
+  --bottom-nav-h: calc(4rem + env(safe-area-inset-bottom));
+}
+@media (min-width: 64rem) {
+  :root {
+    --bottom-nav-h: 0px;
+  }
+}
+/* Step-by-step flows with their own bottom bar (the kit builder) keep phone screens for the task. */
+@media (max-width: 47.99rem) {
+  :root:has([data-focus-flow]) {
+    --bottom-nav-h: 0px;
+  }
+  :root:has([data-focus-flow]) [data-bottom-nav] {
+    display: none;
+  }
 }
 
 @theme inline {
@@ -51,8 +67,8 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
 
-  --font-serif: var(--font-cormorant), "Cormorant Upright", Georgia, serif;
-  --font-display: var(--font-cormorant), "Cormorant Upright", Georgia, serif;
+  --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
   --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
   --font-script: var(--font-pinyon), "Pinyon Script", "Snell Roundhand", cursive;
 
@@ -171,13 +187,13 @@
 
 /* Calligraphic accent. The script has one upright weight, so cancel the
    italic/bold a heading <em> would otherwise fake, and size up to match
-   Cormorant's taller x-height. */
+   Playfair's tall x-height. */
 @utility script-accent {
   font-family: var(--font-script);
   font-style: normal;
   font-weight: 400;
   letter-spacing: 0;
-  font-size: 1.15em;
+  font-size: 1.3em;
   line-height: 1;
 }
 
@@ -230,14 +246,9 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 700;
-    letter-spacing: -0.01em;
+    font-weight: 500;
+    letter-spacing: -0.015em;
     text-wrap: balance;
-  }
-  /* Cormorant Upright has no italic, so keep accent words upright rather than
-     letting the browser fake a slant; their colour sets them apart. */
-  :is(h1, h2, h3, h4) em {
-    font-style: normal;
   }
   p {
     text-wrap: pretty;

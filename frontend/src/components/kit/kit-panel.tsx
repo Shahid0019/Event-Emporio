@@ -8,7 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { QuantitySelector } from "@/components/ui/quantity-selector";
 import { swapSuggestions, type KitLine } from "@/lib/kit/buildKit";
 import { saveKitToCart } from "@/lib/kit/cart";
-import { savedKitsStore, saveKitForLater } from "@/lib/kit/saved";
+import { deleteSavedKit, isSavedAs, savedKitsStore, saveKitForLater } from "@/lib/kit/saved";
 import { getKitCatalog, kitHasOptionPhotos, kitItemById } from "@/lib/kit/catalog";
 import { CUSTOM_FUNCTION, functionDates, KIT_MAX_PER_ORDER, kitCategories } from "@/lib/kit/config";
 import { formatEventDate, formatKitAmount, formatUnitPrice, quantityHint } from "@/lib/kit/format";
@@ -521,8 +521,36 @@ function KitFooter({
   const within = budget !== null && itemsTotal <= budget;
   const bundleId = state.cartBundleId;
   const inBag = cartStore.useStore((cart) => !!bundleId && cart.some((l) => l.bundle?.id === bundleId));
-  const isSaved = savedKitsStore.useStore((list) => !!state.savedId && list.some((k) => k.id === state.savedId));
+  const savedFrom = savedKitsStore.useStore((list) => (state.savedId ? list.find((k) => k.id === state.savedId) : undefined));
   const kit = sharedKitOf(state);
+  // Unchanged since saved: nothing to do. Changed (or never saved): saving adds a new kit,
+  // so shoppers can keep several versions side by side; replacing the original is one tap away.
+  const isSaved = !!kit && isSavedAs(kit, savedFrom);
+
+  const saveForLater = () => {
+    if (!kit) return;
+    if (isSaved) {
+      toast("This kit is already saved", { description: "Find it under Saved kits — it stays on this device." });
+      return;
+    }
+    const id = saveKitForLater(kit, lines);
+    const original = savedFrom;
+    toast.success("Kit saved for later", {
+      description: original
+        ? `Saved as a new kit. “${original.name}” is kept as it was.`
+        : "Find it under Saved kits — it stays on this device.",
+      ...(original && {
+        action: {
+          label: "Replace it instead",
+          onClick: () => {
+            deleteSavedKit(id);
+            saveKitForLater(kit, lines, original.id);
+            toast.success("Saved kit updated");
+          },
+        },
+      }),
+    });
+  };
 
   const putInBag = () => {
     if (!kit) return;
@@ -533,7 +561,7 @@ function KitFooter({
   };
 
   return (
-    <div className="@container sticky bottom-0 z-10 border-t border-line bg-raised/95 px-5 py-4 backdrop-blur sm:px-6">
+    <div className="@container sticky bottom-[var(--bottom-nav-h)] z-10 md:bottom-0 border-t border-line bg-raised/95 px-5 py-4 backdrop-blur sm:px-6">
       {/* Price on the left, actions on the right; stacked when the panel is narrow. */}
       <div className="flex flex-col gap-3 @[25rem]:flex-row @[25rem]:items-center @[25rem]:justify-between @[25rem]:gap-5">
         <div className="min-w-0">
@@ -549,15 +577,9 @@ function KitFooter({
             size="icon"
             className="size-12 shrink-0"
             disabled={!kit || count === 0}
-            aria-label={isSaved ? "Update saved kit" : "Save kit for later"}
-            title={isSaved ? "Update saved kit" : "Save kit for later"}
-            onClick={() => {
-              if (!kit) return;
-              saveKitForLater(kit, lines, state.savedId);
-              toast.success(isSaved ? "Saved kit updated" : "Kit saved for later", {
-                description: "Find it on this page under Saved kits — it stays on this device.",
-              });
-            }}
+            aria-label={isSaved ? "Kit saved" : "Save kit for later"}
+            title={isSaved ? "Kit saved" : "Save kit for later"}
+            onClick={saveForLater}
           >
             {isSaved ? <BookmarkCheck /> : <Bookmark />}
           </Button>

@@ -1,4 +1,5 @@
 import { AnnouncementBar } from "@/components/layout/announcement-bar";
+import { BottomNav } from "@/components/layout/bottom-nav";
 import { Footer } from "@/components/layout/footer";
 import { Header, type MegaMenuData } from "@/components/layout/header";
 import { MobileMenu } from "@/components/layout/mobile-menu";
@@ -34,6 +35,9 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
         {children}
       </main>
       <Footer />
+      {/* Keeps the end of the footer clear of the phone tab bar. */}
+      <div aria-hidden className="h-[var(--bottom-nav-h)] bg-brand-deep lg:hidden" />
+      <BottomNav />
       <CartDrawer />
       <SearchDialog />
       <MobileMenu menu={menu} instagram={storeSettings.social.instagram} />

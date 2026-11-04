@@ -14,7 +14,8 @@ import { KitPanel, kitSummary } from "./kit-panel";
 import { useKit } from "./use-kit";
 
 const thinScroll = "[scrollbar-color:var(--line-strong)_transparent] [scrollbar-width:thin]";
-const columnHeight = "md:sticky md:top-[calc(var(--header-h)+1rem)] md:h-[calc(100dvh-var(--header-h)-4.75rem)]";
+const columnHeight =
+  "md:sticky md:top-[calc(var(--header-h)+1rem)] md:h-[calc(100dvh-var(--header-h)-var(--bottom-nav-h)-2.25rem)]";
 
 /**
  * Runs a layout change as a View Transition: the browser snapshots the old
@@ -77,7 +78,7 @@ export function KitBuilder() {
   };
 
   return (
-    <div className="container-luxe pb-28 pt-4 md:pb-12 md:pt-6">
+    <div data-focus-flow className="container-luxe pb-28 pt-4 md:pb-12 md:pt-6">
       <h1 className="sr-only">Build my kit</h1>
       <div
         className={cn(
@@ -90,7 +91,8 @@ export function KitBuilder() {
         ) : (
           <KitChat
             onClose={state.occasion ? closeChat : undefined}
-            className={cn("h-[calc(100dvh-var(--header-h)-9.5rem)] min-h-[28rem] [view-transition-name:kit-chat]", columnHeight)}
+            // Phones: fills the screen above the kit bar; the conversation keeps a readable minimum.
+            className={cn("h-[calc(100dvh-var(--header-h)-var(--bottom-nav-h)-7rem)] min-h-[34rem] [view-transition-name:kit-chat]", columnHeight)}
           />
         )}
 
@@ -110,7 +112,7 @@ export function KitBuilder() {
 
       {/* Mobile: while chatting, the kit lives in a sticky bar that opens a full sheet. */}
       {state.occasion && !chatHidden && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-raised/95 px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] backdrop-blur md:hidden">
+        <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden">
           <button
             type="button"
             aria-haspopup="dialog"
@@ -134,7 +136,8 @@ export function KitBuilder() {
         title="Your kit"
         description={kitSummary(state) || undefined}
         className="h-[94dvh] max-h-[94dvh] bg-raised"
-        bodyClassName={cn("p-0", thinScroll)}
+        // The sheet covers the tab bar, so the kit's sticky footer can sit at the very bottom.
+        bodyClassName={cn("p-0 [--bottom-nav-h:0px]", thinScroll)}
       >
         <KitPanel showHeader={false} />
       </Sheet>

@@ -1,14 +1,22 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Upright, DM_Sans } from "next/font/google";
+import { DM_Sans, Pinyon_Script, Playfair_Display } from "next/font/google";
 import { Toaster } from "sonner";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const cormorant = Cormorant_Upright({
-  variable: "--font-cormorant",
+/* High-contrast display serif with true italics for the shop's headings. */
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  style: ["normal"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+/* Calligraphic accent words ("for every occasion"); one weight. */
+const pinyon = Pinyon_Script({
+  variable: "--font-pinyon",
+  subsets: ["latin"],
+  weight: "400",
   display: "swap",
 });
 
@@ -43,11 +51,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-IN" className={`${cormorant.variable} ${dmSans.variable} antialiased`}>
+    <html lang="en-IN" className={`${playfair.variable} ${pinyon.variable} ${dmSans.variable} antialiased`}>
       <body className="min-h-dvh bg-canvas text-ink">
         {children}
         <Toaster
           position="bottom-center"
+          offset={{ bottom: "calc(var(--bottom-nav-h, 0px) + 24px)" }}
+          mobileOffset={{ bottom: "calc(var(--bottom-nav-h, 0px) + 16px)" }}
           toastOptions={{
             unstyled: true,
             classNames: {

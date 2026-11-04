@@ -6,7 +6,7 @@ import { Bookmark, X } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
 import { kitFunctionById } from "@/lib/kit/catalog";
 import { decodeSharedKit } from "@/lib/kit/shared";
-import { deleteSavedKit, openSavedKit, savedKitsStore, type SavedKit } from "@/lib/kit/saved";
+import { deleteSavedKit, openSavedKit, SAVED_KITS_MAX, savedKitsStore, type SavedKit } from "@/lib/kit/saved";
 import { kitStore } from "@/lib/kit/store";
 import { buildKit, kitTotal } from "@/lib/kit/buildKit";
 import { giftLines, giftsTotal } from "@/lib/kit/gifts";
@@ -43,6 +43,8 @@ export function SavedKitsList({ onOpened, className }: { onOpened?: () => void; 
             aria-label={`Open saved kit: ${k.name}`}
           >
             <span className="block truncate text-[0.9rem] font-medium">{k.name}</span>
+            {/* Tier and options tell apart kits for the same function and size. */}
+            <span className="block truncate text-[0.75rem] text-muted">{k.summary}</span>
             <span className="block truncate text-[0.75rem] text-muted">
               {formatKitAmount(currentTotal(k))} · saved {formatDate(k.savedAt)}
             </span>
@@ -83,7 +85,7 @@ export function SavedKitsButton() {
         open={open}
         onOpenChange={setOpen}
         title="Saved kits"
-        description="Saved on this device. Opening one replaces the kit on screen."
+        description={`Save up to ${SAVED_KITS_MAX} kits on this device. Opening one replaces the kit on screen.`}
       >
         <SavedKitsList onOpened={() => setOpen(false)} />
       </Sheet>

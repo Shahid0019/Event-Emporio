@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { NavigationMenu } from "radix-ui";
-import { ArrowRight, Heart, Menu, Search, ShoppingBag } from "lucide-react";
+import { ArrowRight, ChevronDown, Heart, Menu, Search, ShoppingBag } from "lucide-react";
 import { Logo } from "@/components/ui/primitives";
 import { mainNav } from "@/lib/site";
 import { AccountMenu } from "./account-menu";
@@ -26,49 +26,62 @@ export function Header({ menu }: { menu: MegaMenuData }) {
   }, []);
 
   return (
-    <header
-      data-scrolled={scrolled || undefined}
-      className="sticky top-0 z-40 border-b border-transparent bg-canvas/0 transition-[background-color,border-color,backdrop-filter] duration-500 data-[scrolled]:border-line data-[scrolled]:bg-canvas/90 data-[scrolled]:backdrop-blur-md"
-    >
-      <div className="container-luxe grid h-[var(--header-h)] grid-cols-[1fr_auto_1fr] items-center gap-4">
-        {/* Left: menu + search on mobile, logo on desktop */}
-        <div className="flex items-center gap-1 lg:gap-0">
-          <IconButton label="Open menu" onClick={() => setMenuOpen(true)} className="-ml-2.5 lg:hidden">
-            <Menu />
-          </IconButton>
-          <IconButton label="Search" onClick={() => setSearchOpen(true)} className="lg:hidden">
-            <Search />
-          </IconButton>
-          <Logo className="hidden lg:inline-flex" />
+    <header data-scrolled={scrolled || undefined} className="group/header sticky top-0 z-40">
+      {/* Floating tiles: logo, frosted navigation, frosted actions, then the kit call to action.
+          Phones get a single frosted bar. Tiles + padding add up to --header-h. */}
+      <div className="container-luxe flex h-[var(--header-h)] items-stretch gap-2 py-2">
+        <div className={cn(tile, "hidden shrink-0 items-center bg-brand px-4 lg:flex xl:px-6 lg:[&>a>span]:text-[1.45rem] xl:[&>a>span]:text-[1.7rem]")}>
+          <Logo tone="light" />
         </div>
 
-        {/* Centre: logo on mobile, navigation on desktop */}
-        <div className="flex justify-center">
-          <Logo className="lg:hidden" />
+        <div
+          className={cn(tile, glass, "grid min-w-0 flex-1 grid-cols-[1fr_auto_1fr] items-center px-1.5 lg:flex lg:justify-center lg:px-2 xl:px-3")}
+        >
+          {/* Phones: menu, logo, search + account. Shop, kit, wishlist and bag live in the bottom bar. */}
+          <div className="flex items-center lg:hidden">
+            <IconButton label="Open menu" onClick={() => setMenuOpen(true)}>
+              <Menu />
+            </IconButton>
+          </div>
+          <Logo className="lg:hidden [&>span]:text-[1.35rem] sm:[&>span]:text-[1.5rem]" />
+          <div className="flex items-center justify-end lg:hidden">
+            <IconButton label="Search" onClick={() => setSearchOpen(true)}>
+              <Search />
+            </IconButton>
+            <AccountMenu className="grid" />
+          </div>
+
           <Suspense fallback={<DesktopNav menu={menu} pathname={null} />}>
             <DesktopNavWithPath menu={menu} />
           </Suspense>
         </div>
 
-        {/* Right: actions */}
-        <div className="flex items-center justify-end gap-0.5 sm:gap-1">
-          <Link
-            href="/kit"
-            className="mr-1.5 hidden h-10 items-center rounded-full bg-brand px-4 text-[0.68rem] font-medium uppercase tracking-[0.12em] whitespace-nowrap text-brand-ink transition-colors hover:bg-brand-deep lg:inline-flex"
-          >
-            Build my kit
-          </Link>
-          <IconButton label="Search" onClick={() => setSearchOpen(true)} className="hidden lg:grid">
+        <div className={cn(tile, glass, "hidden shrink-0 items-center gap-0.5 px-1.5 lg:flex")}>
+          <IconButton label="Search" onClick={() => setSearchOpen(true)}>
             <Search />
           </IconButton>
           <AccountMenu />
           <WishlistLink />
           <CartButton />
         </div>
+
+        <Link
+          href="/kit"
+          className={cn(
+            tile,
+            "hidden shrink-0 items-center bg-brand px-4 text-[0.9rem] xl:px-6 font-medium whitespace-nowrap text-brand-ink transition-colors hover:bg-brand-deep lg:flex",
+          )}
+        >
+          Build my kit
+        </Link>
       </div>
     </header>
   );
 }
+
+/** One floating piece of the header; lifts a little once the page scrolls under it. */
+const tile = "rounded-control transition-shadow duration-500 group-data-[scrolled]/header:shadow-[0_12px_30px_-18px_rgb(36_32_32/0.35)]";
+const glass = "border border-white/70 bg-raised/70 backdrop-blur-md";
 
 function DesktopNavWithPath({ menu }: { menu: MegaMenuData }) {
   return <DesktopNav menu={menu} pathname={usePathname()} />;
@@ -82,7 +95,7 @@ function isActive(pathname: string | null, href: string) {
 }
 
 const navLink =
-  "relative inline-flex h-10 items-center px-3.5 text-[0.78rem] font-medium uppercase tracking-[0.14em] text-ink transition-colors hover:text-brand data-[active]:text-brand after:absolute after:inset-x-3.5 after:bottom-1.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-500 after:ease-[var(--ease-luxe)] hover:after:scale-x-100 data-[active]:after:scale-x-100 xl:px-4 xl:after:inset-x-4";
+  "inline-flex h-10 items-center gap-1 rounded-chip px-2.5 text-[0.86rem] font-medium xl:px-3.5 xl:text-[0.92rem] whitespace-nowrap text-ink transition-colors hover:bg-surface/80 hover:text-brand data-[active]:text-brand xl:px-4";
 
 function DesktopNav({ menu, pathname }: { menu: MegaMenuData; pathname: string | null }) {
   return (
@@ -91,8 +104,9 @@ function DesktopNav({ menu, pathname }: { menu: MegaMenuData; pathname: string |
         {mainNav.map((item) =>
           "mega" in item ? (
             <NavigationMenu.Item key={item.href}>
-              <NavigationMenu.Trigger className={navLink} data-active={isActive(pathname, item.href) || undefined}>
+              <NavigationMenu.Trigger className={cn(navLink, "group")} data-active={isActive(pathname, item.href) || undefined}>
                 {item.label}
+                <ChevronDown aria-hidden className="size-3.5 transition-transform duration-300 group-data-[state=open]:rotate-180" />
               </NavigationMenu.Trigger>
               <NavigationMenu.Content className="data-[motion]:animate-overlay-in">
                 <MegaMenu menu={menu} />
@@ -111,7 +125,7 @@ function DesktopNav({ menu, pathname }: { menu: MegaMenuData; pathname: string |
       </NavigationMenu.List>
       {/* Positioned against the sticky <header>, so it always opens directly beneath it. */}
       <div className="absolute inset-x-0 top-full flex justify-center">
-        <NavigationMenu.Viewport className="mx-auto w-[calc(100%-2*var(--gutter))] max-w-[calc(92rem-2*var(--gutter))] origin-top overflow-hidden rounded-b-media border border-t-0 border-line bg-canvas shadow-[0_30px_60px_-30px_rgb(36_32_32/0.25)] data-[state=open]:animate-overlay-in" />
+        <NavigationMenu.Viewport className="mx-auto w-[calc(100%-2*var(--gutter))] max-w-[calc(92rem-2*var(--gutter))] origin-top overflow-hidden rounded-card border border-line bg-canvas shadow-[0_30px_60px_-30px_rgb(36_32_32/0.25)] data-[state=open]:animate-overlay-in" />
       </div>
     </NavigationMenu.Root>
   );
@@ -224,7 +238,7 @@ function WishlistLink() {
 function CartButton() {
   const count = cartStore.useStore(cartCount);
   return (
-    <IconButton label={`Shopping bag${count ? `, ${count} items` : ", empty"}`} onClick={openCart} className="-mr-2.5" badge={count}>
+    <IconButton label={`Shopping bag${count ? `, ${count} items` : ", empty"}`} onClick={openCart} badge={count}>
       <ShoppingBag />
     </IconButton>
   );

@@ -170,15 +170,30 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
     <section
       id="kit-chat"
       aria-label="Kit chat"
-      className={cn("flex min-h-0 flex-col overflow-hidden rounded-card border border-line bg-raised", className)}
+      // On very short screens the whole chat scrolls rather than squeezing the conversation or clipping the answers.
+      className={cn("flex min-h-0 flex-col overflow-y-auto rounded-card border border-line bg-raised", className)}
     >
       <header className="border-b border-line px-4 pb-3 pt-3.5">
         <div className="flex items-center gap-3">
           <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-brand font-serif text-base text-brand-ink">
             E
           </span>
-          <p className="min-w-0 flex-1 font-medium leading-tight">Events Emporio</p>
-          <p className="text-[0.78rem] tabular-nums text-muted">
+          {/* Narrow phones: the name gives way to Back (the "E" badge still says who's talking). */}
+          <p className={cn("min-w-0 flex-1 truncate font-medium leading-tight", state.step > 0 && "max-[399px]:sr-only")}>Events Emporio</p>
+          {/* Back lives up here rather than above the answers, leaving the conversation more room. */}
+          {state.step > 0 && (
+            <button
+              type="button"
+              onClick={goBack}
+              aria-label="Previous question"
+              title="Previous question"
+              className="-my-1 ml-auto inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full border border-line px-2.5 text-[0.75rem] font-medium text-muted transition-colors hover:border-ink hover:text-ink"
+            >
+              <ArrowLeft aria-hidden className="size-3.5" />
+              Back
+            </button>
+          )}
+          <p className="shrink-0 text-[0.78rem] tabular-nums text-muted">
             {state.furthest >= 5 ? "Kit ready" : `Question ${state.furthest + 1} of 5`}
           </p>
           {onClose && (
@@ -218,7 +233,8 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
         role="log"
         aria-live="polite"
         aria-label="Conversation"
-        className="min-h-0 flex-1 space-y-3 overflow-y-auto [scrollbar-color:var(--line-strong)_transparent] [scrollbar-width:thin] px-4 py-5"
+        // Never squeezed below a couple of messages on phones; older ones scroll.
+        className="min-h-40 flex-1 space-y-3 overflow-y-auto overscroll-contain [scrollbar-color:var(--line-strong)_transparent] [scrollbar-width:thin] px-4 py-4 md:min-h-52 md:py-5"
       >
         {visible.map((m) =>
           m.from === "shop" ? (
@@ -279,28 +295,12 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
       </div>
 
       <div className="border-t border-line bg-canvas px-4 pb-4 pt-3">
-        {(state.step > 0 || editing) && (
+        {editing && (
           <div className="-mt-1 mb-1.5 flex items-center justify-between gap-3 text-[0.8rem]">
-            {state.step > 0 ? (
-              <button
-                type="button"
-                onClick={goBack}
-                className="-ml-2 inline-flex min-h-9 items-center gap-1.5 rounded-full px-2 font-medium text-muted transition-colors hover:text-ink"
-              >
-                <ArrowLeft aria-hidden className="size-3.5" />
-                Previous question
-              </button>
-            ) : (
-              <span />
-            )}
-            {editing && (
-              <span className="flex items-center gap-2">
-                <span className="text-accent-ink">Changing an answer</span>
-                <button type="button" onClick={cancelReopen} className="min-h-9 px-2 font-medium underline underline-offset-4">
-                  Keep it
-                </button>
-              </span>
-            )}
+            <span className="text-accent-ink">Changing an answer</span>
+            <button type="button" onClick={cancelReopen} className="min-h-9 px-2 font-medium underline underline-offset-4">
+              Keep it
+            </button>
           </div>
         )}
         <StepControls step={state.step} />
@@ -388,7 +388,10 @@ function StepControls({ step }: { step: KitStep }) {
             </Button>
           )}
           <a href={href} target="_blank" rel="noopener noreferrer" className={buttonVariants({ className: "w-full px-3" })}>
-            Share on WhatsApp
+            {/* "Share on" drops on the narrowest phones so the label never spills out of the button. */}
+            <span>
+              <span className="max-[389px]:sr-only">Share on </span>WhatsApp
+            </span>
           </a>
           <Button variant="outline" className="w-full px-3" onClick={startOver}>
             <RotateCcw aria-hidden />
@@ -510,10 +513,10 @@ function CountStep() {
   const picks = byGuests ? GUEST_PICKS : TRAMI.quickPicks;
   const unit = byGuests ? (guests === 1 ? "guest" : "guests") : "trami";
   const stepBtn =
-    "grid size-11 shrink-0 place-items-center rounded-full text-ink transition-colors hover:bg-surface disabled:text-line-strong disabled:hover:bg-transparent [&_svg]:size-5";
+    "grid size-10 shrink-0 place-items-center rounded-full text-ink transition-colors hover:bg-surface disabled:text-line-strong disabled:hover:bg-transparent [&_svg]:size-5";
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2.5">
       <div role="radiogroup" aria-label="Count by" className="grid grid-cols-2 rounded-full bg-surface p-1">
         {(
           [
@@ -535,7 +538,7 @@ function CountStep() {
       </div>
 
       <div>
-        <div className="flex items-center gap-2 rounded-card border border-line-strong bg-raised p-1.5 focus-within:border-ink">
+        <div className="flex items-center gap-2 rounded-card border border-line-strong bg-raised p-1 focus-within:border-ink">
           <button
             type="button"
             aria-label={byGuests ? "10 fewer guests" : "1 fewer trami"}
@@ -556,7 +559,7 @@ function CountStep() {
                 if (e.key === "Enter") confirmTrami();
               }}
               style={{ width: `${Math.max(2, String(field.inputProps.value).length) + 0.5}ch` }}
-              className="bg-transparent text-right text-[2rem] font-medium leading-none tabular-nums outline-none"
+              className="bg-transparent text-right text-[1.75rem] font-medium leading-none tabular-nums outline-none"
             />
             <span className="text-[0.95rem] text-muted">{unit}</span>
           </label>
@@ -570,7 +573,7 @@ function CountStep() {
             <Plus />
           </button>
         </div>
-        <p id="count-hint" className="mt-1.5 text-center text-[0.76rem] text-muted">
+        <p id="count-hint" className="mt-1 text-center text-[0.76rem] text-muted">
           {byGuests
             ? "One of each item per guest"
             : `≈ ${state.trami * GUESTS_PER_TRAMI} guests · ${GUESTS_PER_TRAMI} guests share a trami`}
