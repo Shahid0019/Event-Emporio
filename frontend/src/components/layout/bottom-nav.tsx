@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Heart, House, ShoppingBag, Sparkles, Store } from "lucide-react";
+import { Heart, House, ShoppingBag, Store } from "lucide-react";
 import { cartCount, cartStore, openCart, wishlistStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -43,9 +43,10 @@ export function BottomNav() {
           >
             <span
               aria-hidden
-              className="absolute -top-5 left-1/2 grid -translate-x-1/2 size-14 place-items-center rounded-full border-4 border-canvas bg-brand text-brand-ink shadow-[0_10px_24px_-10px_rgb(90_35_52/0.7)] transition-transform group-active:scale-95 [&_svg]:size-6 [&_svg]:stroke-[1.6]"
+              className="absolute -top-5 left-1/2 grid -translate-x-1/2 size-14 place-items-center rounded-full border-4 border-canvas bg-brand text-brand-ink shadow-[0_10px_24px_-10px_rgb(90_35_52/0.7)] transition-transform group-active:scale-95"
             >
-              <Sparkles />
+              {/* Line-art cart used as a mask, so it takes the button's ink colour. */}
+              <span className="size-[1.85rem] bg-current" style={kitIcon} />
             </span>
             Build kit
           </Link>
@@ -72,6 +73,9 @@ export function BottomNav() {
     </nav>
   );
 }
+
+const kitIconMask = "url(/images/icons/kit-cart.png) center / contain no-repeat";
+const kitIcon = { mask: kitIconMask, WebkitMask: kitIconMask } as const;
 
 const tabClass = (active: boolean) =>
   cn(
