@@ -141,11 +141,14 @@ test.describe("build my kit", () => {
     // Editing turns the button into "Update kit in bag" — it replaces the kit, never adds a second.
     await openRow(panel, "Spoon");
     const spoonQty = panel.getByRole("group", { name: "Quantity for Spoon" });
-    await spoonQty.getByRole("button", { name: "Increase quantity" }).click();
-    await expect(row(panel, "Spoon")).toContainText("101 pcs"); // one at a time
+    // The shop's 4 per trami is the limit: never more, only fewer.
+    await expect(spoonQty.getByRole("button", { name: "Increase quantity" })).toBeDisabled();
+    await expect(panel.getByText("100 of 100 pcs")).toBeVisible();
+    await spoonQty.getByRole("button", { name: "Decrease quantity" }).click();
+    await expect(row(panel, "Spoon")).toContainText("99 pcs"); // one at a time
     await panel.getByRole("button", { name: "Reset to 100" }).click();
     await expect(row(panel, "Spoon")).toContainText("100 pcs");
-    await spoonQty.getByRole("textbox").fill("110"); // or typed
+    await spoonQty.getByRole("textbox").fill("90"); // or typed
     await panel.getByRole("button", { name: "Update kit in bag" }).click();
     await expect(drawer.getByRole("status")).toHaveText("Kit updated in your bag");
     await page.keyboard.press("Escape");
@@ -157,7 +160,7 @@ test.describe("build my kit", () => {
     await expect(bag.getByText("Wazwan kit · 25 trami")).toHaveCount(1);
     await expect(bag.getByText("1 item", { exact: true })).toBeVisible();
     await bag.getByText("View 16 items").click();
-    await expect(bag.getByText(/^Spoon · Plastic small × 110$/)).toBeVisible();
+    await expect(bag.getByText(/^Spoon · Plastic small × 90$/)).toBeVisible();
 
     // Edit kit from the bag reopens exactly this kit; saving updates it in place.
     await bag.getByRole("link", { name: "Edit kit" }).click();
@@ -347,15 +350,18 @@ test("several types of one item (100 plastic + 50 wooden spoons), other items fr
   await openRow(panel, "Spoon");
   const types = panel.getByRole("group", { name: "Spoon type" });
   await types.getByRole("button", { name: "Add Wooden small" }).click();
-  // Plastic already covers the suggested 200, so the new type starts at half (100).
+  // Plastic already fills the limit of 200, so half of it moves over to the new type.
   const plastic = types.getByRole("group", { name: "Quantity for Spoon Plastic small" });
   const woodenQty = types.getByRole("group", { name: "Quantity for Spoon Wooden small" });
   await expect(woodenQty).toBeVisible();
   await expect(woodenQty.getByRole("textbox")).toHaveValue("100");
-  await plastic.getByRole("textbox").fill("100");
+  await expect(plastic.getByRole("textbox")).toHaveValue("100");
+  await expect(page.getByText(/Moved 100 from Plastic small/)).toBeVisible();
+  // Together they can't pass 200.
+  await expect(woodenQty.getByRole("button", { name: "Increase quantity" })).toBeDisabled();
   await woodenQty.getByRole("textbox").fill("50");
   await expect(row(panel, "Spoon")).toContainText("Plastic small 100 · Wooden small 50");
-  await expect(panel.getByText("Total 150 ·")).toBeVisible();
+  await expect(panel.getByText("150 of 200 pcs")).toBeVisible();
 
   // Taking one type out keeps the other.
   await types.getByRole("button", { name: "Remove Spoon Plastic small" }).click();

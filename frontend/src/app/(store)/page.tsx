@@ -7,7 +7,7 @@ import { ReviewWall, type WallReview } from "@/components/home/review-wall";
 import { Reveal } from "@/components/motion/reveal";
 import { ProductGrid } from "@/components/product/product-grid";
 import { SectionHeading } from "@/components/ui/primitives";
-import { getBestsellers, getCategories } from "@/lib/catalog";
+import { getBestsellers, getCategories, inShop } from "@/lib/catalog";
 import { homepage } from "@/lib/data/content";
 import { loadCatalog, loadContent, loadLatestReviews, primeKitCatalog } from "@/lib/db/queries";
 import { storeSettings } from "@/lib/data/settings";
@@ -26,8 +26,8 @@ export default async function HomePage() {
     loadLatestReviews(),
     loadCatalog(),
   ]);
-  // Links to a reviewed product only while it's on sale.
-  const onSale = catalog.products.filter((p) => p.status === "active");
+  // Links to a reviewed product only while it's on sale in the shop (kit items are sold through the kit).
+  const onSale = catalog.products.filter(inShop);
   const slugFor = (id?: string, name?: string) => onSale.find((p) => (id && p.id === id) || (name && p.name === name))?.slug;
   // Customers' published product reviews first (newest), then the testimonials switched on in the admin.
   const wallReviews: WallReview[] = [

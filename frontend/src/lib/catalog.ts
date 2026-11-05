@@ -1,4 +1,5 @@
 import {
+  inShop,
   isVisible,
   matchesQuery,
   PAGE_SIZE,
@@ -28,7 +29,7 @@ export async function categoryName(slug: string) {
 
 export async function listProducts(params: ListParams, pageSize = PAGE_SIZE): Promise<ListResult> {
   const cat = await loadCatalog();
-  let scope = cat.products.filter(isVisible);
+  let scope = cat.products.filter(inShop);
   if (params.q) scope = scope.filter((p) => matchesQuery(p, params.q!, nameOf(cat, p.categorySlug)));
 
   // Facet counts reflect the base scope (search) so options never vanish while filtering.
@@ -72,14 +73,13 @@ export async function getProductBySlug(slug: string): Promise<Product | undefine
 }
 
 export async function getProductSlugs(): Promise<string[]> {
-  return (await loadCatalog()).products.filter(isVisible).map((p) => p.slug);
+  return (await loadCatalog()).products.filter(inShop).map((p) => p.slug);
 }
 
 export async function getBestsellers(limit = 8): Promise<ProductSummary[]> {
   const cat = await loadCatalog();
-  // Kit items are sold through kits, not as bestsellers on their own.
   return sortProducts(
-    cat.products.filter((p) => isVisible(p) && !p.kit),
+    cat.products.filter(inShop),
     "popular",
   )
     .slice(0, limit)
@@ -89,7 +89,7 @@ export async function getBestsellers(limit = 8): Promise<ProductSummary[]> {
 export async function getNewArrivals(limit = 8): Promise<ProductSummary[]> {
   const cat = await loadCatalog();
   return sortProducts(
-    cat.products.filter((p) => isVisible(p) && p.isNewArrival),
+    cat.products.filter((p) => inShop(p) && p.isNewArrival),
     "newest",
   )
     .slice(0, limit)
@@ -98,7 +98,7 @@ export async function getNewArrivals(limit = 8): Promise<ProductSummary[]> {
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<ProductSummary[]> {
   const cat = await loadCatalog();
-  const pool = cat.products.filter((p) => isVisible(p) && p.id !== product.id);
+  const pool = cat.products.filter((p) => inShop(p) && p.id !== product.id);
   return pool
     .filter((p) => p.categorySlug === product.categorySlug)
     .sort((a, b) => b.salesCount - a.salesCount)
@@ -109,7 +109,7 @@ export async function getRelatedProducts(product: Product, limit = 4): Promise<P
 export async function getProductsBySlugs(slugs: string[]): Promise<ProductSummary[]> {
   const cat = await loadCatalog();
   return slugs
-    .map((slug) => cat.products.find((p) => p.slug === slug && isVisible(p)))
+    .map((slug) => cat.products.find((p) => p.slug === slug && inShop(p)))
     .filter((p): p is Product => Boolean(p))
     .map(summarise(cat));
 }
@@ -121,7 +121,7 @@ export async function searchSuggestions(q: string, limit = 5): Promise<SearchSug
   const lower = query.toLowerCase();
   return {
     products: sortProducts(
-      cat.products.filter((p) => isVisible(p) && matchesQuery(p, query, nameOf(cat, p.categorySlug))),
+      cat.products.filter((p) => inShop(p) && matchesQuery(p, query, nameOf(cat, p.categorySlug))),
       "popular",
     )
       .slice(0, limit)
@@ -139,6 +139,6 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function productCountFor(filter: { category?: string }) {
-  return (await loadCatalog()).products.filter((p) => isVisible(p) && (!filter.category || p.categorySlug === filter.category))
+  return (await loadCatalog()).products.filter((p) => inShop(p) && (!filter.category || p.categorySlug === filter.category))
     .length;
 }

@@ -6,8 +6,10 @@ import {
   buildKit,
   KIT_ADDITIONS_MAX,
   NO_PREFS,
+  roomFor,
   withoutVariantOverrides,
   type KitAddition,
+  type KitLine,
   type KitOverride,
   type KitOverrides,
   type KitPrefs,
@@ -155,17 +157,24 @@ export const answerOccasion = (occasion: Occasion, title?: string) =>
 /** Names (or renames) the function at any time; empty clears the name. */
 export const setKitTitle = (title: string) => edit(() => ({ title: cleanTitle(title) }));
 
-export const setTrami = (trami: number) => edit(() => ({ trami: clampTrami(trami), guests: undefined, countBy: "trami" }));
+/** A change to the kit's size (or extra stock), with every item brought back within its new limit. */
+const resize = (change: (s: KitState) => Partial<KitState>) =>
+  edit((s) => {
+    const changed = change(s);
+    return { ...changed, ...fitToLimits(s, { ...s, ...changed }) };
+  });
+
+export const setTrami = (trami: number) => resize(() => ({ trami: clampTrami(trami), guests: undefined, countBy: "trami" }));
 
 /** Counting by guests: quantities go per person; trami (guests ÷ 4, rounded up) is kept only for budgets and links. */
 export const MAX_GUESTS = TRAMI.max * GUESTS_PER_TRAMI;
 export const setGuests = (guests: number) => {
   const n = Math.min(MAX_GUESTS, Math.max(1, Math.round(guests)));
-  edit(() => ({ guests: n, countBy: "guests", trami: clampTrami(Math.ceil(n / GUESTS_PER_TRAMI)) }));
+  resize(() => ({ guests: n, countBy: "guests", trami: clampTrami(Math.ceil(n / GUESTS_PER_TRAMI)) }));
 };
 /** Switching keeps the size: 50 trami ↔ 200 guests. */
 export const setCountBy = (countBy: "trami" | "guests") =>
-  edit((s) => (countBy === "guests" ? { countBy, guests: s.guests ?? s.trami * GUESTS_PER_TRAMI } : { countBy, guests: undefined }));
+  resize((s) => (countBy === "guests" ? { countBy, guests: s.guests ?? s.trami * GUESTS_PER_TRAMI } : { countBy, guests: undefined }));
 /** Guests for this kit: the number typed, or four per trami. */
 export const guestsOf = (s: Pick<KitState, "guests" | "trami">) => s.guests ?? s.trami * GUESTS_PER_TRAMI;
 export const confirmTrami = () => edit((s) => nextSteps(s, 1));
@@ -193,7 +202,7 @@ export const goBack = () => kitStore.set((s) => (s.step > 0 ? { ...s, step: (s.s
 export const answerTier = (tier: Tier) => edit((s) => ({ tier, overrides: withoutVariantOverrides(s.overrides), ...nextSteps(s, 3) }));
 
 export const togglePref = (key: keyof KitPrefs) =>
-  edit((s) => ({ prefs: { ...s.prefs, [key]: !s.prefs[key] }, overrides: withoutVariantOverrides(s.overrides) }));
+  resize((s) => ({ prefs: { ...s.prefs, [key]: !s.prefs[key] }, overrides: withoutVariantOverrides(s.overrides) }));
 export const confirmPrefs = () => edit((s) => nextSteps(s, 4));
 
 /** Tap an earlier answer bubble to change it. */
@@ -216,6 +225,88 @@ export const kitChatHiddenStore = createPersistedStore<boolean>(
 );
 export const setChatHidden = (hidden: boolean) => kitChatHiddenStore.set(hidden);
 
+/* ---------------------------- Item limits ---------------------------- */
+
+const linesOf = (s: KitState): KitLine[] =>
+  s.occasion
+    ? buildKit({
+        occasion: s.occasion,
+        trami: s.trami,
+        guests: s.guests,
+        tier: s.tier ?? "standard",
+        prefs: s.prefs,
+        overrides: s.overrides,
+        added: s.added,
+      })
+    : [];
+
+/** The state change that sets one line's quantity. */
+function withLineQty(s: KitState, line: KitLine, qty: number): Pick<KitState, "overrides" | "added"> {
+  return line.additionId
+    ? { overrides: s.overrides, added: (s.added ?? []).map((a) => (a.id === line.additionId ? { ...a, qty } : a)) }
+    : { overrides: { ...s.overrides, [line.itemId]: { ...s.overrides[line.itemId], qty } }, added: s.added };
+}
+
+/**
+ * A shopper's quantity for a line, kept within the item's limit (see roomFor).
+ * A quantity the shop itself set above the limit, in a kit it prepared, may
+ * stay as it is — it just can't grow.
+ */
+function withinLimit(s: KitState, itemId: string, lineId: string, qty: number): number {
+  const lines = linesOf(s);
+  const line = lines.find((l) => l.lineId === lineId);
+  const most = Math.max(roomFor(lines, itemId, lineId), line && !line.removed ? line.qty : 0, 1);
+  return Math.min(Math.max(1, Math.round(qty)), most);
+}
+
+/** Splits `limit` across lines in proportion to their quantities, at least one each. */
+export function scaleSplit(qtys: number[], limit: number): number[] {
+  const total = qtys.reduce((n, q) => n + q, 0);
+  const shares = qtys.map((q) => Math.max(1, Math.floor((q * limit) / total)));
+  // Rounding leaves a few over or under; settle them on the biggest types first.
+  const order = qtys.map((_, i) => i).sort((a, b) => qtys[b] - qtys[a]);
+  let diff = limit - shares.reduce((n, q) => n + q, 0);
+  for (let k = 0; diff !== 0 && k < order.length * limit; k++) {
+    const i = order[k % order.length];
+    const step = diff > 0 ? 1 : shares[i] > 1 ? -1 : 0;
+    shares[i] += step;
+    diff -= step;
+  }
+  return shares;
+}
+
+/**
+ * After the kit's size changes, keeps each item's mix of types at the new
+ * limit: an item over it is scaled down, and one that was full is scaled up,
+ * so 150 plastic + 50 wooden spoons at 50 trami are 75 + 25 at 25 trami.
+ */
+function fitToLimits(before: KitState, after: KitState): Pick<KitState, "overrides" | "added"> {
+  let next = after;
+  const was = linesOf(before);
+  const lines = linesOf(after);
+  for (const itemId of new Set(lines.map((l) => l.itemId))) {
+    const own = lines.filter((l) => l.itemId === itemId && !l.removed);
+    if (!own.length) continue;
+    const limit = own[0].baseQty;
+    const total = own.reduce((n, l) => n + l.qty, 0);
+    const wasFull = was.some((l) => l.itemId === itemId) && roomFor(was, itemId) === 0;
+    if (total === limit || (total < limit && !wasFull)) continue;
+    const shares = scaleSplit(
+      own.map((l) => l.qty),
+      limit,
+    );
+    own.forEach((line, i) => {
+      // A lone suggested line just follows the suggestion again.
+      if (own.length === 1 && !line.additionId) {
+        const rest: KitOverride = { ...next.overrides[itemId] };
+        delete rest.qty;
+        next = { ...next, overrides: { ...next.overrides, [itemId]: rest } };
+      } else next = { ...next, ...withLineQty(next, line, shares[i]) };
+    });
+  }
+  return { overrides: next.overrides, added: next.added };
+}
+
 /* ------------------------------ Kit edits ---------------------------- */
 
 function patchItem(itemId: string, patch: KitOverride) {
@@ -223,51 +314,81 @@ function patchItem(itemId: string, patch: KitOverride) {
 }
 
 export const setVariant = (itemId: string, variantIndex: number) => patchItem(itemId, { variantIndex });
-export const setQty = (itemId: string, qty: number) => patchItem(itemId, { qty: Math.max(1, Math.round(qty)) });
+export const setQty = (itemId: string, qty: number) =>
+  edit((s) => ({ overrides: { ...s.overrides, [itemId]: { ...s.overrides[itemId], qty: withinLimit(s, itemId, itemId, qty) } } }));
 /** Back to the per-trami suggestion. */
 export const resetQty = (itemId: string) => patchItem(itemId, { qty: undefined });
 export const removeItem = (itemId: string) => patchItem(itemId, { removed: true });
-export const restoreItem = (itemId: string) => patchItem(itemId, { removed: false });
+/** Puts a removed item back, within whatever room its other types left. */
+export const restoreItem = (itemId: string) =>
+  edit((s) => {
+    const lines = linesOf(s);
+    const line = lines.find((l) => l.lineId === itemId);
+    const room = roomFor(lines, itemId, itemId);
+    const qty = line && line.qty > room ? { qty: Math.max(1, room) } : {};
+    return { overrides: { ...s.overrides, [itemId]: { ...s.overrides[itemId], removed: false, ...qty } } };
+  });
 
 /* --------------------------- Added items ----------------------------- */
 
 export type AddResult =
-  { kind: "added"; lineId: string } | { kind: "restored"; lineId: string } | { kind: "exists"; lineId: string } | { kind: "full" };
+  | { kind: "added"; lineId: string; note?: string }
+  | { kind: "restored"; lineId: string; note?: string }
+  | { kind: "exists"; lineId: string }
+  | { kind: "full" }
+  /** The item is at its limit and no type has pieces to spare. */
+  | { kind: "limit"; limit: number };
 
 /**
  * Adds an item (in the chosen type) to the kit. If that exact item and type
  * is already a line, nothing is added and that line is returned instead; if
  * it's a suggested item the shopper removed, it's put back in that type.
+ *
+ * The item never goes over its limit: a new type gets whatever room is left
+ * (up to `qty`). When there's none, it takes half of the biggest type's
+ * pieces — the shopper is mixing types, not buying more — and `note` says so.
  */
 export function addToKit(itemId: string, variantIndex: number, qty?: number): AddResult {
   const s = kitStore.get();
   const item = kitItemById(itemId);
   if (!s.occasion || !item) return { kind: "full" };
-  const lines = buildKit({
-    occasion: s.occasion,
-    trami: s.trami,
-    guests: s.guests,
-    tier: s.tier ?? "standard",
-    prefs: s.prefs,
-    overrides: s.overrides,
-    added: s.added,
-  });
+  const lines = linesOf(s);
 
   const same = lines.find((l) => l.itemId === itemId && l.variantIndex === variantIndex && !l.removed);
   if (same) return { kind: "exists", lineId: same.lineId };
 
   const suggested = lines.find((l) => !l.additionId && l.itemId === itemId);
-  if (suggested?.removed) {
-    patchItem(itemId, { removed: false, variantIndex });
-    return { kind: "restored", lineId: suggested.lineId };
+  const added = s.added ?? [];
+  if (!suggested?.removed && added.length >= KIT_ADDITIONS_MAX) return { kind: "full" };
+
+  const limit = suggested?.baseQty ?? quantityFor({ trami: s.trami, guests: s.guests }, item.perTrami, s.prefs.extra);
+  const own = lines.filter((l) => l.itemId === itemId && !l.removed);
+  const room = lines.some((l) => l.itemId === itemId) ? roomFor(lines, itemId) : limit;
+  const wanted = Math.max(1, Math.round(qty ?? (suggested?.removed ? suggested.qty : limit)));
+
+  // Room left: use it. None: take half from the type with the most pieces.
+  let amount = Math.min(wanted, room);
+  let next: KitState = s;
+  let note: string | undefined;
+  if (amount < 1) {
+    const biggest = own.reduce<KitLine | undefined>((a, l) => (!a || l.qty > a.qty ? l : a), undefined);
+    amount = biggest ? Math.floor(biggest.qty / 2) : 0;
+    if (!biggest || amount < 1) return { kind: "limit", limit };
+    next = { ...s, ...withLineQty(s, biggest, biggest.qty - amount) };
+    note = `Moved ${amount} from ${item.variants[biggest.variantIndex].name}, so ${item.name.toLowerCase()} stays at ${limit} in total.`;
   }
 
-  const added = s.added ?? [];
-  if (added.length >= KIT_ADDITIONS_MAX) return { kind: "full" };
+  if (suggested?.removed) {
+    edit(() => ({
+      added: next.added,
+      overrides: { ...next.overrides, [itemId]: { ...next.overrides[itemId], removed: false, variantIndex, qty: amount } },
+    }));
+    return { kind: "restored", lineId: suggested.lineId, note };
+  }
+
   const id = `a${Date.now().toString(36)}${Math.random().toString(36).slice(2, 5)}`;
-  const amount = Math.max(1, Math.round(qty ?? quantityFor({ trami: s.trami, guests: s.guests }, item.perTrami, s.prefs.extra)));
-  edit(() => ({ added: [...added, { id, itemId, variantIndex, qty: amount }] }));
-  return { kind: "added", lineId: `add:${id}` };
+  edit(() => ({ overrides: next.overrides, added: [...(next.added ?? []), { id, itemId, variantIndex, qty: amount }] }));
+  return { kind: "added", lineId: `add:${id}`, note };
 }
 
 function patchAddition(id: string, patch: Partial<Pick<KitAddition, "variantIndex" | "qty">>) {
@@ -275,7 +396,12 @@ function patchAddition(id: string, patch: Partial<Pick<KitAddition, "variantInde
 }
 
 export const setAddedVariant = (id: string, variantIndex: number) => patchAddition(id, { variantIndex });
-export const setAddedQty = (id: string, qty: number) => patchAddition(id, { qty: Math.max(1, Math.round(qty)) });
+export const setAddedQty = (id: string, qty: number) =>
+  edit((s) => {
+    const itemId = (s.added ?? []).find((a) => a.id === id)?.itemId;
+    const amount = itemId ? withinLimit(s, itemId, `add:${id}`, qty) : Math.max(1, Math.round(qty));
+    return { added: (s.added ?? []).map((a) => (a.id === id ? { ...a, qty: amount } : a)) };
+  });
 
 /** Removes an added line. Returns it so it can be put back (Undo). */
 export function removeAddition(id: string): KitAddition | undefined {

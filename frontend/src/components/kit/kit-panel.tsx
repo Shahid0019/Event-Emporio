@@ -10,7 +10,7 @@ import { swapSuggestions, type KitLine } from "@/lib/kit/buildKit";
 import { saveKitToCart } from "@/lib/kit/cart";
 import { deleteSavedKit, isSavedAs, savedKitsStore, saveKitForLater } from "@/lib/kit/saved";
 import { getKitCatalog, kitHasOptionPhotos, kitItemById } from "@/lib/kit/catalog";
-import { CUSTOM_FUNCTION, functionDates, KIT_MAX_PER_ORDER, kitCategories } from "@/lib/kit/config";
+import { CUSTOM_FUNCTION, functionDates, kitCategories } from "@/lib/kit/config";
 import { formatEventDate, formatKitAmount, formatUnitPrice, quantityHint } from "@/lib/kit/format";
 import {
   addToKit,
@@ -249,7 +249,11 @@ function ItemRow({
   const byType = new Map(group.map((l) => [l.variantIndex, l]));
   const totalQty = group.reduce((n, l) => n + l.qty, 0);
   const totalPrice = group.reduce((n, l) => n + l.lineTotal, 0);
+  // The shop's count for this kit's size is the most the shopper can have, across every type.
   const baseQty = first.baseQty;
+  const left = baseQty - totalQty;
+  // A new type borrows from the biggest one when the item is full; it needs one with pieces to spare.
+  const canAddType = left > 0 || group.some((l) => l.qty > 1);
   const single = group.length === 1;
   const optionPhotos = kitHasOptionPhotos(item.id);
   // The picture and the name open the item's details; the rest of the row opens it for editing.
@@ -259,10 +263,9 @@ function ItemRow({
   const changeQty = (line: KitLine, q: number) => (line.additionId ? setAddedQty(line.additionId, q) : setQty(line.itemId, q));
 
   const addType = (i: number) => {
-    // Start the new type with what's still needed, so the item adds up to the suggestion.
-    const remaining = baseQty - totalQty;
-    const result = addToKit(item.id, i, remaining > 0 ? remaining : Math.ceil(baseQty / 2));
-    if (result.kind === "full") announceAdd(result, item.name);
+    // Takes what's left of the limit, or moves pieces over from the biggest type (and says so).
+    const result = addToKit(item.id, i);
+    if (result.kind !== "added" || result.note) announceAdd(result, `${item.name} · ${item.variants[i].name}`);
   };
 
   /** One type only: change which type it is (keeps the quantity). */
@@ -339,7 +342,8 @@ function ItemRow({
             View details
           </button>
           <p className="mb-2 text-[0.8rem] font-medium">
-            How many of each {item.optionName.toLowerCase()}?<span className="font-normal text-muted"> Mix as many as you like.</span>
+            How many of each {item.optionName.toLowerCase()}?
+            <span className="font-normal text-muted"> Mix {item.optionName.toLowerCase()}s, up to {baseQty} in total.</span>
           </p>
           <ul
             role="group"
@@ -367,7 +371,8 @@ function ItemRow({
                       <QuantitySelector
                         value={line.qty}
                         min={1}
-                        max={KIT_MAX_PER_ORDER}
+                        // Up to what the other types leave (a shop-set quantity above that can stay).
+                        max={Math.max(line.qty, baseQty - (totalQty - line.qty))}
                         onChange={(q) => changeQty(line, q)}
                         label={`Quantity for ${item.name} ${v.name}`}
                       />
@@ -401,8 +406,10 @@ function ItemRow({
                       <button
                         type="button"
                         onClick={() => addType(i)}
+                        disabled={!canAddType}
                         aria-label={`Add ${v.name}`}
-                        className="inline-flex min-h-10 items-center gap-1 rounded-full border border-line-strong px-3.5 text-[0.8rem] font-medium transition-colors hover:border-ink"
+                        title={left > 0 ? `Adds the ${left} left` : "Moves some over from your biggest type"}
+                        className="inline-flex min-h-10 items-center gap-1 rounded-full border border-line-strong px-3.5 text-[0.8rem] font-medium transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line-strong"
                       >
                         <Plus aria-hidden className="size-3.5" />
                         Add
@@ -414,11 +421,9 @@ function ItemRow({
             })}
           </ul>
 
-          <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1">
-            <p className="min-w-0 flex-1 text-[0.78rem] text-muted">
-              {single ? "" : <span className="font-medium text-ink">Total {totalQty} · </span>}
-              Suggested {baseQty} ({quantityHint(trami, item.perTrami, extra, guests)})
-            </p>
+          <LimitMeter used={totalQty} limit={baseQty} hint={quantityHint(trami, item.perTrami, extra, guests)} several={!single} />
+
+          <div className="mt-2 flex flex-wrap items-center justify-end gap-x-3 gap-y-1">
             {single && suggested && suggested.qty !== baseQty && (
               <button
                 type="button"
@@ -456,6 +461,34 @@ function ItemRow({
         }}
       />
     </li>
+  );
+}
+
+/** How much of an item's limit is used, with what to do next once it's full. */
+function LimitMeter({ used, limit, hint, several }: { used: number; limit: number; hint: string; several: boolean }) {
+  const full = used >= limit;
+  return (
+    <div className="mt-3" role="status">
+      <div className="flex items-baseline justify-between gap-3 text-[0.78rem]">
+        <span className="font-medium tabular-nums">
+          {used} of {limit} pcs
+        </span>
+        <span className="truncate text-muted">{hint}</span>
+      </div>
+      <div aria-hidden className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface">
+        <div
+          className={cn("h-full rounded-full transition-[width] duration-300", full ? "bg-brand" : "bg-accent")}
+          style={{ width: `${Math.min(100, (used / limit) * 100)}%` }}
+        />
+      </div>
+      <p className="mt-1.5 text-[0.75rem] text-muted">
+        {full
+          ? several
+            ? "All set for your kit. To have more of one type, lower another."
+            : "All set for your kit. Add another type to split it."
+          : `${limit - used} more can be added for your kit.`}
+      </p>
+    </div>
   );
 }
 

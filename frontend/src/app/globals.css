@@ -40,15 +40,6 @@
     --bottom-nav-h: 0px;
   }
 }
-/* Step-by-step flows with their own bottom bar (the kit builder) keep phone screens for the task. */
-@media (max-width: 47.99rem) {
-  :root:has([data-focus-flow]) {
-    --bottom-nav-h: 0px;
-  }
-  :root:has([data-focus-flow]) [data-bottom-nav] {
-    display: none;
-  }
-}
 
 @theme inline {
   --color-canvas: var(--canvas);

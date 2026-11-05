@@ -14,11 +14,13 @@ import { KitThumb } from "./kit-thumb";
 
 /** Toast for an add, and the line to open so the shopper can set its quantity. */
 export function announceAdd(result: AddResult, label: string): string | null {
-  if (result.kind === "added") toast.success(`${label} added to your kit`, { description: "Set how many you need below." });
-  else if (result.kind === "restored") toast.success(`${label} is back in your kit`);
+  if (result.kind === "added") toast.success(`${label} added to your kit`, { description: result.note ?? "Set how many you need below." });
+  else if (result.kind === "restored") toast.success(`${label} is back in your kit`, { description: result.note });
   else if (result.kind === "exists") toast(`${label} is already in your kit`, { description: "Change its quantity instead." });
+  else if (result.kind === "limit")
+    toast(`Your kit already has all ${result.limit} of this item`, { description: "Lower another type first, or switch the type instead." });
   else toast.error("Your kit can't take more added items. Remove one first.");
-  return result.kind === "full" ? null : result.lineId;
+  return result.kind === "full" || result.kind === "limit" ? null : result.lineId;
 }
 
 /**

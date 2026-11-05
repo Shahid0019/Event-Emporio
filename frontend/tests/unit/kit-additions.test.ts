@@ -16,7 +16,12 @@ import {
   loadCompleteKit,
   removeWholeItem,
   restoreAdditions,
+  restoreItem,
+  removeItem,
+  scaleSplit,
+  setAddedQty,
   setQty,
+  setTrami,
 } from "@/lib/kit/store";
 
 const spoon = kitItemById("spoon")!;
@@ -142,6 +147,96 @@ describe("several types of one item", () => {
     expect(spoons()).toHaveLength(0);
     restoreAdditions(gone);
     expect(spoons()).toHaveLength(1);
+  });
+});
+
+describe("the shop's limit per item", () => {
+  // Spoons are 4 per trami, so a 50-trami kit takes up to 200, in any mix of types.
+  const start = () => loadCompleteKit({ occasion: "wazwan", trami: 50, tier: "basic", prefs: NO_PREFS, date: null, overrides: {} });
+  const current = () => {
+    const s = kitStore.get();
+    return buildKit({ occasion: s.occasion!, trami: s.trami, tier: s.tier!, prefs: s.prefs, overrides: s.overrides, added: s.added });
+  };
+  const spoons = () => current().filter((l) => l.itemId === "spoon" && !l.removed);
+  const mix = () => spoons().map((l) => [spoon.variants[l.variantIndex].name, l.qty]);
+
+  it("can't go over the limit, only under it", () => {
+    start();
+    setQty("spoon", 500);
+    expect(mix()).toEqual([["Plastic small", 200]]);
+    setQty("spoon", 120);
+    expect(mix()).toEqual([["Plastic small", 120]]);
+  });
+
+  it("a new type takes what's left, and types share the limit", () => {
+    start();
+    setQty("spoon", 150);
+    const added = addToKit("spoon", wooden);
+    expect(added).toMatchObject({ kind: "added" });
+    expect(mix()).toEqual([
+      ["Plastic small", 150],
+      ["Wooden small", 50],
+    ]);
+    // Wooden can't grow past what plastic leaves…
+    setAddedQty(kitStore.get().added![0].id, 120);
+    expect(mix()).toEqual([
+      ["Plastic small", 150],
+      ["Wooden small", 50],
+    ]);
+    // …until plastic is lowered.
+    setQty("spoon", 80);
+    setAddedQty(kitStore.get().added![0].id, 120);
+    expect(mix()).toEqual([
+      ["Plastic small", 80],
+      ["Wooden small", 120],
+    ]);
+  });
+
+  it("adding a type to a full item moves pieces over instead of adding more", () => {
+    start();
+    const result = addToKit("spoon", wooden);
+    expect(result).toMatchObject({ kind: "added", note: expect.stringContaining("Moved 100 from Plastic small") });
+    expect(mix()).toEqual([
+      ["Plastic small", 100],
+      ["Wooden small", 100],
+    ]);
+  });
+
+  it("an item put back fits in what its other types left", () => {
+    start();
+    setQty("spoon", 150);
+    addToKit("spoon", wooden);
+    removeItem("spoon");
+    setAddedQty(kitStore.get().added![0].id, 170);
+    restoreItem("spoon");
+    expect(spoons().reduce((n, l) => n + l.qty, 0)).toBe(200);
+  });
+
+  it("a smaller kit scales each mix down; a bigger one fills a full item up", () => {
+    start();
+    setQty("spoon", 150);
+    addToKit("spoon", wooden);
+    setTrami(25);
+    expect(mix()).toEqual([
+      ["Plastic small", 75],
+      ["Wooden small", 25],
+    ]);
+    setTrami(50);
+    expect(mix()).toEqual([
+      ["Plastic small", 150],
+      ["Wooden small", 50],
+    ]);
+  });
+
+  it("splits a limit in proportion, at least one each", () => {
+    expect(scaleSplit([150, 50], 100)).toEqual([75, 25]);
+    expect(scaleSplit([1, 1, 98], 10)).toEqual([1, 1, 8]);
+    expect(scaleSplit([5, 5], 3)).toEqual([2, 1]);
+    for (const [q, l] of [
+      [[3, 3, 3], 10],
+      [[7, 1], 5],
+    ] as const)
+      expect(scaleSplit([...q], l).reduce((n, x) => n + x, 0)).toBe(l);
   });
 });
 

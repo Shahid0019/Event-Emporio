@@ -176,6 +176,19 @@ export function buildKit(
   return [...suggested, ...extra];
 }
 
+/**
+ * How many more of an item fit in the kit. The shop sets how many of each item
+ * a trami needs (Admin → Kit products); that count for this kit's size — the
+ * line's `baseQty` — is the most the shopper can have of the item, mixed across
+ * its types any way they like. Pass a line to leave out its own quantity.
+ */
+export function roomFor(lines: KitLine[], itemId: string, exceptLineId?: string): number {
+  const own = lines.filter((l) => l.itemId === itemId);
+  if (!own.length) return 0;
+  const used = own.filter((l) => !l.removed && l.lineId !== exceptLineId).reduce((n, l) => n + l.qty, 0);
+  return own[0].baseQty - used;
+}
+
 /** The variants of an item already in the kit (on lines that aren't removed). */
 export function variantsInKit(lines: KitLine[], itemId: string): Set<number> {
   return new Set(lines.filter((l) => l.itemId === itemId && !l.removed).map((l) => l.variantIndex));

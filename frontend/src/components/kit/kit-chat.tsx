@@ -513,32 +513,40 @@ function CountStep() {
   const picks = byGuests ? GUEST_PICKS : TRAMI.quickPicks;
   const unit = byGuests ? (guests === 1 ? "guest" : "guests") : "trami";
   const stepBtn =
-    "grid size-10 shrink-0 place-items-center rounded-full text-ink transition-colors hover:bg-surface disabled:text-line-strong disabled:hover:bg-transparent [&_svg]:size-5";
+    "grid size-9 shrink-0 place-items-center rounded-full text-ink transition-colors hover:bg-surface disabled:text-line-strong disabled:hover:bg-transparent [&_svg]:size-[1.15rem]";
 
+  // Kept compact so the conversation above gets most of the height on phones.
   return (
-    <div className="space-y-2.5">
-      <div role="radiogroup" aria-label="Count by" className="grid grid-cols-2 rounded-full bg-surface p-1">
-        {(
-          [
-            ["trami", "By trami"],
-            ["guests", "By guests"],
-          ] as const
-        ).map(([id, label]) => (
-          <button
-            key={id}
-            type="button"
-            role="radio"
-            aria-checked={(state.countBy ?? "trami") === id}
-            onClick={() => setCountBy(id)}
-            className="h-9 rounded-full text-[0.82rem] font-medium text-muted transition-colors hover:text-ink aria-checked:bg-raised aria-checked:text-ink aria-checked:shadow-sm"
-          >
-            {label}
-          </button>
-        ))}
+    <div className="space-y-2">
+      {/* The count mode and what the number means share one slim row. */}
+      <div className="flex items-center justify-between gap-2">
+        <p id="count-hint" className="min-w-0 text-[0.76rem] leading-tight text-muted">
+          {byGuests ? "One of each item per guest" : `≈ ${state.trami * GUESTS_PER_TRAMI} guests · ${GUESTS_PER_TRAMI} per trami`}
+        </p>
+        <div role="radiogroup" aria-label="Count by" className="flex shrink-0 rounded-full bg-surface p-0.5">
+          {(
+            [
+              ["trami", "Trami"],
+              ["guests", "Guests"],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={(state.countBy ?? "trami") === id}
+              aria-label={`By ${id}`}
+              onClick={() => setCountBy(id)}
+              className="h-8 rounded-full px-3 text-[0.78rem] font-medium text-muted transition-colors hover:text-ink aria-checked:bg-raised aria-checked:text-ink aria-checked:shadow-sm"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div>
-        <div className="flex items-center gap-2 rounded-card border border-line-strong bg-raised p-1 focus-within:border-ink">
+        <div className="flex items-center gap-2 rounded-full border border-line-strong bg-raised p-0.5 focus-within:border-ink">
           <button
             type="button"
             aria-label={byGuests ? "10 fewer guests" : "1 fewer trami"}
@@ -559,9 +567,9 @@ function CountStep() {
                 if (e.key === "Enter") confirmTrami();
               }}
               style={{ width: `${Math.max(2, String(field.inputProps.value).length) + 0.5}ch` }}
-              className="bg-transparent text-right text-[1.75rem] font-medium leading-none tabular-nums outline-none"
+              className="bg-transparent text-right text-[1.5rem] font-medium leading-none tabular-nums outline-none"
             />
-            <span className="text-[0.95rem] text-muted">{unit}</span>
+            <span className="text-[0.9rem] text-muted">{unit}</span>
           </label>
           <button
             type="button"
@@ -573,11 +581,6 @@ function CountStep() {
             <Plus />
           </button>
         </div>
-        <p id="count-hint" className="mt-1 text-center text-[0.76rem] text-muted">
-          {byGuests
-            ? "One of each item per guest"
-            : `≈ ${state.trami * GUESTS_PER_TRAMI} guests · ${GUESTS_PER_TRAMI} guests share a trami`}
-        </p>
       </div>
 
       <div className="grid grid-cols-4 gap-1.5" role="group" aria-label="Quick picks">
@@ -587,14 +590,14 @@ function CountStep() {
             type="button"
             aria-pressed={value === n}
             onClick={() => (byGuests ? setGuests(n) : setTrami(n))}
-            className="h-9 rounded-full border border-line text-[0.85rem] tabular-nums transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
+            className="h-8 rounded-full border border-line text-[0.82rem] tabular-nums transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
           >
             {n}
           </button>
         ))}
       </div>
 
-      <Button className="w-full" onClick={confirmTrami}>
+      <Button className="h-11 w-full" onClick={confirmTrami}>
         {byGuests ? `Yes, ${guests} guests` : `Yes, ${state.trami} trami`}
         <ArrowRight aria-hidden />
       </Button>

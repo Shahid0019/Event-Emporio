@@ -142,9 +142,9 @@ export function KitItemDetails({
 
           <dl className="grid grid-cols-2 gap-3 text-[0.85rem]">
             <div className="rounded-control bg-surface px-3 py-2.5">
-              <dt className="text-muted">Suggested for your kit</dt>
+              <dt className="text-muted">Your kit takes</dt>
               <dd className="mt-0.5 font-medium tabular-nums">
-                {suggested ?? "—"} pcs
+                {suggested ? `Up to ${suggested}` : "—"} pcs
                 <span className="block text-[0.75rem] font-normal text-muted">{quantityHint(trami, item.perTrami, extra, guests)}</span>
               </dd>
             </div>

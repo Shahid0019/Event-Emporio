@@ -78,7 +78,8 @@ export function KitBuilder() {
   };
 
   return (
-    <div data-focus-flow className="container-luxe pb-28 pt-4 md:pb-12 md:pt-6">
+    // Phones: room to scroll clear of the kit bar and the tab bar below it.
+    <div className="container-luxe pb-[calc(var(--bottom-nav-h)+6.5rem)] pt-4 md:pb-12 md:pt-6">
       <h1 className="sr-only">Build my kit</h1>
       <div
         className={cn(
@@ -91,8 +92,8 @@ export function KitBuilder() {
         ) : (
           <KitChat
             onClose={state.occasion ? closeChat : undefined}
-            // Phones: fills the screen above the kit bar; the conversation keeps a readable minimum.
-            className={cn("h-[calc(100dvh-var(--header-h)-var(--bottom-nav-h)-7rem)] min-h-[34rem] [view-transition-name:kit-chat]", columnHeight)}
+            // Phones: fills the screen above the kit bar and tab bar; the conversation keeps a readable minimum.
+            className={cn("h-[calc(100dvh-var(--header-h)-var(--bottom-nav-h)-7rem)] min-h-[30rem] [view-transition-name:kit-chat]", columnHeight)}
           />
         )}
 
@@ -110,9 +111,10 @@ export function KitBuilder() {
         </section>
       </div>
 
-      {/* Mobile: while chatting, the kit lives in a sticky bar that opens a full sheet. */}
+      {/* Mobile: while chatting, the kit lives in a sticky bar that opens a full sheet. It sits on the
+          tab bar, with bottom padding to clear the tab bar's raised Build kit button. */}
       {state.occasion && !chatHidden && (
-        <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2 backdrop-blur md:hidden">
+        <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-6 pt-2 backdrop-blur md:hidden">
           <button
             type="button"
             aria-haspopup="dialog"

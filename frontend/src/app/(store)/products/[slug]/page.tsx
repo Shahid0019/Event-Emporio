@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Suspense } from "react";
 import { ProductGrid } from "@/components/product/product-grid";
 import { ProductReviews, type ShownReview } from "@/components/product/product-reviews";
@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: PageProps<"/products/[slug]">
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
+  if (product.kit) redirect("/kit");
   return {
     title: product.seoTitle ?? product.name,
     description: product.seoDescription ?? product.shortDescription,
@@ -59,6 +60,8 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product) notFound();
+  // Kit items aren't sold on their own; old links (orders, bookmarks) go to the kit builder.
+  if (product.kit) redirect("/kit");
 
   const related = await getRelatedProducts(product, 4);
   const [catName, content, customerReviews] = await Promise.all([
@@ -139,7 +142,7 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
           items={[{ label: "Home", href: "/" }, { label: catName, href: `/category/${product.categorySlug}` }, { label: product.name }]}
         />
         <ProductView product={product} categoryName={catName} />
-        {(product.kit || product.categorySlug === "decorative-disposables") && (
+        {product.categorySlug === "decorative-disposables" && (
           <p className="mt-10 rounded-card border border-line bg-raised px-5 py-4 text-[0.95rem]">
             Need it for a whole function?{" "}
             <Link href="/kit" className="link-underline font-medium text-brand">
