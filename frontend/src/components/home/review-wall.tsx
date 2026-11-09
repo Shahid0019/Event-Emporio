@@ -120,7 +120,7 @@ function ReviewCard({ review: r, repeat }: { review: WallReview; repeat?: boolea
     .slice(0, 2)
     .toUpperCase();
   return (
-    <figure className="rounded-card border border-line bg-raised p-6 shadow-[0_18px_40px_-32px_rgb(36_32_32/0.35)] transition-[transform,border-color] duration-300 ease-[var(--ease-luxe)] can-hover:hover:-translate-y-0.5 can-hover:hover:border-line-strong">
+    <figure className="rounded-card border border-line bg-raised p-6 shadow-[0_18px_40px_-32px_rgb(34_41_35/0.35)] transition-[transform,border-color] duration-300 ease-[var(--ease-luxe)] can-hover:hover:-translate-y-0.5 can-hover:hover:border-line-strong">
       <figcaption className="flex items-center gap-3">
         <span
           aria-hidden

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingBag } from "lucide-react";
 import { Price } from "@/components/ui/primitives";
 import type { ProductSummary } from "@/lib/catalog-shared";
 import { addToCart, openCart, toggleWishlist, wishlistStore } from "@/lib/store";
@@ -24,7 +24,7 @@ export function ProductCard({
   const href = `/products/${product.slug}`;
 
   return (
-    <article className={cn("group relative flex flex-col", className)}>
+    <article className={cn("group relative flex h-full flex-col", className)}>
       <div className="relative isolate aspect-[4/5] overflow-hidden rounded-card bg-surface">
         <Link href={href} tabIndex={-1} aria-hidden className="absolute inset-0">
           <Image
@@ -52,18 +52,18 @@ export function ProductCard({
 
         <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-1.5">
           {!product.inStock ? (
-            <span className="rounded-full bg-ink px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-canvas">
+            <span className="rounded-chip bg-ink px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-canvas">
               Sold out
             </span>
           ) : (
             <>
               {product.isNewArrival && (
-                <span className="rounded-full bg-canvas px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-ink">
+                <span className="rounded-chip bg-canvas px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-ink">
                   New
                 </span>
               )}
               {pct && (
-                <span className="rounded-full bg-brand px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-brand-ink">
+                <span className="rounded-chip bg-brand px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-brand-ink">
                   −{pct}%
                 </span>
               )}
@@ -79,14 +79,14 @@ export function ProductCard({
               <button
                 type="button"
                 onClick={() => quickAdd(product)}
-                className="h-11 w-full rounded-full bg-canvas/95 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur transition-colors hover:bg-ink hover:text-canvas"
+                className="h-11 w-full rounded-control bg-canvas/95 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur transition-colors hover:bg-ink hover:text-canvas"
               >
                 Add to bag
               </button>
             ) : (
               <Link
                 href={href}
-                className="grid h-11 w-full place-items-center rounded-full bg-canvas/95 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur transition-colors hover:bg-ink hover:text-canvas"
+                className="grid h-11 w-full place-items-center rounded-control bg-canvas/95 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur transition-colors hover:bg-ink hover:text-canvas"
               >
                 Choose options
               </Link>
@@ -107,10 +107,30 @@ export function ProductCard({
         </h3>
         <Price price={product.price} compareAtPrice={product.compareAtPrice} from={product.hasPriceRange} className="mt-1.5" />
         {product.lowStock && <p className="mt-1 text-[0.75rem] text-accent-ink">Low stock</p>}
+        {/* Touch screens have no hover, so the add button sits under the price, as in a shopping app. */}
+        {product.inStock && (
+          // Pinned to the card's foot so buttons line up across a row whatever the name length.
+          <div className="mt-auto pt-3 can-hover:hidden">
+            {product.quickAddVariant ? (
+              <button type="button" onClick={() => quickAdd(product)} aria-label={`Add ${product.name} to bag`} className={touchAdd}>
+                <ShoppingBag aria-hidden className="size-4" />
+                Add
+              </button>
+            ) : (
+              <Link href={href} aria-label={`Choose options for ${product.name}`} className={touchAdd}>
+                Choose
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </article>
   );
 }
+
+// Above the card's full-size link (z-10) so the tap adds instead of opening the product.
+const touchAdd =
+  "relative z-10 inline-flex h-11 w-full items-center justify-center gap-2 rounded-control bg-brand text-[0.85rem] font-medium text-brand-ink transition-transform active:scale-[0.97]";
 
 function quickAdd(product: ProductSummary) {
   if (!product.quickAddVariant) return;

@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 
 /**
  * Phone and tablet tab bar: the main destinations within thumb reach.
- * Build my kit sits raised in the middle as the shop's signature action;
+ * Plan My Function sits raised in the middle as the shop's signature action;
  * the bag opens the drawer like the header button does. Hidden from lg up,
  * where the header carries everything (--bottom-nav-h is 0 there).
  */
@@ -22,7 +22,7 @@ export function BottomNav() {
     <nav
       aria-label="Quick links"
       data-bottom-nav
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-raised/90 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_30px_-20px_rgb(36_32_32/0.35)] backdrop-blur-md lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-raised/90 pb-[env(safe-area-inset-bottom)] shadow-[0_-12px_30px_-20px_rgb(34_41_35/0.35)] backdrop-blur-md lg:hidden"
     >
       <ul className="mx-auto grid h-16 max-w-xl grid-cols-5 items-stretch">
         <li>
@@ -43,12 +43,12 @@ export function BottomNav() {
           >
             <span
               aria-hidden
-              className="absolute -top-5 left-1/2 grid -translate-x-1/2 size-14 place-items-center rounded-full border-4 border-canvas bg-brand text-brand-ink shadow-[0_10px_24px_-10px_rgb(90_35_52/0.7)] transition-transform group-active:scale-95"
+              className="absolute -top-5 left-1/2 grid -translate-x-1/2 size-14 place-items-center rounded-full border-4 border-canvas bg-brand text-brand-ink shadow-[0_10px_24px_-10px_rgb(66_94_42/0.7)] transition-transform group-active:scale-95"
             >
               {/* Line-art cart used as a mask, so it takes the button's ink colour. */}
               <span className="size-[1.85rem] bg-current" style={kitIcon} />
             </span>
-            Build kit
+            Plan
           </Link>
         </li>
         <li>

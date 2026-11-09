@@ -116,6 +116,8 @@ export interface SessionUser {
   name: string;
   email: string;
   phone?: string;
+  /** Sign-in methods on the account (password, Google, verified mobile number). */
+  signInWith?: { password: boolean; google: boolean; phone?: string };
 }
 
 export const sessionStore = createPersistedStore<SessionUser | null>(

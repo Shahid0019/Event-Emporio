@@ -2,8 +2,9 @@ import Link from "next/link";
 import { CategoryGrid } from "@/components/home/category-grid";
 import { Hero } from "@/components/home/hero";
 import { OccasionCards } from "@/components/home/kit-sections";
-import { Benefits, BrandStory, EditorialBanner, GiftingSection } from "@/components/home/sections";
+import { BrandStory, EditorialBanner, GiftingSection } from "@/components/home/sections";
 import { ReviewWall, type WallReview } from "@/components/home/review-wall";
+import { SearchBar } from "@/components/layout/search-bar";
 import { Reveal } from "@/components/motion/reveal";
 import { ProductGrid } from "@/components/product/product-grid";
 import { SectionHeading } from "@/components/ui/primitives";
@@ -74,13 +75,18 @@ export default async function HomePage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organization).replace(/</g, "\\u003c") }} />
 
+      {/* Phones: search first, as in a shopping app. */}
+      <div className="container-luxe pb-3 md:hidden">
+        <SearchBar />
+      </div>
+
       <Hero hero={content.hero} quickLinks={categories.slice(0, 4).map(({ slug, name }) => ({ slug, name }))} />
 
       <OccasionCards functions={kitCatalog.functions.filter((f) => f.isActive)} />
 
       <CategoryGrid categories={highlighted} />
 
-      <section aria-labelledby="bestsellers-title" className="pb-[clamp(4rem,2.5rem+6vw,9rem)]">
+      {/* <section aria-labelledby="bestsellers-title" className="pb-[clamp(4rem,2.5rem+6vw,9rem)]">
         <div className="container-luxe">
           <SectionHeading
             eyebrow="Most loved"
@@ -96,13 +102,12 @@ export default async function HomePage() {
             <ProductGrid products={bestsellers} />
           </Reveal>
         </div>
-      </section>
+      </section> */}
 
       {/* <EditorialBanner /> */}
 
-      <GiftingSection />
+      {/* <GiftingSection /> */}
       {/* <BrandStory /> */}
-      <Benefits />
       <ReviewWall reviews={wallReviews} />
     </>
   );

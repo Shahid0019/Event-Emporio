@@ -2,11 +2,10 @@ import { expect, test, type Locator, type Page } from "@playwright/test";
 import { buildKit, kitTotal, NO_PREFS } from "../../src/lib/kit/buildKit";
 import { formatKitAmount } from "../../src/lib/kit/format";
 
-/** The live kit: the right-hand column on desktop, the bottom sheet on mobile. */
+/** The live kit: the right-hand column on desktop, the shopping list in the page on phones. */
 async function kitPanel(page: Page, isMobile: boolean): Promise<Locator> {
   if (!isMobile) return page.locator('section[aria-labelledby="kit-title"]');
-  await page.getByRole("button", { name: /View kit/ }).click();
-  return page.getByRole("dialog", { name: "Your kit" });
+  return page.locator('section[aria-labelledby="kit-list-title"]');
 }
 
 const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -58,7 +57,7 @@ test.describe("build my kit", () => {
     await expect(page.getByText("≈ 220 guests")).toBeVisible();
   });
 
-  test("full chat: tiers, premium, bio, and re-answering an earlier step", async ({ page }) => {
+  test("full chat: tiers, premium, and re-answering an earlier step", async ({ page }) => {
     await page.goto("/kit?occasion=walima");
     await page.getByRole("button", { name: "Yes, 50 trami" }).click();
     await page.getByRole("button", { name: "In 2 weeks" }).click();
@@ -73,13 +72,8 @@ test.describe("build my kit", () => {
     await expect(row(panel, "Dastarkhan")).toContainText("Extra large ·");
     await expect(row(panel, "Water glass")).toContainText("Special shake ·");
 
-    await page.getByRole("button", { name: "Bio / eco items" }).click();
-    await expect(page.getByRole("button", { name: "Bio / eco items" })).toHaveAttribute("aria-pressed", "true");
-    for (const item of ["Salad plate", "Gostab bowl", "Cake plate"]) {
-      await expect(row(panel, item)).toContainText("Bio ·");
-    }
-    await page.getByRole("button", { name: "Show my kit" }).click();
-    await expect(chat(page).getByText(/Your kit is ready: 18 items/)).toBeVisible();
+    // The budget is the last question; there's no extras step any more.
+    await expect(page.getByRole("button", { name: "Show my kit" })).toHaveCount(0);
     // With every question answered, the chat tucks itself away and the kit takes over.
     await expect(page.getByRole("button", { name: /^Open chat\. Kit ready/ })).toBeVisible();
     await expect(chat(page)).toHaveCount(0);
@@ -94,7 +88,7 @@ test.describe("build my kit", () => {
       page.getByRole("button", { name: "Share on WhatsApp" }).or(page.getByRole("link", { name: "Share on WhatsApp" })),
     ).toBeVisible();
     await expect(row(panel, "Spoon")).toContainText("220 pcs");
-    await expect(page).toHaveURL(/occasion=walima&trami=55&tier=premium&prefs=bio/);
+    await expect(page).toHaveURL(/occasion=walima&trami=55&tier=premium$/);
   });
 
   test("going over budget suggests swaps that lower the total", async ({ page }) => {
@@ -163,7 +157,7 @@ test.describe("build my kit", () => {
     await expect(bag.getByText(/^Spoon · Plastic small × 90$/)).toBeVisible();
 
     // Edit kit from the bag reopens exactly this kit; saving updates it in place.
-    await bag.getByRole("link", { name: "Edit kit" }).click();
+    await bag.getByRole("link", { name: "Edit list" }).click();
     await expect(page).toHaveURL(/\/kit\?/);
     const editPanel = await kitPanel(page, false);
     await expect(row(editPanel, "Spoon")).toContainText("110 pcs");
@@ -183,7 +177,8 @@ test.describe("build my kit", () => {
     await form.getByLabel("City").fill("Srinagar");
     await form.getByLabel("PIN code").fill("190001");
     await form.getByLabel("State / UT").selectOption("Jammu and Kashmir");
-    const pay = page.getByRole("button", { name: /^Pay ₹/ });
+    await page.getByRole("button", { name: "Review order" }).click();
+    const pay = page.getByRole("button", { name: /^Pay & place order · ₹/ });
     await expect(pay).toBeEnabled();
     await pay.click();
     await page.getByRole("button", { name: "Simulate successful payment" }).click();
@@ -213,23 +208,41 @@ test.describe("build my kit", () => {
   });
 });
 
-test("mobile: sticky kit bar expands into the full kit sheet", async ({ page, isMobile }) => {
+test("mobile: plan a function on one screen, then change the shopping list", async ({ page, isMobile }) => {
   test.skip(!isMobile, "Mobile only");
-  await page.goto("/kit?occasion=wazwan&trami=50&tier=standard");
-  // With the chat open, the kit moves to the bottom bar.
-  await openChat(page);
-  const bar = page.getByRole("button", { name: /View kit/ });
-  await expect(bar).toBeVisible();
-  await expect(bar).toContainText("16 items");
-  const sheet = await kitPanel(page, true);
-  await expect(sheet.getByText("Wazwan · 50 trami · Not decided yet · Standard")).toBeVisible();
-  await expect(row(sheet, "Spoon")).toContainText("200 pcs");
-  await pickVariant(sheet, "Water glass", "Crystal");
-  await expect(row(sheet, "Water glass")).toContainText("Crystal ·");
-  await expect(sheet.getByRole("button", { name: "Add kit to bag" })).toBeVisible();
+  await page.goto("/kit");
+  await page.evaluate(() => localStorage.removeItem("ee.kit.v1"));
+  await page.goto("/kit");
+  // Handbook screen 04: function, guests or tramies, one button.
+  await expect(page.getByRole("heading", { name: /plan your function/ })).toBeVisible();
+  await page.getByRole("button", { name: /Create my shopping list/i }).click();
+  await expect(page.getByText("Choose your function first.")).toBeVisible();
+  await page.getByRole("radio", { name: /^Wazwan/ }).click();
+  await page.getByRole("radio", { name: /By Tramies/ }).click();
+  await page.getByRole("textbox", { name: "Tramies" }).fill("50");
+  await page.getByRole("button", { name: /Create my shopping list/i }).click();
+
+  // Handbook screen 05: the list, with the size and budget on top.
+  await expect(page.getByRole("heading", { name: "Recommended for your Wazwan" })).toBeVisible();
+  await expect(page.getByText("200 Guests · 50 Tramies")).toBeVisible();
+  await expect(page).toHaveURL(/occasion=wazwan&trami=50&tier=standard/);
+  const list = await kitPanel(page, true);
+  await expect(row(list, "Spoon")).toContainText("200 pcs");
+  await pickVariant(list, "Water glass", "Crystal");
+  await expect(row(list, "Water glass")).toContainText("Crystal ·");
+  await page.getByRole("radio", { name: "Premium" }).click();
+  await expect(page.getByRole("radio", { name: "Premium" })).toHaveAttribute("aria-checked", "true");
+
+  // Edit goes back to the form with the answers kept.
+  await page.getByRole("button", { name: "Edit", exact: true }).click();
+  await expect(page.getByRole("textbox", { name: "Tramies" })).toHaveValue("50");
+  await page.getByRole("button", { name: "Keep my current list" }).click();
+  // Phones: the total and "Add to bag" sit in a fixed bar above the tab bar.
+  await expect(list.getByRole("button", { name: "Add to bag" })).toBeVisible();
 });
 
 test("the chat can be minimised and reopened, and the choice survives a refresh", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Phones use the planner form instead of the chat");
   await page.goto("/kit");
   await page.evaluate(() => localStorage.removeItem("ee.kit.v1"));
   await page.goto("/kit");
@@ -292,6 +305,7 @@ test("saved kits come back on the next visit", async ({ page }) => {
 });
 
 test("customers can name their function, or bring their own, and the name follows the kit", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Chat flow; phones name their function on the planner form");
   await page.goto("/cart");
   await page.evaluate(() => {
     localStorage.removeItem("ee.kit.v1");
@@ -321,6 +335,7 @@ test("customers can name their function, or bring their own, and the name follow
 });
 
 test("counting by guests gives one of each item per guest, with shared supplies scaled", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Chat flow; the phone planner test covers guests and tramies");
   await page.goto("/kit");
   await page.evaluate(() => localStorage.removeItem("ee.kit.v1"));
   await page.goto("/kit?occasion=wazwan");
@@ -341,6 +356,8 @@ test("several types of one item (100 plastic + 50 wooden spoons), other items fr
   page,
   isMobile,
 }) => {
+  // The "Add items" picker is opened from the kit's header, which phones don't show.
+  test.skip(isMobile, "Add items is a desktop action");
   await page.goto("/cart");
   await page.evaluate(() => localStorage.removeItem("ee.cart.v1"));
   await page.goto("/kit?occasion=wazwan&trami=50&tier=basic");

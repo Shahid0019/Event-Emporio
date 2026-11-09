@@ -266,7 +266,8 @@ describe("function date", () => {
   it("going back one question keeps the answers", () => {
     loadCompleteKit({ occasion: "wazwan", trami: 50, tier: "basic", prefs: NO_PREFS, date: null, overrides: {} });
     goBack();
-    expect(kitStore.get()).toMatchObject({ step: 4, furthest: 5, trami: 50, tier: "basic" });
+    // The budget is the last question, so going back from the finished kit lands on it.
+    expect(kitStore.get()).toMatchObject({ step: 3, furthest: 5, trami: 50, tier: "basic" });
   });
 });
 

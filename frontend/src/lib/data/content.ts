@@ -24,7 +24,7 @@ export const homepage = {
     titleLines: ["Celebrate", "Beautifully."],
     description: "Thoughtfully curated essentials for moments worth remembering — from mehndi baskets to bridal hampers.",
     primaryCta: { label: "Shop Now", href: "/shop" },
-    secondaryCta: { label: "Build Your Kit", href: "/kit" },
+    secondaryCta: { label: "Plan Your Function", href: "/kit" },
     image: demoImage("hero-florals", "Lush arrangement of deep pink roses and burgundy blooms"),
     inset: demoImage("gift-candlelight", "Gift box tied with a black ribbon beside glowing candles"),
     insetCaption: { label: "Bridal Hampers", href: "/category/bridal-hampers" },
@@ -65,12 +65,6 @@ export const homepage = {
     cta: { label: "Discover Our Story", href: "/about" },
     image: demoImage("mehndi-portrait", "Woman smiling while showing fresh henna on her hands"),
   },
-  benefits: [
-    { title: "Secure payments", body: "Checkout is processed through an encrypted payment gateway." },
-    { title: "Carefully selected", body: "Every piece is chosen and checked before it's packed." },
-    { title: "Personalised gifting", body: "Messages, packaging and custom hampers on request." },
-    { title: "Dedicated support", body: "Real people to help you plan, from first question to delivery." },
-  ],
 };
 
 /**

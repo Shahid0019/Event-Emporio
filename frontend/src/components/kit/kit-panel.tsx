@@ -57,7 +57,13 @@ export function kitSummary(s: KitState): string {
 }
 
 /** The live kit: compact item rows that open for editing, removed tray, budget help and a sticky total. */
-export function KitPanel({ showHeader = true, className }: { showHeader?: boolean; className?: string }) {
+/**
+ * `bar`: phones show the total and actions in a fixed bar above the tab bar
+ * (like the product page) instead of a footer stuck inside the card — mobile
+ * browsers resize the screen as their address bar hides, which left the
+ * sticky footer covering the last items.
+ */
+export function KitPanel({ showHeader = true, bar = false, className }: { showHeader?: boolean; bar?: boolean; className?: string }) {
   const { state, lines, active, gifts, itemsTotal, total, budget, perUnit, unit } = useKit();
   const [openId, setOpenId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
@@ -125,19 +131,6 @@ export function KitPanel({ showHeader = true, className }: { showHeader?: boolea
             );
           })}
 
-          <button
-            type="button"
-            onClick={() => setAdding(true)}
-            className="flex w-full items-center gap-3 rounded-card border border-dashed border-line-strong px-4 py-3.5 text-left transition-colors hover:border-ink hover:bg-surface/60"
-          >
-            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-surface">
-              <Plus aria-hidden className="size-4" />
-            </span>
-            <span className="min-w-0">
-              <span className="block font-medium">Add items</span>
-              <span className="block text-[0.8rem] text-muted">Anything else you need, e.g. potli or extra cake plates</span>
-            </span>
-          </button>
           <AddItemsSheet open={adding} onOpenChange={setAdding} lines={lines} onAdded={setOpenId} />
 
           <KitGiveaways />
@@ -154,7 +147,7 @@ export function KitPanel({ showHeader = true, className }: { showHeader?: boolea
                       type="button"
                       onClick={() => restoreItem(l.itemId)}
                       aria-label={`Add back ${l.name}`}
-                      className="inline-flex min-h-11 items-center gap-2 rounded-full border border-dashed border-line-strong py-1 pl-1.5 pr-4 text-sm transition-colors hover:border-ink"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-control border border-dashed border-line-strong py-1 pl-1.5 pr-4 text-sm transition-colors hover:border-ink"
                     >
                       <KitThumb itemId={l.itemId} className="w-7 rounded-full" />
                       <Plus aria-hidden className="size-3.5" />
@@ -179,6 +172,7 @@ export function KitPanel({ showHeader = true, className }: { showHeader?: boolea
           tierLabel={state.tier ? tierName(state.tier) : null}
           state={state}
           lines={lines}
+          bar={bar}
         />
       )}
     </div>
@@ -304,7 +298,7 @@ function ItemRow({
               {item.name}
             </span>
             {!suggested && (
-              <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.1em] text-ink">
+              <span className="shrink-0 rounded-chip bg-accent-soft px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.1em] text-ink">
                 Added
               </span>
             )}
@@ -398,7 +392,7 @@ function ItemRow({
                           type="button"
                           onClick={() => switchTo(i)}
                           aria-label={`Switch to ${v.name}`}
-                          className="inline-flex min-h-10 items-center rounded-full px-3 text-[0.8rem] font-medium text-muted underline-offset-4 hover:text-ink hover:underline"
+                          className="inline-flex min-h-10 items-center rounded-control px-3 text-[0.8rem] font-medium text-muted underline-offset-4 hover:text-ink hover:underline"
                         >
                           Switch
                         </button>
@@ -409,7 +403,7 @@ function ItemRow({
                         disabled={!canAddType}
                         aria-label={`Add ${v.name}`}
                         title={left > 0 ? `Adds the ${left} left` : "Moves some over from your biggest type"}
-                        className="inline-flex min-h-10 items-center gap-1 rounded-full border border-line-strong px-3.5 text-[0.8rem] font-medium transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line-strong"
+                        className="inline-flex min-h-10 items-center gap-1 rounded-control border border-line-strong px-3.5 text-[0.8rem] font-medium transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line-strong"
                       >
                         <Plus aria-hidden className="size-3.5" />
                         Add
@@ -540,6 +534,7 @@ function KitFooter({
   tierLabel,
   state,
   lines,
+  bar,
 }: {
   total: number;
   itemsTotal: number;
@@ -550,6 +545,7 @@ function KitFooter({
   tierLabel: string | null;
   state: KitState;
   lines: KitLine[];
+  bar: boolean;
 }) {
   const within = budget !== null && itemsTotal <= budget;
   const bundleId = state.cartBundleId;
@@ -593,6 +589,53 @@ function KitFooter({
     openCartWithNotice(inBag ? "Kit updated in your bag" : "Kit added to your bag");
   };
 
+  const saveButton = (
+    <Button
+      variant="outline"
+      size="icon"
+      className="size-12 shrink-0"
+      disabled={!kit || count === 0}
+      aria-label={isSaved ? "Kit saved" : "Save kit for later"}
+      title={isSaved ? "Kit saved" : "Save kit for later"}
+      onClick={saveForLater}
+    >
+      {isSaved ? <BookmarkCheck /> : <Bookmark />}
+    </Button>
+  );
+
+  if (bar)
+    return (
+      // Fixed above the tab bar; bottom padding clears the tab bar's raised Plan button.
+      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-6 pt-2.5 shadow-[0_-12px_30px_-24px_rgb(34_41_35/0.5)] backdrop-blur">
+        <div className="mx-auto flex max-w-xl items-center gap-2.5">
+          <div className="min-w-0 flex-1">
+            <p className="font-serif text-[1.45rem] leading-none tabular-nums">{formatKitAmount(total)}</p>
+            <p className="mt-1 text-[0.75rem] leading-tight text-muted">
+              {count} {count === 1 ? "item" : "items"}
+              {budget !== null && (
+                // Its own line on narrow phones rather than being cut off.
+                <span className={cn("block", within ? "text-success" : "text-danger")}>{within ? "Within budget" : "Over budget"}</span>
+              )}
+            </p>
+          </div>
+          {saveButton}
+          {state.inCart && inBag ? (
+            <Link href="/cart" className={buttonVariants({ className: "h-12 shrink-0 bg-success px-4 normal-case tracking-normal hover:bg-success/90" })}>
+              ✓ View bag
+            </Link>
+          ) : (
+            <Button className="h-12 shrink-0 px-4 normal-case tracking-normal text-[0.9rem]" disabled={count === 0} onClick={putInBag}>
+              <ShoppingBag />
+              {inBag ? "Update bag" : "Add to bag"}
+            </Button>
+          )}
+        </div>
+        <p role="status" className="sr-only">
+          {state.inCart && inBag ? "Kit added to your bag." : ""}
+        </p>
+      </div>
+    );
+
   return (
     <div className="@container sticky bottom-[var(--bottom-nav-h)] z-10 md:bottom-0 border-t border-line bg-raised/95 px-5 py-4 backdrop-blur sm:px-6">
       {/* Price on the left, actions on the right; stacked when the panel is narrow. */}
@@ -605,17 +648,7 @@ function KitFooter({
         </div>
 
         <div className="flex shrink-0 items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-12 shrink-0"
-            disabled={!kit || count === 0}
-            aria-label={isSaved ? "Kit saved" : "Save kit for later"}
-            title={isSaved ? "Kit saved" : "Save kit for later"}
-            onClick={saveForLater}
-          >
-            {isSaved ? <BookmarkCheck /> : <Bookmark />}
-          </Button>
+          {saveButton}
           {state.inCart && inBag ? (
             <Link
               href="/cart"

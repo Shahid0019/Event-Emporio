@@ -2,7 +2,7 @@
 export async function sendJson<T = unknown>(
   url: string,
   body?: unknown,
-  method: "POST" | "PUT" | "GET" = "POST",
+  method: "POST" | "PUT" | "GET" | "DELETE" = "POST",
 ): Promise<{ ok: true; data: T } | { ok: false; error: string; status: number }> {
   try {
     const res = await fetch(url, {

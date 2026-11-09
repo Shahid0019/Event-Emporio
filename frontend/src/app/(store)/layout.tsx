@@ -31,12 +31,13 @@ export default async function StoreLayout({ children }: LayoutProps<"/">) {
       </a>
       <AnnouncementBar items={content.announcements.filter((a) => a.isActive)} />
       <Header menu={menu} />
-      <main id="main" className="min-h-[60vh]">
+      {/* The header is fixed, so content starts below it (the desktop home hero slides back under it). */}
+      <main id="main" className="min-h-[60vh] pt-[var(--header-h)]">
         {children}
       </main>
       <Footer />
       {/* Keeps the end of the footer clear of the phone tab bar. */}
-      <div aria-hidden className="h-[var(--bottom-nav-h)] bg-brand-deep lg:hidden" />
+      <div aria-hidden className="h-[var(--bottom-nav-h)] bg-ink lg:hidden" />
       <BottomNav />
       <CartDrawer />
       <SearchDialog />

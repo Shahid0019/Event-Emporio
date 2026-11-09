@@ -72,15 +72,15 @@ export function CatalogToolbar(props: FilterProps) {
   const activeCount = activeFilters(params, props.lockedCategory).length;
 
   return (
-    <div className="flex items-center justify-between gap-4 border-y border-line py-3">
-      <p className="text-[0.85rem] text-muted" aria-live="polite">
+    <div className="flex items-center justify-between gap-2 border-y border-line py-3 sm:gap-4">
+      <p className="shrink-0 whitespace-nowrap text-[0.85rem] text-muted" aria-live="polite">
         {pending ? "Updating…" : `${total} ${total === 1 ? "product" : "products"}`}
       </p>
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex h-11 items-center gap-2 rounded-full border border-line-strong px-4 text-[0.72rem] font-medium uppercase tracking-[0.14em] lg:hidden"
+          className="inline-flex h-11 items-center gap-2 rounded-control border border-line-strong px-4 text-[0.72rem] font-medium uppercase tracking-[0.14em] lg:hidden"
         >
           <SlidersHorizontal className="size-4" />
           Filter{" "}
@@ -95,7 +95,7 @@ export function CatalogToolbar(props: FilterProps) {
           id="sort"
           value={params.sort}
           onChange={(e) => navigate({ sort: e.target.value === "featured" ? undefined : e.target.value })}
-          className="h-11 w-auto min-w-[11rem] border-line-strong text-[0.85rem]"
+          className="h-11 w-[8.5rem] min-w-0 border-line-strong text-[0.85rem] sm:w-auto sm:min-w-[11rem]"
         >
           {sortOptions.map((o) => (
             <option key={o.value} value={o.value}>
@@ -162,7 +162,7 @@ export function ActiveFilters({ params, lockedCategory }: { params: ListParams; 
           key={chip.key}
           type="button"
           onClick={() => navigate(chip.patch)}
-          className="inline-flex h-9 items-center gap-2 rounded-full bg-surface px-3.5 text-[0.8rem] capitalize transition-colors hover:bg-accent-soft"
+          className="inline-flex h-9 items-center gap-2 rounded-control bg-surface px-3.5 text-[0.8rem] capitalize transition-colors hover:bg-accent-soft"
           aria-label={`Remove filter: ${chip.label}`}
         >
           {chip.label}
@@ -247,7 +247,7 @@ function FilterFields({
           <PriceInput id={`${idPrefix}-max`} label="Max ₹" value={max} onChange={setMax} />
           <button
             type="submit"
-            className="h-10 shrink-0 rounded-full border border-ink px-3.5 text-[0.68rem] font-medium uppercase tracking-[0.14em] hover:bg-ink hover:text-canvas"
+            className="h-10 shrink-0 rounded-control border border-ink px-3.5 text-[0.68rem] font-medium uppercase tracking-[0.14em] hover:bg-ink hover:text-canvas"
           >
             Go
           </button>

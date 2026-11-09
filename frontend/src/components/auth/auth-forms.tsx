@@ -2,17 +2,42 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { Eye, EyeOff, MailCheck } from "lucide-react";
+import { Eye, EyeOff, Mail, MailCheck, Smartphone } from "lucide-react";
+import { GoogleButton, MethodTabs, OrDivider, PhoneSignIn } from "@/components/auth/quick-sign-in";
 import { Button } from "@/components/ui/button";
 import { Field, fieldAria, Input } from "@/components/ui/field";
 import { sendJson } from "@/lib/api-client";
 import { signIn, type SessionUser } from "@/lib/store";
 import { forgotPasswordSchema, loginSchema, registerSchema, resetPasswordSchema } from "@/lib/validations";
+
+/** Which quick sign-in options the server has set up. */
+export interface SignInOptions {
+  google: boolean;
+  phone: boolean;
+}
+
+/** The page's query string, read after hydration (empty while prerendering). */
+const useSearch = () =>
+  new URLSearchParams(
+    useSyncExternalStore(
+      () => () => undefined,
+      () => window.location.search,
+      () => "",
+    ),
+  );
+
+/** Why a trip to Google came back without signing in (?google=…). */
+const googleProblems: Record<string, string> = {
+  setup: "Google sign-in isn't set up yet. Use your mobile number or email for now.",
+  cancelled: "Google sign-in was cancelled. Choose an account to continue, or use another way below.",
+  failed: "We couldn't sign you in with Google. Please try again.",
+  email: "This email already has an account. Sign in with your password, then connect Google under My account.",
+};
 
 /** Only allow same-site relative redirects (prevents open-redirects via ?next=). */
 function safeNext(fallback = "/account") {
@@ -66,9 +91,72 @@ export function AuthHeading({ eyebrow, title, children }: { eyebrow: string; tit
   );
 }
 
+function GoogleProblem() {
+  const problem = googleProblems[useSearch().get("google") ?? ""];
+  if (!problem) return null;
+  return (
+    <p role="alert" className="mb-6 rounded-control border border-danger/30 bg-danger/5 px-4 py-3 text-[0.88rem] text-ink">
+      {problem}
+    </p>
+  );
+}
+
 /* --------------------------------- Login -------------------------------- */
-export function LoginForm() {
+export function LoginForm({ google, phone }: SignInOptions) {
   const router = useRouter();
+  const asked = useSearch().get("method");
+  const [method, setMethod] = useState<"phone" | "email" | null>(null);
+  const current = phone ? (method ?? (asked === "email" ? "email" : "phone")) : "email";
+
+  const done = (user: SessionUser, isNew = false) => {
+    signIn(user);
+    if (isNew) toast.success("Your account is ready", { description: "Welcome to Events Emporio." });
+    else toast.success(`Welcome back, ${user.name.split(" ")[0]}`);
+    router.replace(safeNext());
+  };
+
+  return (
+    <>
+      <AuthHeading
+        eyebrow="Welcome"
+        title={
+          <>
+            Sign <em className="text-brand">in</em>
+          </>
+        }
+      >
+        Track orders, keep your function plans and check out faster.
+      </AuthHeading>
+      <GoogleProblem />
+      {google && (
+        <>
+          <GoogleButton next={() => safeNext()} />
+          <OrDivider />
+        </>
+      )}
+      {phone && (
+        <MethodTabs
+          value={current}
+          onChange={setMethod}
+          options={[
+            { value: "phone", label: "Mobile number", icon: <Smartphone /> },
+            { value: "email", label: "Email", icon: <Mail /> },
+          ]}
+        />
+      )}
+      {current === "phone" ? (
+        <>
+          <PhoneSignIn autoFocus={method === "phone"} onSignedIn={done} />
+          <p className="mt-8 text-center text-[0.9rem] text-muted">New here? Your account is made as soon as your number is verified.</p>
+        </>
+      ) : (
+        <EmailSignIn onSignedIn={done} />
+      )}
+    </>
+  );
+}
+
+function EmailSignIn({ onSignedIn }: { onSignedIn: (user: SessionUser) => void }) {
   const { register, handleSubmit, formState, setError } = useForm<z.input<typeof loginSchema>>({ resolver: zodResolver(loginSchema) });
   const { errors, isSubmitting } = formState;
 
@@ -78,21 +166,11 @@ export function LoginForm() {
       setError("password", { message: res.error });
       return;
     }
-    signIn(res.data.user);
-    toast.success(`Welcome back, ${res.data.user.name.split(" ")[0]}`);
-    router.replace(safeNext());
+    onSignedIn(res.data.user);
   });
 
   return (
     <>
-      <AuthHeading
-        eyebrow="Welcome back"
-        title={
-          <>
-            Sign <em className="text-brand">in</em>
-          </>
-        }
-      />
       <form onSubmit={onSubmit} noValidate className="space-y-5">
         <Field label="Email" htmlFor="email" error={errors.email?.message}>
           <Input type="email" autoComplete="email" {...fieldAria("email", errors.email?.message)} {...register("email")} />
@@ -117,7 +195,7 @@ export function LoginForm() {
 }
 
 /* -------------------------------- Register ------------------------------ */
-export function RegisterForm() {
+export function RegisterForm({ google, phone }: SignInOptions) {
   const router = useRouter();
   const { register, handleSubmit, formState, setError } = useForm<z.input<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -148,6 +226,27 @@ export function RegisterForm() {
       >
         Track orders, save addresses and keep a wishlist across visits.
       </AuthHeading>
+      <GoogleProblem />
+      {(google || phone) && (
+        <>
+          <div className="space-y-3">
+            {google && <GoogleButton label="Sign up with Google" next={() => safeNext()} />}
+            {phone && (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = safeNext("");
+                  router.push(`/login?method=phone${next ? `&next=${encodeURIComponent(next)}` : ""}`);
+                }}
+                className="flex h-14 w-full items-center justify-center gap-3 rounded-control border border-line-strong bg-raised px-5 text-[0.95rem] font-medium text-ink transition-colors hover:border-ink"
+              >
+                <Smartphone className="size-5 text-brand" /> Sign up with mobile number
+              </button>
+            )}
+          </div>
+          <OrDivider>or use email</OrDivider>
+        </>
+      )}
       <form onSubmit={onSubmit} noValidate className="space-y-5">
         <Field label="Full name" htmlFor="name" error={errors.name?.message}>
           <Input autoComplete="name" {...fieldAria("name", errors.name?.message)} {...register("name")} />

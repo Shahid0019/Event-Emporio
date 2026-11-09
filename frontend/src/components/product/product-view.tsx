@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Gift, Info, Maximize2, Package, ShieldCheck } from "lucide-react";
+import { Gift, Info, Maximize2, Package, ShieldCheck, ShoppingBag } from "lucide-react";
 import { Accordion } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Sheet } from "@/components/ui/sheet";
@@ -36,8 +36,6 @@ export function ProductView({ product, categoryName }: { product: Product; categ
   const [quantity, setQuantity] = useState(1);
   const [imageIndex, setImageIndex] = useState(0);
   const [giftMessage, setGiftMessage] = useState("");
-  const [showSticky, setShowSticky] = useState(false);
-  const buyRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   const variant = findVariant(product, selected);
@@ -56,21 +54,6 @@ export function ProductView({ product, categoryName }: { product: Product; categ
   useEffect(() => {
     rememberViewed(product.slug);
   }, [product.slug]);
-
-  // Sticky purchase bar on small screens, only once the main button has scrolled away.
-  useEffect(() => {
-    const el = buyRef.current;
-    if (!el) return;
-    // A scroll check (rather than IntersectionObserver) also handles jumps straight back to the top.
-    const update = () => setShowSticky(el.getBoundingClientRect().bottom < 0);
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
-  }, []);
 
   const choose = (name: string, value: string) => {
     const next = { ...selected, [name]: value };
@@ -123,7 +106,8 @@ export function ProductView({ product, categoryName }: { product: Product; categ
   const stockLabel = !variant ? "Unavailable" : stock <= 0 ? "Out of stock" : stock <= LOW_STOCK ? `Low stock — ${stock} left` : "In stock";
 
   return (
-    <div className="grid gap-10 lg:grid-cols-12 lg:gap-12 xl:gap-16">
+    // Phones: room at the end for the purchase bar that sits above the tab bar.
+    <div className="grid gap-8 max-lg:pb-24 lg:grid-cols-12 lg:gap-12 xl:gap-16">
       <Gallery name={product.name} images={gallery} index={Math.min(imageIndex, gallery.length - 1)} onIndexChange={setImageIndex} />
 
       <div className="lg:col-span-5">
@@ -166,7 +150,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
                       aria-pressed={active}
                       onClick={() => choose(option.name, value)}
                       className={cn(
-                        "relative inline-flex h-11 min-w-[3.25rem] items-center gap-2 rounded-full border px-4 text-[0.85rem] transition-colors",
+                        "relative inline-flex h-11 min-w-[3.25rem] items-center gap-2 rounded-control border px-4 text-[0.85rem] transition-colors",
                         thumb && "pl-1.5",
                         active ? "border-ink bg-ink text-canvas" : "border-line-strong bg-raised hover:border-ink",
                         !available && !active && "text-muted line-through decoration-muted/60",
@@ -209,9 +193,10 @@ export function ProductView({ product, categoryName }: { product: Product; categ
             </div>
           )}
 
-          <div ref={buyRef} className="mt-6 flex flex-wrap gap-3">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <span className="text-[0.9rem] font-medium lg:hidden">Quantity</span>
             <QuantitySelector value={qty} onChange={setQuantity} max={maxQty} />
-            <Button size="lg" className="min-w-[12rem] flex-1" disabled={stock <= 0 || canAdd === 0} onClick={() => add()}>
+            <Button size="lg" className="min-w-[12rem] flex-1 max-lg:hidden" disabled={stock <= 0 || canAdd === 0} onClick={() => add()}>
               {stock <= 0 ? "Sold out" : canAdd === 0 ? "Max in your bag" : "Add to bag"}
             </Button>
             <WishlistButton
@@ -229,7 +214,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
             {stock > 0 && qty >= maxQty && <LimitNote cap={cap} stock={stock} inBag={inBag} canAdd={canAdd} />}
           </p>
           {stock > 0 && (
-            <Button variant="secondary" size="lg" className="mt-3 w-full" onClick={() => add(true)}>
+            <Button variant="secondary" size="lg" className="mt-3 w-full max-lg:hidden" onClick={() => add(true)}>
               Buy now
             </Button>
           )}
@@ -318,20 +303,15 @@ export function ProductView({ product, categoryName }: { product: Product; categ
         </div>
       </div>
 
-      {/* Mobile sticky purchase bar */}
-      <div
-        aria-hidden={!showSticky}
-        className={cn(
-          "fixed inset-x-3 bottom-[calc(var(--bottom-nav-h)+1.75rem)] z-30 rounded-full border border-line bg-canvas/95 py-2 pl-5 pr-2 shadow-[0_15px_40px_-15px_rgb(36_32_32/0.45)] backdrop-blur transition-transform duration-500 ease-[var(--ease-luxe)] lg:hidden",
-          showSticky ? "translate-y-0" : "pointer-events-none translate-y-[calc(100%+var(--bottom-nav-h)+2rem)]",
-        )}
-      >
+      {/* Phones: always-visible purchase bar with the running total (handbook screen 03). */}
+      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-6 pt-2.5 backdrop-blur lg:hidden">
         <div className="flex items-center gap-4">
           <div className="min-w-0 flex-1">
-            <p className="truncate font-serif text-lg leading-tight">{product.name}</p>
-            <p className="text-[0.85rem]">{variant ? formatPrice(variant.price) : ""}</p>
+            <p className="text-[0.75rem] text-muted">Total{qty > 1 ? ` · ${qty} × ${variant ? formatPrice(variant.price) : ""}` : ""}</p>
+            <p className="font-serif text-[1.5rem] leading-tight tabular-nums">{variant ? formatPrice(variant.price * qty) : "—"}</p>
           </div>
-          <Button tabIndex={showSticky ? 0 : -1} disabled={stock <= 0 || canAdd === 0} onClick={() => add()}>
+          <Button size="lg" className="h-12 min-w-[10.5rem] normal-case tracking-normal text-[0.95rem]" disabled={stock <= 0 || canAdd === 0} onClick={() => add()}>
+            <ShoppingBag aria-hidden />
             {stock <= 0 ? "Sold out" : canAdd === 0 ? "Max in your bag" : "Add to bag"}
           </Button>
         </div>
@@ -414,7 +394,8 @@ function Gallery({
 
   return (
     <div className="lg:col-span-7">
-      <div className="flex flex-col-reverse gap-3 md:flex-row md:gap-4">
+      <SwipeGallery images={images} index={index} onIndexChange={onIndexChange} onOpen={() => setLightbox(true)} />
+      <div className="hidden md:flex md:flex-row md:gap-4">
         {images.length > 1 && (
           <ul className="scrollbar-none flex gap-2 overflow-x-auto md:w-20 md:shrink-0 md:flex-col md:gap-3" aria-label="Product images">
             {images.map((img, i) => (
@@ -476,6 +457,93 @@ function Gallery({
           <Image src={image.src} alt={image.alt} fill sizes="90vw" className="object-contain" />
         </div>
       </Sheet>
+    </div>
+  );
+}
+
+/**
+ * Phones (handbook screen 03): swipe between photos, with a "1 / 3" counter
+ * and dots. Tapping a photo opens it full screen.
+ */
+function SwipeGallery({
+  images,
+  index,
+  onIndexChange,
+  onOpen,
+}: {
+  images: ImageAsset[];
+  index: number;
+  onIndexChange: (i: number) => void;
+  onOpen: () => void;
+}) {
+  const track = useRef<HTMLDivElement>(null);
+  const goTo = (i: number) => {
+    const el = track.current;
+    if (el) el.scrollTo({ left: i * el.clientWidth, behavior: "smooth" });
+  };
+  // A different option can pick another photo; bring the strip to it.
+  useEffect(() => {
+    const el = track.current;
+    if (el && Math.round(el.scrollLeft / el.clientWidth) !== index) el.scrollTo({ left: index * el.clientWidth });
+  }, [index]);
+
+  return (
+    <div className="md:hidden">
+      <div className="relative">
+        <div
+          ref={track}
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            const i = Math.round(el.scrollLeft / el.clientWidth);
+            if (i !== index && i >= 0 && i < images.length) onIndexChange(i);
+          }}
+          className="scrollbar-none flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain rounded-media bg-surface"
+          aria-label="Product photos"
+          role="region"
+        >
+          {images.map((img, i) => (
+            <button
+              key={img.src + i}
+              type="button"
+              onClick={onOpen}
+              aria-label={`Photo ${i + 1} of ${images.length}, open full screen`}
+              className="relative aspect-[4/5] w-full shrink-0 snap-center"
+            >
+              <Image
+                src={img.src}
+                alt={img.alt}
+                fill
+                sizes="100vw"
+                loading={i === 0 ? "eager" : "lazy"}
+                fetchPriority={i === 0 ? "high" : "auto"}
+                className="object-cover"
+              />
+            </button>
+          ))}
+        </div>
+        {images.length > 1 && (
+          <span className="pointer-events-none absolute left-3 top-3 rounded-chip bg-canvas/90 px-2.5 py-1 text-[0.78rem] font-medium tabular-nums">
+            {index + 1} / {images.length}
+          </span>
+        )}
+      </div>
+      {images.length > 1 && (
+        <div className="mt-2.5 flex justify-center gap-1.5">
+          {images.map((img, i) => (
+            <button
+              key={img.src + i}
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={`Show photo ${i + 1}`}
+              aria-current={i === index}
+              // 44px-tall tap area around a small dot.
+              className="group grid h-6 place-items-center px-0.5"
+            >
+              <span className={cn("block h-1.5 rounded-full transition-all", i === index ? "w-6 bg-brand" : "w-3 bg-line-strong")} />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

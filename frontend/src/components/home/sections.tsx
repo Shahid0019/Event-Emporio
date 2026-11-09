@@ -40,37 +40,37 @@ export function EditorialBanner() {
 export function GiftingSection() {
   const g = homepage.gifting;
   return (
-    <section aria-labelledby="gifting-title" className="section-y bg-brand-deep text-canvas">
+    <section aria-labelledby="gifting-title" className="section-y bg-surface text-ink">
       <div className="container-luxe grid gap-16 lg:grid-cols-12 lg:gap-10">
         <div className="relative order-2 min-h-[26rem] lg:order-1 lg:col-span-5">
-          <div className="absolute left-0 top-0 aspect-[3/4] w-[62%] overflow-hidden rounded-media bg-brand">
+          <div className="absolute left-0 top-0 aspect-[3/4] w-[62%] overflow-hidden rounded-media bg-raised">
             <Image src={g.images[0].src} alt={g.images[0].alt} fill sizes="(min-width: 1024px) 26vw, 60vw" className="object-cover" />
           </div>
-          <div className="absolute bottom-0 right-0 aspect-[3/4] w-[48%] overflow-hidden rounded-media border-[10px] border-brand-deep bg-brand">
+          <div className="absolute bottom-0 right-0 aspect-[3/4] w-[48%] overflow-hidden rounded-media border-[10px] border-surface bg-raised">
             <Image src={g.images[1].src} alt={g.images[1].alt} fill sizes="(min-width: 1024px) 20vw, 46vw" className="object-cover" />
           </div>
         </div>
 
         <div className="order-1 lg:order-2 lg:col-span-7 lg:pl-10">
-          <p className="eyebrow text-accent">{g.eyebrow}</p>
+          <p className="eyebrow text-accent-ink">{g.eyebrow}</p>
           <h2 id="gifting-title" className="mt-6 text-h1">
             Made Personal. <br />
-            <em className="script-accent text-accent-soft">Made Memorable.</em>
+            <em className="script-accent text-brand">Made Memorable.</em>
           </h2>
-          <p className="mt-7 max-w-lg text-[1.02rem] leading-relaxed text-canvas/75">{g.intro}</p>
+          <p className="mt-7 max-w-lg text-[1.02rem] leading-relaxed text-muted">{g.intro}</p>
 
           <Reveal stagger={0.08}>
             <ol className="mt-12 grid gap-x-10 sm:grid-cols-2">
               {g.options.map((o, i) => (
-                <li key={o.title} data-reveal className="border-t border-canvas/20 py-6">
-                  <span className="font-serif text-lg italic text-accent">{String(i + 1).padStart(2, "0")}</span>
+                <li key={o.title} data-reveal className="border-t border-line-strong py-6">
+                  <span className="font-serif text-lg italic text-accent-ink">{String(i + 1).padStart(2, "0")}</span>
                   <h3 className="mt-2 font-serif text-2xl">{o.title}</h3>
-                  <p className="mt-2 text-[0.92rem] leading-relaxed text-canvas/70">{o.body}</p>
+                  <p className="mt-2 text-[0.92rem] leading-relaxed text-muted">{o.body}</p>
                 </li>
               ))}
             </ol>
           </Reveal>
-          <Link href={g.cta.href} className={buttonVariants({ variant: "light", className: "mt-8" })}>
+          <Link href={g.cta.href} className={buttonVariants({ className: "mt-8" })}>
             {g.cta.label}
           </Link>
         </div>
@@ -112,19 +112,3 @@ export function BrandStory() {
   );
 }
 
-/* -------------------------------- Benefits --------------------------- */
-export function Benefits() {
-  return (
-    <section aria-label="Why shop with us" className="border-y border-line">
-      <ul className="mx-auto grid max-w-[92rem] gap-px bg-line sm:grid-cols-2 lg:grid-cols-4">
-        {homepage.benefits.map((b, i) => (
-          <li key={b.title} className="bg-canvas px-[var(--gutter)] py-10 sm:px-8 xl:px-10">
-            <span className="font-serif text-lg italic text-accent-ink">{String(i + 1).padStart(2, "0")}</span>
-            <h3 className="mt-2 font-serif text-[1.55rem]">{b.title}</h3>
-            <p className="mt-2 max-w-xs text-[0.92rem] leading-relaxed text-muted">{b.body}</p>
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}

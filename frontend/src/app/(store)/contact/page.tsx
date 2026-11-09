@@ -95,7 +95,7 @@ export default async function ContactPage() {
               <a
                 href={c.href}
                 {...(c.external && { target: "_blank", rel: "noopener noreferrer" })}
-                className={`group flex h-full flex-col rounded-card border p-5 transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-24px_rgb(36_32_32/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
+                className={`group flex h-full flex-col rounded-card border p-5 transition-[border-color,transform,box-shadow] duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_-24px_rgb(34_41_35/0.35)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink ${
                   "featured" in c && c.featured ? "border-brand bg-brand text-brand-ink" : "border-line bg-raised hover:border-ink"
                 }`}
               >

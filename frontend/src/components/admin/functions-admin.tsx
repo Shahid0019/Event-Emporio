@@ -107,7 +107,7 @@ export function FunctionsAdmin() {
                     {extras.slice(0, 4).map((e) => (
                       <span
                         key={e.itemId}
-                        className="inline-flex items-center gap-1 rounded-full bg-surface py-0.5 pl-0.5 pr-2 text-[0.72rem]"
+                        className="inline-flex items-center gap-1 rounded-chip bg-surface py-0.5 pl-0.5 pr-2 text-[0.72rem]"
                       >
                         <KitThumb itemId={e.itemId} className="w-5 rounded-full" />
                         {e.name}

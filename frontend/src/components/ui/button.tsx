@@ -3,7 +3,7 @@ import type { ComponentProps } from "react";
 import { cn } from "@/lib/utils";
 
 const base =
-  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full font-sans font-medium tracking-[0.08em] uppercase transition-[background-color,color,border-color,box-shadow,transform] duration-300 ease-[var(--ease-luxe)] disabled:pointer-events-none disabled:opacity-45 select-none [&_svg]:size-4 [&_svg]:shrink-0";
+  "relative inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-control font-sans font-medium tracking-[0.08em] uppercase transition-[background-color,color,border-color,box-shadow,transform] duration-300 ease-[var(--ease-luxe)] disabled:pointer-events-none disabled:opacity-45 select-none [&_svg]:size-4 [&_svg]:shrink-0";
 
 const variants = {
   primary: "bg-brand text-brand-ink hover:bg-brand-deep active:scale-[0.99]",

@@ -6,16 +6,17 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { MapPin, Package, Pencil, Plus, Trash2 } from "lucide-react";
+import { CheckCircle2, KeyRound, MapPin, Package, Pencil, Plus, Smartphone, Trash2 } from "lucide-react";
+import { GoogleMark, PhoneVerify, showPhone } from "@/components/auth/quick-sign-in";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox, Field, fieldAria, Input, Select } from "@/components/ui/field";
 import { Badge, EmptyState, Skeleton } from "@/components/ui/primitives";
 import { Sheet } from "@/components/ui/sheet";
 import { orderStatusLabel } from "@/lib/order-status";
 import { sendJson } from "@/lib/api-client";
-import { sessionStore, signIn } from "@/lib/store";
+import { sessionStore, signIn, type SessionUser } from "@/lib/store";
 import type { Address, Order } from "@/lib/types";
-import { formatDate, formatPrice, newId } from "@/lib/utils";
+import { cn, formatDate, formatPrice, newId } from "@/lib/utils";
 import { addressSchema, changePasswordSchema, indianStates, profileSchema } from "@/lib/validations";
 import { OrderDetail, statusTone } from "./order-detail";
 
@@ -392,7 +393,7 @@ function AddressForm({ initial, onSaved }: { initial?: Address; onSaved: (a: Add
 }
 
 /* ---------------------------- Profile & security ------------------------- */
-export function ProfileSettings() {
+export function ProfileSettings({ google, phone }: { google: boolean; phone: boolean }) {
   const user = sessionStore.useStore();
   const profile = useForm<z.input<typeof profileSchema>, unknown, z.output<typeof profileSchema>>({
     resolver: zodResolver(profileSchema),
@@ -401,6 +402,8 @@ export function ProfileSettings() {
   const password = useForm<z.input<typeof changePasswordSchema>>({ resolver: zodResolver(changePasswordSchema) });
   const pe = profile.formState.errors;
   const we = password.formState.errors;
+  // Google and phone accounts start without a password; they can set one here.
+  const hasPassword = user?.signInWith?.password ?? true;
 
   return (
     <>
@@ -438,24 +441,37 @@ export function ProfileSettings() {
           noValidate
           className="space-y-5"
           onSubmit={password.handleSubmit(async (v) => {
-            const res = await sendJson("/api/account/password/change", v);
+            if (hasPassword && !v.currentPassword) {
+              password.setError("currentPassword", { message: "Enter your current password" });
+              return;
+            }
+            const res = await sendJson("/api/account/password/change", hasPassword ? v : { ...v, currentPassword: "" });
             if (!res.ok) {
               password.setError(res.status === 400 ? "currentPassword" : "password", { message: res.error });
               return;
             }
             password.reset();
-            toast.success("Password changed");
+            if (user && !hasPassword) signIn({ ...user, signInWith: { google: false, ...user.signInWith, password: true } });
+            toast.success(hasPassword ? "Password changed" : "Password set", {
+              description: hasPassword ? undefined : "You can also sign in with your email and this password now.",
+            });
           })}
         >
-          <h2 className="font-serif text-2xl">Change password</h2>
-          <Field label="Current password" htmlFor="cp-current" error={we.currentPassword?.message}>
-            <Input
-              type="password"
-              autoComplete="current-password"
-              {...fieldAria("cp-current", we.currentPassword?.message)}
-              {...password.register("currentPassword")}
-            />
-          </Field>
+          <h2 className="font-serif text-2xl">{hasPassword ? "Change password" : "Set a password"}</h2>
+          {hasPassword ? (
+            <Field label="Current password" htmlFor="cp-current" error={we.currentPassword?.message}>
+              <Input
+                type="password"
+                autoComplete="current-password"
+                {...fieldAria("cp-current", we.currentPassword?.message)}
+                {...password.register("currentPassword")}
+              />
+            </Field>
+          ) : (
+            <p className="text-[0.92rem] leading-relaxed text-muted">
+              You sign in with {user?.signInWith?.google ? "Google" : "a code to your phone"}. Add a password to also sign in with your email.
+            </p>
+          )}
           <Field
             label="New password"
             htmlFor="cp-new"
@@ -478,10 +494,141 @@ export function ProfileSettings() {
             />
           </Field>
           <Button type="submit" variant="secondary" loading={password.formState.isSubmitting}>
-            Update password
+            {hasPassword ? "Update password" : "Set password"}
           </Button>
         </form>
       </div>
+      {(google || phone) && <SignInMethods google={google} phone={phone} />}
     </>
+  );
+}
+
+/** Google returns here after "Connect" (?google=…). */
+const googleResults: Record<string, { ok: boolean; text: string }> = {
+  linked: { ok: true, text: "Google is connected — you can now sign in with it." },
+  taken: { ok: false, text: "That Google account already signs in to another Events Emporio account." },
+  cancelled: { ok: false, text: "Connecting Google was cancelled." },
+  failed: { ok: false, text: "We couldn't connect Google. Please try again." },
+  setup: { ok: false, text: "Google sign-in isn't set up yet." },
+};
+
+function SignInMethods({ google, phone }: { google: boolean; phone: boolean }) {
+  const user = sessionStore.useStore();
+  const methods = user?.signInWith;
+  const [addingPhone, setAddingPhone] = useState(false);
+  const [removing, setRemoving] = useState(false);
+
+  // One message per return from Google, then tidy the address bar.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const result = googleResults[params.get("google") ?? ""];
+    if (!result) return;
+    if (result.ok) toast.success(result.text);
+    else toast.error(result.text);
+    params.delete("google");
+    const query = params.toString();
+    window.history.replaceState(null, "", `${window.location.pathname}${query ? `?${query}` : ""}`);
+  }, []);
+
+  const row = "flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4";
+  const status = (on: boolean, text: string) => (
+    <span className={cn("inline-flex items-center gap-1.5 text-[0.85rem]", on ? "text-success" : "text-muted")}>
+      {on && <CheckCircle2 className="size-4" />}
+      {text}
+    </span>
+  );
+
+  return (
+    <section aria-labelledby="sign-in-methods" className="mt-14 max-w-3xl">
+      <h2 id="sign-in-methods" className="font-serif text-2xl">
+        Ways to sign in
+      </h2>
+      <p className="mt-2 text-[0.92rem] text-muted">Use any of these to get into your account.</p>
+      <ul className="mt-6 divide-y divide-line rounded-card border border-line bg-raised">
+        {google && (
+          <li className={row}>
+            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-surface">
+              <GoogleMark />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">Google</p>
+              {status(Boolean(methods?.google), methods?.google ? "Connected" : "Not connected")}
+            </div>
+            {!methods?.google && (
+              <Button
+                variant="outline"
+                size="sm"
+                // A full page load: the API route sends the browser on to Google.
+                // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+                onClick={() => window.location.assign("/api/account/google?link=1")}
+              >
+                Connect
+              </Button>
+            )}
+          </li>
+        )}
+        {phone && (
+          <li className={cn(row, addingPhone && "items-start")}>
+            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-surface text-brand">
+              <Smartphone className="size-5" />
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="font-medium">Mobile number</p>
+              {status(Boolean(methods?.phone), methods?.phone ? `${showPhone(methods.phone)} · verified` : "Not added")}
+            </div>
+            {!addingPhone && (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setAddingPhone(true)}>
+                  {methods?.phone ? "Change" : "Add"}
+                </Button>
+                {methods?.phone && (methods.password || methods.google) && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    loading={removing}
+                    onClick={async () => {
+                      setRemoving(true);
+                      const res = await sendJson<{ user: SessionUser }>("/api/account/phone/link", undefined, "DELETE");
+                      setRemoving(false);
+                      if (!res.ok) return void toast.error(res.error);
+                      signIn(res.data.user);
+                      toast.success("Mobile sign-in removed");
+                    }}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            )}
+            {addingPhone && (
+              <div className="basis-full sm:pl-14">
+                <PhoneVerify
+                  autoFocus
+                  verifyUrl="/api/account/phone/link"
+                  onVerified={(result) => {
+                    if (!("user" in result)) return;
+                    signIn(result.user);
+                    setAddingPhone(false);
+                    toast.success("Mobile number verified", { description: "You can now sign in with a code to this number." });
+                  }}
+                />
+                <button type="button" onClick={() => setAddingPhone(false)} className="mt-4 text-[0.88rem] text-muted underline underline-offset-4 hover:text-ink">
+                  Cancel
+                </button>
+              </div>
+            )}
+          </li>
+        )}
+        <li className={row}>
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-surface text-brand">
+            <KeyRound className="size-5" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">Email &amp; password</p>
+            {status(methods?.password ?? true, (methods?.password ?? true) ? user?.email ?? "Set" : "No password yet — set one above")}
+          </div>
+        </li>
+      </ul>
+    </section>
   );
 }

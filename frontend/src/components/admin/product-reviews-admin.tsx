@@ -56,7 +56,7 @@ export function ProductReviewsAdmin() {
             aria-pressed={filter === t.value}
             onClick={() => setFilter(t.value)}
             className={cn(
-              "h-9 rounded-full border px-3.5 text-[0.8rem] transition-colors",
+              "h-9 rounded-control border px-3.5 text-[0.8rem] transition-colors",
               filter === t.value ? "border-ink bg-ink text-canvas" : "border-line-strong hover:border-ink",
             )}
           >

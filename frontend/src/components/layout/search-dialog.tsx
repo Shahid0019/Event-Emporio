@@ -84,7 +84,7 @@ export function SearchDialog() {
                     <Link
                       href={`/search?q=${encodeURIComponent(term)}`}
                       onClick={close}
-                      className="inline-flex h-10 items-center rounded-full border border-line-strong px-4 text-sm transition-colors hover:border-ink"
+                      className="inline-flex h-10 items-center rounded-control border border-line-strong px-4 text-sm transition-colors hover:border-ink"
                     >
                       {term}
                     </Link>

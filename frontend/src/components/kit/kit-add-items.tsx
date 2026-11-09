@@ -79,7 +79,7 @@ export function AddItemsSheet({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search, e.g. spoon, wooden, potli"
-          className="h-12 w-full rounded-full border border-line-strong bg-canvas pl-11 pr-4 text-sm focus:border-ink focus:outline-none"
+          className="h-12 w-full rounded-control border border-line-strong bg-canvas pl-11 pr-4 text-sm focus:border-ink focus:outline-none"
         />
       </label>
 
@@ -133,7 +133,7 @@ export function AddItemsSheet({
                                 disabled={inKit}
                                 onClick={() => add(item.id, i, `${item.name} · ${v.name}`)}
                                 aria-label={inKit ? `${item.name} ${v.name} is in your kit` : `Add ${item.name} ${v.name}`}
-                                className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line-strong px-3.5 text-[0.85rem] transition-colors hover:border-ink disabled:cursor-default disabled:border-line disabled:bg-surface disabled:text-muted"
+                                className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-line-strong px-3.5 text-[0.85rem] transition-colors hover:border-ink disabled:cursor-default disabled:border-line disabled:bg-surface disabled:text-muted"
                               >
                                 <KitThumb
                                   itemId={item.id}

@@ -89,7 +89,7 @@ export interface SearchSuggestions {
 /* -------------------------------- Helpers -------------------------------- */
 
 export const isVisible = (p: Product) => p.status === "active";
-/** Shown in the shop. Kit items (plates, spoons…) are sold only through Build my kit, counted per trami. */
+/** Shown in the shop. Kit items (plates, spoons…) are sold only through Plan My Function, counted per trami. */
 export const inShop = (p: Product) => isVisible(p) && !p.kit;
 
 export function totalStock(p: Product) {

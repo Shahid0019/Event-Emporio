@@ -223,7 +223,7 @@ export function DataTable<T>({
                 }}
                 placeholder={searchPlaceholder}
                 aria-label={searchPlaceholder}
-                className="h-10 w-full rounded-full border border-line-strong bg-canvas pl-9 pr-3 text-sm focus:border-ink focus:outline-none"
+                className="h-10 w-full rounded-control border border-line-strong bg-canvas pl-9 pr-3 text-sm focus:border-ink focus:outline-none"
               />
             </div>
           )}

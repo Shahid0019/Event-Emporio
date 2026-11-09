@@ -108,7 +108,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   const adminEmail = adminStore.useStore((d) => d.adminEmail);
   return (
-    <div data-admin className="min-h-dvh bg-[#f7f4ef] lg:grid lg:grid-cols-[16.5rem_1fr]">
+    <div data-admin className="min-h-dvh bg-[#f3f4ed] lg:grid lg:grid-cols-[16.5rem_1fr]">
       <aside className="sticky top-0 hidden h-dvh flex-col border-r border-line bg-canvas lg:flex">
         <SidebarContents />
       </aside>
@@ -131,14 +131,14 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <Link
               href="/"
               target="_blank"
-              className="inline-flex h-9 items-center gap-2 rounded-full border border-line-strong px-4 text-[0.78rem] hover:border-ink"
+              className="inline-flex h-9 items-center gap-2 rounded-control border border-line-strong px-4 text-[0.78rem] hover:border-ink"
             >
               View shop <ExternalLink className="size-3.5" />
             </Link>
             <form action={adminSignOut}>
               <button
                 type="submit"
-                className="inline-flex h-9 items-center gap-2 rounded-full px-3 text-[0.78rem] text-muted hover:bg-surface hover:text-ink"
+                className="inline-flex h-9 items-center gap-2 rounded-control px-3 text-[0.78rem] text-muted hover:bg-surface hover:text-ink"
               >
                 <LogOut className="size-3.5" /> Sign out
               </button>

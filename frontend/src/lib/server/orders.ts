@@ -100,6 +100,7 @@ export async function createPendingOrder(input: z.infer<typeof orderRequestSchem
     customer: { name: input.shipping.fullName, email: input.email, phone: input.phone },
     shippingAddress: { ...input.shipping, phone: input.phone, line2: input.shipping.line2 || undefined },
     deliveryInstructions: input.deliveryInstructions || undefined,
+    firstFunctionDate: input.firstFunctionDate || undefined,
     lines,
     totals: quote.totals,
     couponCode: quote.couponApplied,

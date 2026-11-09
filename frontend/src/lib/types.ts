@@ -237,6 +237,8 @@ export interface Order {
   customer: { name: string; email: string; phone: string };
   shippingAddress: Omit<Address, "id">;
   deliveryInstructions?: string;
+  /** The customer's first function date (YYYY-MM-DD), for planning the delivery. */
+  firstFunctionDate?: string;
   lines: OrderLine[];
   totals: OrderTotals;
   couponCode?: string;

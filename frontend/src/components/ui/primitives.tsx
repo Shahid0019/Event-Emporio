@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn, discountPercent, formatPrice } from "@/lib/utils";
 
 /* ------------------------------- Logo -------------------------------- */
@@ -100,9 +100,20 @@ export interface Crumb {
 }
 
 export function Breadcrumbs({ items, className }: { items: Crumb[]; className?: string }) {
+  // Phones get an app-style back link to the parent page instead of the full trail.
+  const parent = items.slice(0, -1).findLast((i) => i.href);
   return (
     <nav aria-label="Breadcrumb" className={className}>
-      <ol className="flex flex-wrap items-center gap-1.5 text-[0.78rem] text-muted">
+      {parent && (
+        <Link
+          href={parent.href!}
+          className="-ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-control px-2 text-[0.9rem] font-medium text-ink active:bg-surface md:hidden"
+        >
+          <ChevronLeft aria-hidden className="size-5" />
+          {parent.label}
+        </Link>
+      )}
+      <ol className={cn("flex-wrap items-center gap-1.5 text-[0.78rem] text-muted", parent ? "hidden md:flex" : "flex")}>
         {items.map((item, i) => (
           <li key={`${item.label}-${i}`} className="flex items-center gap-1.5">
             {i > 0 && <ChevronRight aria-hidden className="size-3 text-line-strong" />}
@@ -187,7 +198,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[0.66rem] font-medium uppercase tracking-[0.14em]",
+        "inline-flex items-center gap-1 rounded-chip px-2.5 py-1 text-[0.66rem] font-medium uppercase tracking-[0.14em]",
         tones[tone],
         className,
       )}
@@ -201,7 +212,7 @@ export function Badge({
 export function DemoNote({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <p className={cn("text-[0.75rem] leading-relaxed text-muted", className)}>
-      <span className="mr-1.5 inline-block rounded-full border border-line-strong px-2 py-px text-[0.6rem] font-medium uppercase tracking-[0.16em]">
+      <span className="mr-1.5 inline-block rounded-chip border border-line-strong px-2 py-px text-[0.6rem] font-medium uppercase tracking-[0.16em]">
         Demo
       </span>
       {children}

@@ -10,7 +10,7 @@ const art = demoImage("gift-candlelight", "Gift box tied with ribbon beside glow
 export default function AuthLayout({ children }: LayoutProps<"/">) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-2">
-      <div className="relative m-3 hidden overflow-hidden rounded-media bg-brand-deep lg:block">
+      <div className="relative m-3 hidden overflow-hidden rounded-media bg-ink lg:block">
         <Image src={art.src} alt={art.alt} fill preload sizes="50vw" className="object-cover opacity-85" />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-deep/90 via-brand-deep/20 to-transparent" />
         <div className="absolute inset-x-12 bottom-12 text-canvas">

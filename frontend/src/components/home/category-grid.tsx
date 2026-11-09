@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, LayoutGrid } from "lucide-react";
 import { Reveal } from "@/components/motion/reveal";
 import { SectionHeading } from "@/components/ui/primitives";
 import type { Category } from "@/lib/types";
@@ -20,10 +20,9 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
     <section aria-labelledby="categories-title" className="section-y">
       <div className="container-luxe">
         <SectionHeading
-          eyebrow="Shop by category"
           title={
             <span id="categories-title">
-              For every <em className="text-brand">ritual</em> & reason
+              Browse By Category
             </span>
           }
           action={
@@ -33,9 +32,31 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
           }
         />
 
+        {/* Phones: the mockup's compact 3-column tiles, picture above the name. */}
+        <ul className="mt-8 grid grid-cols-3 gap-2.5 md:hidden">
+          {categories.slice(0, 5).map((category) => (
+            <li key={category.slug}>
+              <Link href={`/category/${category.slug}`} className="block overflow-hidden rounded-card bg-surface active:opacity-80">
+                <span className="relative block aspect-square">
+                  <Image src={category.image.src} alt="" fill sizes="33vw" className="object-cover" />
+                </span>
+                <span className="flex min-h-11 items-center justify-center px-1.5 py-2 text-center text-[0.8rem] font-medium leading-tight">
+                  {category.name}
+                </span>
+              </Link>
+            </li>
+          ))}
+          <li>
+            <Link href="/shop" className="flex h-full flex-col items-center justify-center gap-2 rounded-card border border-dashed border-line-strong p-2 text-center active:bg-surface">
+              <LayoutGrid aria-hidden className="size-6 text-accent-ink" />
+              <span className="text-[0.8rem] font-medium leading-tight">All products</span>
+            </Link>
+          </li>
+        </ul>
+
         <Reveal
           stagger={0.08}
-          className="mt-12 grid grid-cols-2 gap-3 auto-rows-[clamp(14rem,62vw,22rem)] sm:gap-5 lg:mt-16 lg:grid-cols-12 lg:auto-rows-[clamp(16rem,23vw,22rem)]"
+          className="mt-12 hidden grid-cols-2 gap-3 md:grid auto-rows-[clamp(14rem,62vw,22rem)] sm:gap-5 lg:mt-16 lg:grid-cols-12 lg:auto-rows-[clamp(16rem,23vw,22rem)]"
         >
           {categories.slice(0, slots.length).map((category, i) => (
             <Link

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
@@ -9,6 +9,7 @@ import { applyKitParams, kitChatHiddenStore, kitStore, queryOf, setChatHidden, t
 import { kitQueryString } from "@/lib/kit/url";
 import { cn } from "@/lib/utils";
 import { KitChat } from "./kit-chat";
+import { MobilePlanner } from "./kit-plan-mobile";
 import { GiveawaySheet } from "./kit-giveaways";
 import { KitPanel, kitSummary } from "./kit-panel";
 import { useKit } from "./use-kit";
@@ -38,23 +39,23 @@ function withViewTransition(update: () => void) {
 /** Move focus to the control that replaced the one just pressed. */
 const focusSoon = (selector: string) => requestAnimationFrame(() => document.querySelector<HTMLElement>(selector)?.focus());
 
-export function KitBuilder() {
-  const { state, active, total } = useKit();
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const query = kitQueryString(queryOf(state));
-  // The chat can only be minimised once there's a kit to look at.
-  const chatHidden = kitChatHiddenStore.useStore() && state.occasion !== null;
+const phoneQuery = "(max-width: 47.99rem)";
+const subscribePhone = (onChange: () => void) => {
+  const mq = window.matchMedia(phoneQuery);
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
+};
 
-  // Once the last question is answered, let the closing message show, then tuck the chat away
-  // so the finished kit has the room. Only for a step reached just now — never on page load.
-  const lastFurthest = useRef(state.furthest);
-  useEffect(() => {
-    const was = lastFurthest.current;
-    lastFurthest.current = state.furthest;
-    if (was !== 4 || state.furthest !== 5 || !state.occasion) return;
-    const timer = setTimeout(() => withViewTransition(() => setChatHidden(true)), 1600);
-    return () => clearTimeout(timer);
-  }, [state.furthest, state.occasion]);
+/**
+ * Phones get the handbook's mobile flow (one planning screen, then the
+ * shopping list); larger screens keep the chat beside the kit. Both share
+ * the same kit, links and URL.
+ */
+export function KitBuilder() {
+  const { state } = useKit();
+  // Unknown on the server; decided on the first client render.
+  const isPhone = useSyncExternalStore(subscribePhone, () => window.matchMedia(phoneQuery).matches, () => null);
+  const query = kitQueryString(queryOf(state));
 
   // Load ?ready / ?occasion / shared links once on arrival.
   useEffect(() => {
@@ -68,6 +69,34 @@ export function KitBuilder() {
     if (next !== window.location.search) window.history.replaceState(null, "", `${window.location.pathname}${next}`);
   }, [query]);
 
+  if (isPhone === null) return <div className="min-h-[70vh]" aria-busy />;
+  if (isPhone)
+    return (
+      <div className="container-luxe pb-[calc(var(--bottom-nav-h)+7rem)] pt-3">
+        <MobilePlanner />
+        <GiveawaySheet />
+      </div>
+    );
+  return <ChatKitBuilder />;
+}
+
+function ChatKitBuilder() {
+  const { state, active, total } = useKit();
+  const [sheetOpen, setSheetOpen] = useState(false);
+  // The chat can only be minimised once there's a kit to look at.
+  const chatHidden = kitChatHiddenStore.useStore() && state.occasion !== null;
+
+  // Once the last question is answered, let the closing message show, then tuck the chat away
+  // so the finished kit has the room. Only for a step reached just now — never on page load.
+  const lastFurthest = useRef(state.furthest);
+  useEffect(() => {
+    const was = lastFurthest.current;
+    lastFurthest.current = state.furthest;
+    if ((was !== 3 && was !== 4) || state.furthest !== 5 || !state.occasion) return;
+    const timer = setTimeout(() => withViewTransition(() => setChatHidden(true)), 1600);
+    return () => clearTimeout(timer);
+  }, [state.furthest, state.occasion]);
+
   const closeChat = () => {
     withViewTransition(() => setChatHidden(true));
     focusSoon("#kit-chat-open");
@@ -80,7 +109,7 @@ export function KitBuilder() {
   return (
     // Phones: room to scroll clear of the kit bar and the tab bar below it.
     <div className="container-luxe pb-[calc(var(--bottom-nav-h)+6.5rem)] pt-4 md:pb-12 md:pt-6">
-      <h1 className="sr-only">Build my kit</h1>
+      <h1 className="sr-only">Plan my function</h1>
       <div
         className={cn(
           "grid grid-cols-[minmax(0,1fr)] gap-4 md:gap-6",
@@ -112,14 +141,14 @@ export function KitBuilder() {
       </div>
 
       {/* Mobile: while chatting, the kit lives in a sticky bar that opens a full sheet. It sits on the
-          tab bar, with bottom padding to clear the tab bar's raised Build kit button. */}
+          tab bar, with bottom padding to clear the tab bar's raised Plan button. */}
       {state.occasion && !chatHidden && (
         <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-6 pt-2 backdrop-blur md:hidden">
           <button
             type="button"
             aria-haspopup="dialog"
             onClick={() => setSheetOpen(true)}
-            className="flex min-h-12 w-full items-center justify-between gap-3 rounded-full bg-brand px-5 text-sm font-medium text-brand-ink"
+            className="flex min-h-12 w-full items-center justify-between gap-3 rounded-control bg-brand px-5 text-sm font-medium text-brand-ink"
           >
             <span className="tabular-nums">
               {active.length} items · {formatKitAmount(total)}

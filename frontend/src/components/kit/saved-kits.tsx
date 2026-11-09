@@ -77,7 +77,7 @@ export function SavedKitsButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-line-strong px-3 text-[0.78rem] transition-colors hover:border-ink"
+        className="inline-flex min-h-9 items-center gap-1.5 rounded-control border border-line-strong px-3 text-[0.78rem] transition-colors hover:border-ink"
       >
         <Bookmark aria-hidden className="size-3.5" /> Saved ({count})
       </button>

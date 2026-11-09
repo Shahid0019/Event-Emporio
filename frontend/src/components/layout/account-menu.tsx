@@ -73,7 +73,7 @@ export function AccountMenu({ className }: { className?: string }) {
           align="end"
           sideOffset={6}
           collisionPadding={12}
-          className="z-50 w-[15.5rem] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-card border border-line bg-canvas p-1.5 shadow-[0_24px_60px_-24px_rgb(36_32_32/0.35)] data-[state=open]:animate-overlay-in"
+          className="z-50 w-[15.5rem] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-card border border-line bg-canvas p-1.5 shadow-[0_24px_60px_-24px_rgb(34_41_35/0.35)] data-[state=open]:animate-overlay-in"
         >
           <div className="flex items-center gap-3 px-3 pb-3 pt-2.5">
             <Initials user={user} className="size-10 text-[0.82rem]" />
