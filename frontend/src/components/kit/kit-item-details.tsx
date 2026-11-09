@@ -92,7 +92,7 @@ export function KitItemDetails({
               sizes="(min-width: 640px) 240px, 90vw"
               className={cn("animate-overlay-in object-cover", image.src.endsWith(".svg") && "scale-[1.12]")}
             />
-            <span className="absolute left-2 top-2 rounded-full bg-canvas/90 px-2.5 py-1 text-[0.72rem] font-medium">
+            <span className="absolute left-2 top-2 rounded-chip bg-canvas/90 px-2.5 py-1 text-[0.72rem] font-medium">
               {item.variants[shown]?.name}
             </span>
             {photos.length > 1 && (
@@ -113,7 +113,7 @@ export function KitItemDetails({
                 >
                   <ChevronRight aria-hidden className="size-4" />
                 </button>
-                <span className="absolute bottom-2 right-2 rounded-full bg-ink/75 px-2 py-0.5 text-[0.7rem] tabular-nums text-canvas">
+                <span className="absolute bottom-2 right-2 rounded-chip bg-ink/75 px-2 py-0.5 text-[0.7rem] tabular-nums text-canvas">
                   {current + 1} / {photos.length}
                 </span>
               </>
@@ -180,7 +180,7 @@ export function KitItemDetails({
                         )}
                       </span>
                       {line && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-[0.72rem] font-medium tabular-nums text-success">
+                        <span className="inline-flex items-center gap-1 rounded-chip bg-success/10 px-2 py-0.5 text-[0.72rem] font-medium tabular-nums text-success">
                           <Check aria-hidden className="size-3" />
                           {line.qty} in kit
                         </span>

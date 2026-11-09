@@ -153,7 +153,7 @@ export function CouponForm({
               <button
                 type="button"
                 onClick={() => apply(o.code)}
-                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-dashed border-brand/60 bg-brand/5 px-3 text-[0.75rem] text-brand transition-colors hover:border-brand hover:bg-brand/10"
+                className="inline-flex h-8 items-center gap-1.5 rounded-control border border-dashed border-brand/60 bg-brand/5 px-3 text-[0.75rem] text-brand transition-colors hover:border-brand hover:bg-brand/10"
               >
                 <Tag className="size-3" />
                 <span className="font-medium">{o.code}</span>
@@ -167,7 +167,7 @@ export function CouponForm({
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
               aria-controls={listId}
-              className="inline-flex h-8 items-center gap-1 rounded-full border border-line-strong px-3 text-[0.75rem] text-muted transition-colors hover:border-ink hover:text-ink"
+              className="inline-flex h-8 items-center gap-1 rounded-control border border-line-strong px-3 text-[0.75rem] text-muted transition-colors hover:border-ink hover:text-ink"
             >
               {chips.length ? "All offers" : `${offers.length} offer${offers.length > 1 ? "s" : ""} available`}
               <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
@@ -196,7 +196,7 @@ export function CouponForm({
           onFocus={() => setOpen(true)}
           placeholder="Discount code"
           autoComplete="off"
-          className="h-11 min-w-0 flex-1 rounded-full border border-line-strong bg-raised px-4 text-sm uppercase placeholder:normal-case focus:border-ink focus:outline-none"
+          className="h-11 min-w-0 flex-1 rounded-control border border-line-strong bg-raised px-4 text-sm uppercase placeholder:normal-case focus:border-ink focus:outline-none"
         />
         <Button type="submit" variant="outline" size="sm" className="h-11" disabled={!value.trim()}>
           Apply
@@ -206,7 +206,7 @@ export function CouponForm({
       {open && (
         <div
           id={listId}
-          className="overflow-hidden rounded-control border border-line bg-raised shadow-[0_12px_30px_-18px_rgb(36_32_32/0.35)]"
+          className="overflow-hidden rounded-control border border-line bg-raised shadow-[0_12px_30px_-18px_rgb(34_41_35/0.35)]"
         >
           <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
             <p className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-muted">
@@ -344,7 +344,7 @@ export function KitMosaic({ lines, className }: { lines: CartLine[]; className?:
   );
 }
 
-function CartKitItem({
+export function CartKitItem({
   entry,
   onNavigate,
   compact,
@@ -388,9 +388,9 @@ function CartKitItem({
             <Link
               href={editHref}
               onClick={onNavigate}
-              className="inline-flex h-9 items-center gap-2 rounded-full border border-line-strong px-4 text-[0.72rem] font-medium uppercase tracking-[0.1em] hover:border-ink"
+              className="inline-flex h-9 items-center gap-2 rounded-control border border-line-strong px-4 text-[0.72rem] font-medium uppercase tracking-[0.1em] hover:border-ink"
             >
-              <Pencil className="size-3.5" /> Edit kit
+              <Pencil className="size-3.5" /> Edit list
             </Link>
             <p className="text-[0.95rem] font-medium tabular-nums">{formatPrice(total)}</p>
           </div>

@@ -12,6 +12,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Field, Input, Textarea } from "@/components/ui/field";
 import { Badge, EmptyState } from "@/components/ui/primitives";
 import { Sheet } from "@/components/ui/sheet";
+import { formatEventDate } from "@/lib/kit/format";
 import { canTransition, cashDue, nextStatuses, orderStatusLabel, paymentLabel } from "@/lib/order-status";
 import { adminStore, updateAdmin } from "@/lib/store/admin-store";
 import type { Order, OrderKind, OrderLine, OrderStatus } from "@/lib/types";
@@ -179,7 +180,7 @@ export function OrdersAdmin() {
               )}
             >
               {k.label}
-              {count > 0 && <span className="rounded-full bg-brand px-1.5 text-[0.68rem] font-medium text-brand-ink">{count} to pack</span>}
+              {count > 0 && <span className="rounded-chip bg-brand px-1.5 text-[0.68rem] font-medium text-brand-ink">{count} to pack</span>}
             </button>
           );
         })}
@@ -201,7 +202,7 @@ export function OrdersAdmin() {
                 type="button"
                 aria-pressed={filter === f.value}
                 onClick={() => setFilter(f.value)}
-                className={`h-9 rounded-full border px-3.5 text-[0.8rem] transition-colors ${filter === f.value ? "border-ink bg-ink text-canvas" : "border-line-strong hover:border-ink"}`}
+                className={`h-9 rounded-control border px-3.5 text-[0.8rem] transition-colors ${filter === f.value ? "border-ink bg-ink text-canvas" : "border-line-strong hover:border-ink"}`}
               >
                 {f.label} <span className="opacity-60">({ofKind.filter(f.match).length})</span>
               </button>
@@ -517,6 +518,11 @@ export function OrderAdminDetail({ id }: { id: string }) {
               {a.city}, {a.state} {a.pincode}
             </address>
             {order.deliveryInstructions && <p className="mt-3 text-[0.82rem] text-muted">“{order.deliveryInstructions}”</p>}
+            {order.firstFunctionDate && (
+              <p className="mt-3 text-[0.85rem]">
+                <span className="text-muted">First function:</span> <span className="font-medium">{formatEventDate(order.firstFunctionDate)}</span>
+              </p>
+            )}
           </Panel>
 
           <Panel title="Team note">

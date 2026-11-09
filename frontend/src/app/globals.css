@@ -7,30 +7,33 @@
    is supplied. Components only ever reference the semantic tokens.
    ------------------------------------------------------------------ */
 :root {
-  --canvas: #fbf7f1; /* ivory page background */
-  --surface: #f2ece5; /* soft sand panels */
+  /* Handbook §3 palette, exactly: off-white #F8F6F1, charcoal #222923, olive #425E2A,
+     sage #6C8258, light panel #EFF1E7. Other shades are derived from these. */
+  --canvas: #f8f6f1; /* off-white page background */
+  --surface: #eff1e7; /* light panel */
   --surface-raised: #ffffff;
-  --brand: #5a2334; /* burgundy — primary actions */
-  --brand-deep: #3f1823;
-  --brand-ink: #fbf7f1; /* text on brand */
-  --accent: #c5a46d; /* champagne gold — decorative only */
-  --accent-soft: #e9dcc3;
-  --accent-ink: #85662f; /* gold that passes AA on ivory, for small text */
-  --ink: #242020;
-  --muted: #756d69;
-  --line: #e7ded3;
-  --line-strong: #d6c9b9;
-  --success: #246a50;
+  --brand: #425e2a; /* olive — primary actions */
+  --brand-deep: #33491f; /* olive, darker — hover/pressed */
+  --brand-ink: #f8f6f1; /* text on olive */
+  --accent: #6c8258; /* sage — decorative */
+  --accent-soft: #dfe5d5; /* sage, light — highlights */
+  --accent-ink: #4f6340; /* sage, darker — passes AA for small text */
+  --ink: #222923; /* charcoal */
+  --muted: #646b62;
+  --line: #e2e5d9;
+  --line-strong: #cbd1bf;
+  --success: #2b7a4b;
   --danger: #b64242;
 
   --gutter: clamp(1rem, 0.55rem + 2.2vw, 3rem);
 
-  /* Corner radii — fluid so corners feel proportionate from phone to desktop */
-  --r-chip: 0.5rem; /* small thumbnails, tags */
-  --r-control: 0.75rem; /* inputs, selects, option tiles */
-  --r-card: clamp(0.875rem, 0.7rem + 0.6vw, 1.25rem); /* panels, summaries, info boxes */
-  --r-media: clamp(1rem, 0.7rem + 1.2vw, 1.75rem); /* hero, category tiles, editorial imagery */
-  --r-sheet: 1.5rem; /* dialogs, drawers, bottom sheets */
+  /* Corner radii — one system everywhere (handbook: 12–18px). Only true circles
+     (icon buttons, avatars, dots, switches, progress bars) are fully round. */
+  --r-chip: 0.5rem; /* tags, badges, parts inside a control */
+  --r-control: 0.75rem; /* buttons, inputs, selects, chips, steppers */
+  --r-card: 1rem; /* cards, panels, product and editorial images */
+  --r-media: 1rem; /* same as cards, so every picture and panel matches */
+  --r-sheet: 1.25rem; /* dialogs, drawers, bottom sheets */
   --header-h: 4.5rem;
   /* Phones and tablets get a tab bar at the bottom; fixed bars elsewhere sit above it. */
   --bottom-nav-h: calc(4rem + env(safe-area-inset-bottom));
@@ -58,8 +61,9 @@
   --color-success: var(--success);
   --color-danger: var(--danger);
 
-  --font-serif: var(--font-playfair), "Playfair Display", Georgia, serif;
-  --font-display: var(--font-playfair), "Playfair Display", Georgia, serif;
+  /* Titles: Vintage Glamour, with Playfair for any character it lacks (₹ and a few symbols). */
+  --font-serif: var(--font-vintage-glamour), var(--font-playfair), "Playfair Display", Georgia, serif;
+  --font-display: var(--font-vintage-glamour), var(--font-playfair), "Playfair Display", Georgia, serif;
   --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
   --font-script: var(--font-pinyon), "Pinyon Script", "Snell Roundhand", cursive;
 
@@ -224,6 +228,9 @@
   html {
     -webkit-text-size-adjust: 100%;
     scroll-padding-top: calc(var(--header-h) + 1rem);
+    /* App-like taps: no grey flash, no double-tap zoom delay (pinch zoom still works). */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
   body {
     background: var(--canvas);
@@ -237,8 +244,8 @@
   h3,
   h4 {
     font-family: var(--font-display);
-    font-weight: 500;
-    letter-spacing: -0.015em;
+    font-weight: 400;
+    letter-spacing: 0.07em;
     text-wrap: balance;
   }
   p {

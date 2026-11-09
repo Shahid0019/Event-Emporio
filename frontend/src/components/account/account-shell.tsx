@@ -48,7 +48,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="grid gap-10 lg:grid-cols-[14rem_1fr] lg:gap-16">
-      <aside>
+      <aside className="min-w-0">
         <p className="eyebrow text-accent-ink">My account</p>
         <p className="mt-3 font-serif text-3xl leading-tight">{user.name}</p>
         <p className="mt-1 truncate text-[0.85rem] text-muted">{user.email}</p>
@@ -88,7 +88,7 @@ function AccountNav({ pathname }: { pathname: string | null }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "block whitespace-nowrap rounded-full border px-4 py-2.5 text-[0.88rem] transition-colors lg:rounded-none lg:border-0 lg:border-b lg:border-line lg:px-0 lg:py-3.5",
+                  "block whitespace-nowrap rounded-control border px-4 py-2.5 text-[0.88rem] transition-colors lg:rounded-none lg:border-0 lg:border-b lg:border-line lg:px-0 lg:py-3.5",
                   active
                     ? "border-ink bg-ink text-canvas lg:bg-transparent lg:font-medium lg:text-brand"
                     : "border-line-strong hover:text-brand",

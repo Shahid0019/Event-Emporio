@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Check, Gift, Plus, Search, X } from "lucide-react";
+import { Check, Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { QuantitySelector } from "@/components/ui/quantity-selector";
 import { Sheet } from "@/components/ui/sheet";
@@ -11,7 +11,7 @@ import { getKitCatalog } from "@/lib/kit/catalog";
 import { KIT_MAX_PER_ORDER } from "@/lib/kit/config";
 import { formatKitAmount, formatUnitPrice } from "@/lib/kit/format";
 import { giftsTotal, type GiftLine, type GiftProduct } from "@/lib/kit/gifts";
-import { addGift, giftSheetStore, guestsOf, openGiftSheet, removeGift, restoreGift, setGiftQty, setGiftVariant } from "@/lib/kit/store";
+import { addGift, giftSheetStore, guestsOf, removeGift, restoreGift, setGiftQty, setGiftVariant } from "@/lib/kit/store";
 import { cn } from "@/lib/utils";
 import { useKit } from "./use-kit";
 
@@ -21,39 +21,23 @@ const categoryLabel = (slug: string) => slug.replace(/-/g, " ").replace(/^./, (c
 /* ------------------------------ Kit section ------------------------------ */
 
 /** Giveaways in the kit: one row each with quantity, plus the way to add more. */
+/** Giveaways already chosen, listed with the kit. They're picked from the Giveaways button (chat or phone list). */
 export function KitGiveaways() {
   const { state, gifts } = useKit();
   const guests = guestsOf(state);
-  if (getKitCatalog().gifts.length === 0) return null;
+  if (gifts.length === 0) return null;
 
   return (
     <section aria-labelledby="kit-gifts">
-      {gifts.length > 0 && (
-        <>
-          <h3 id="kit-gifts" className="eyebrow flex items-center gap-2 text-accent-ink">
-            Giveaways
-            <span className="text-muted">· {gifts.length}</span>
-          </h3>
-          <ul className="mb-3 mt-1 divide-y divide-line">
-            {gifts.map((g) => (
-              <GiftRow key={`${g.product.id}:${g.variant.id}`} line={g} guests={guests} trami={state.trami} />
-            ))}
-          </ul>
-        </>
-      )}
-      <button
-        type="button"
-        onClick={openGiftSheet}
-        className="flex w-full items-center gap-3 rounded-card border border-dashed border-accent bg-accent-soft/30 px-4 py-3.5 text-left transition-colors hover:border-accent-ink hover:bg-accent-soft/60"
-      >
-        <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-ink">
-          <Gift aria-hidden className="size-4" />
-        </span>
-        <span className="min-w-0">
-          <span className="block font-medium">{gifts.length ? "Add more giveaways" : "Add giveaways for guests"}</span>
-          <span className="block text-[0.8rem] text-muted">Return gifts, favours, chocolates — from our shop, packed with your kit</span>
-        </span>
-      </button>
+      <h3 id="kit-gifts" className="eyebrow flex items-center gap-2 text-accent-ink">
+        Giveaways
+        <span className="text-muted">· {gifts.length}</span>
+      </h3>
+      <ul className="mt-1 divide-y divide-line">
+        {gifts.map((g) => (
+          <GiftRow key={`${g.product.id}:${g.variant.id}`} line={g} guests={guests} trami={state.trami} />
+        ))}
+      </ul>
     </section>
   );
 }
@@ -187,7 +171,7 @@ export function GiveawaySheet() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search hampers, favours, chocolates…"
-              className="h-11 w-full rounded-full border border-line-strong bg-raised pl-10 pr-4 text-sm outline-none focus:border-ink"
+              className="h-11 w-full rounded-control border border-line-strong bg-raised pl-10 pr-4 text-sm outline-none focus:border-ink"
             />
           </label>
         </div>
@@ -199,7 +183,7 @@ export function GiveawaySheet() {
                 type="button"
                 aria-pressed={category === c}
                 onClick={() => setCategory(c)}
-                className="h-9 shrink-0 rounded-full border border-line-strong px-3.5 text-[0.8rem] transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
+                className="h-9 shrink-0 rounded-control border border-line-strong px-3.5 text-[0.8rem] transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
               >
                 {c === "all" ? "All" : categoryLabel(c)}
               </button>
@@ -250,7 +234,7 @@ function GiftCard({ product, qty, lines }: { product: GiftProduct; qty: number; 
       <span className={cn("relative block aspect-[4/5] overflow-hidden rounded-card bg-surface", inKit && "ring-2 ring-brand")}>
         <Image src={product.image.src} alt={product.image.alt} fill sizes="(min-width: 640px) 13rem, 45vw" className="object-cover" />
         {inKit && (
-          <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-full bg-brand px-2.5 py-1 text-[0.7rem] font-medium text-brand-ink">
+          <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-chip bg-brand px-2.5 py-1 text-[0.7rem] font-medium text-brand-ink">
             <Check className="size-3" /> In kit · {inKit.gift.qty}
           </span>
         )}
@@ -282,7 +266,7 @@ function GiftCard({ product, qty, lines }: { product: GiftProduct; qty: number; 
           <button
             type="button"
             onClick={() => removeGift(product.id, variant.id)}
-            className="h-10 w-full rounded-full border border-line-strong text-[0.75rem] font-medium uppercase tracking-[0.08em] transition-colors hover:border-danger hover:text-danger"
+            className="h-10 w-full rounded-control border border-line-strong text-[0.75rem] font-medium uppercase tracking-[0.08em] transition-colors hover:border-danger hover:text-danger"
           >
             Remove
           </button>
@@ -291,7 +275,7 @@ function GiftCard({ product, qty, lines }: { product: GiftProduct; qty: number; 
             type="button"
             onClick={add}
             aria-label={`Add ${amount} ${product.name}`}
-            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full bg-brand text-[0.75rem] font-medium uppercase tracking-[0.08em] text-brand-ink transition-colors hover:bg-brand-deep"
+            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-control bg-brand text-[0.75rem] font-medium uppercase tracking-[0.08em] text-brand-ink transition-colors hover:bg-brand-deep"
           >
             <Plus className="size-3.5" /> {otherInKit ? "Switch to this" : `Add ${amount}`}
           </button>

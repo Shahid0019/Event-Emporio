@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { ProductGrid } from "@/components/product/product-grid";
+import { SearchBar } from "@/components/layout/search-bar";
 import { buttonVariants } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { EmptyState, ProductGridSkeleton, Skeleton } from "@/components/ui/primitives";
@@ -104,11 +105,13 @@ export function CatalogHeader({
   children?: React.ReactNode;
 }) {
   return (
-    <header className="pb-10 pt-8 sm:pb-14 sm:pt-12">
+    // Phones: a compact app-style header (back link, title, search) so products show sooner.
+    <header className="pb-5 pt-2 sm:pb-14 sm:pt-12">
       {children}
-      {eyebrow && <p className="eyebrow mt-8 text-accent-ink">{eyebrow}</p>}
-      <h1 className="mt-4 text-h1">{title}</h1>
-      {description && <p className="mt-5 max-w-2xl text-[1.05rem] leading-relaxed text-muted">{description}</p>}
+      {eyebrow && <p className="eyebrow mt-8 hidden text-accent-ink sm:block">{eyebrow}</p>}
+      <h1 className="mt-2 text-[2.2rem] leading-none sm:mt-4 sm:text-h1">{title}</h1>
+      {description && <p className="mt-5 hidden max-w-2xl text-[1.05rem] leading-relaxed text-muted sm:block">{description}</p>}
+      <SearchBar className="mt-4" />
     </header>
   );
 }

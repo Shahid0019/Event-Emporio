@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CatalogHeader, CatalogResults, CatalogSkeleton } from "@/components/shop/catalog";
+import { CategoryChips } from "@/components/shop/category-chips";
 import { Breadcrumbs } from "@/components/ui/primitives";
 
 export const metadata: Metadata = {
@@ -23,6 +24,9 @@ export default function ShopPage({ searchParams }: PageProps<"/shop">) {
       >
         <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Shop" }]} />
       </CatalogHeader>
+      <Suspense fallback={null}>
+        <CategoryChips />
+      </Suspense>
       <Suspense fallback={<CatalogSkeleton />}>
         <CatalogResults searchParams={searchParams} basePath="/shop" />
       </Suspense>

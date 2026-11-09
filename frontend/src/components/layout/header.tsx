@@ -26,12 +26,12 @@ export function Header({ menu }: { menu: MegaMenuData }) {
   }, []);
 
   return (
-    <header data-scrolled={scrolled || undefined} className="group/header sticky top-0 z-40">
+    <header data-scrolled={scrolled || undefined} className="group/header fixed inset-x-0 top-0 z-40">
       {/* Floating tiles: logo, frosted navigation, frosted actions, then the kit call to action.
           Phones get a single frosted bar. Tiles + padding add up to --header-h. */}
       <div className="container-luxe flex h-[var(--header-h)] items-stretch gap-2 py-2">
-        <div className={cn(tile, "hidden shrink-0 items-center bg-brand px-4 lg:flex xl:px-6 lg:[&>a>span]:text-[1.45rem] xl:[&>a>span]:text-[1.7rem]")}>
-          <Logo tone="light" />
+        <div className={cn(tile, glass, "hidden shrink-0 items-center px-4 lg:flex xl:px-6 lg:[&>a>span]:text-[1.45rem] xl:[&>a>span]:text-[1.7rem]")}>
+          <Logo />
         </div>
 
         <div
@@ -72,7 +72,7 @@ export function Header({ menu }: { menu: MegaMenuData }) {
             "hidden shrink-0 items-center bg-brand px-4 text-[0.9rem] xl:px-6 font-medium whitespace-nowrap text-brand-ink transition-colors hover:bg-brand-deep lg:flex",
           )}
         >
-          Build my kit
+          Plan My Function
         </Link>
       </div>
     </header>
@@ -80,7 +80,7 @@ export function Header({ menu }: { menu: MegaMenuData }) {
 }
 
 /** One floating piece of the header; lifts a little once the page scrolls under it. */
-const tile = "rounded-control transition-shadow duration-500 group-data-[scrolled]/header:shadow-[0_12px_30px_-18px_rgb(36_32_32/0.35)]";
+const tile = "rounded-control transition-shadow duration-500 group-data-[scrolled]/header:shadow-[0_12px_30px_-18px_rgb(34_41_35/0.35)]";
 const glass = "border border-white/70 bg-raised/70 backdrop-blur-md";
 
 function DesktopNavWithPath({ menu }: { menu: MegaMenuData }) {
@@ -125,7 +125,7 @@ function DesktopNav({ menu, pathname }: { menu: MegaMenuData; pathname: string |
       </NavigationMenu.List>
       {/* Positioned against the sticky <header>, so it always opens directly beneath it. */}
       <div className="absolute inset-x-0 top-full flex justify-center">
-        <NavigationMenu.Viewport className="mx-auto w-[calc(100%-2*var(--gutter))] max-w-[calc(92rem-2*var(--gutter))] origin-top overflow-hidden rounded-card border border-line bg-canvas shadow-[0_30px_60px_-30px_rgb(36_32_32/0.25)] data-[state=open]:animate-overlay-in" />
+        <NavigationMenu.Viewport className="mx-auto w-[calc(100%-2*var(--gutter))] max-w-[calc(92rem-2*var(--gutter))] origin-top overflow-hidden rounded-card border border-line bg-canvas shadow-[0_30px_60px_-30px_rgb(34_41_35/0.25)] data-[state=open]:animate-overlay-in" />
       </div>
     </NavigationMenu.Root>
   );
@@ -165,7 +165,7 @@ function MegaMenu({ menu }: { menu: MegaMenuData }) {
           <li>
             <NavigationMenu.Link asChild>
               <Link href="/kit" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
-                Build your kit
+                Plan your function
               </Link>
             </NavigationMenu.Link>
           </li>

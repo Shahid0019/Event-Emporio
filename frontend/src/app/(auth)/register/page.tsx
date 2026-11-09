@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { RegisterForm } from "@/components/auth/auth-forms";
+import { googleConfigured } from "@/lib/server/google";
+import { phoneSignInAvailable } from "@/lib/server/phone-code";
 
 export const metadata: Metadata = {
   title: "Create Account",
@@ -7,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <RegisterForm />;
+  return <RegisterForm google={googleConfigured() || process.env.NODE_ENV !== "production"} phone={phoneSignInAvailable()} />;
 }

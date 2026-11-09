@@ -12,45 +12,59 @@ export function OccasionCards({ functions }: { functions: KitFunction[] }) {
     <section aria-labelledby="occasions-title" className="">
       <div className="container-luxe">
         <SectionHeading
-          eyebrow="Build my kit"
           title={
             <span id="occasions-title">
               Which <em className="text-brand">function</em> is it for?
             </span>
           }
-          description="Pick the function and tell us how many guests. We count every dastarkhan, glass, box and bag for you."
         />
         {functions.length > 0 && (
           <ul className={cn("mt-10 grid grid-cols-2 gap-3 sm:gap-5", functions.length % 3 === 0 ? "lg:grid-cols-3" : "lg:grid-cols-4")}>
             {functions.map((f) => (
               <li key={f.id}>
+                {/* Phones: a light card, photo on top, the name centred underneath.
+                    Wider screens: full-bleed photo with a frosted panel and a clear "go" button. */}
                 <Link
                   href={`/kit?occasion=${f.id}`}
-                  className="group relative isolate flex aspect-[4/5] flex-col justify-end overflow-hidden rounded-media bg-surface p-4 text-canvas sm:p-6"
+                  className="group relative isolate flex h-full flex-col overflow-hidden rounded-card border border-line bg-raised shadow-[0_1px_2px_rgb(34_41_35/0.06)] transition-[transform,box-shadow] duration-300 ease-[var(--ease-luxe)] active:scale-[0.98] sm:aspect-[4/5] sm:h-auto sm:justify-end sm:rounded-sheet sm:border-0 sm:bg-surface sm:p-3 sm:shadow-[0_14px_34px_-22px_rgb(34_41_35/0.55)] can-hover:hover:-translate-y-1 can-hover:hover:shadow-[0_24px_44px_-24px_rgb(34_41_35/0.6)]"
                 >
-                  {f.image ? (
-                    <Image
-                      src={f.image.src}
-                      alt={f.image.alt}
-                      fill
-                      sizes="(min-width: 1024px) 23vw, 50vw"
-                      className="-z-10 object-cover transition-transform duration-[1.4s] ease-[var(--ease-luxe)] group-hover:scale-105"
-                    />
-                  ) : (
-                    // No photo yet: the function's item picture on the brand colour.
-                    <span aria-hidden className="absolute inset-0 -z-10 grid place-items-center bg-brand-deep">
-                      <KitThumb
-                        itemId={f.icon ?? "dastarkhan"}
-                        sizes="200px"
-                        className="w-1/2 -translate-y-1/4 rounded-card bg-canvas/95 transition-transform duration-[1.4s] ease-[var(--ease-luxe)] group-hover:scale-105"
+                  <span className="relative block aspect-[4/3] overflow-hidden bg-surface sm:absolute sm:inset-0 sm:-z-10 sm:aspect-auto">
+                    {f.image ? (
+                      <Image
+                        src={f.image.src}
+                        alt={f.image.alt}
+                        fill
+                        sizes="(min-width: 1024px) 23vw, 50vw"
+                        className="object-cover transition-transform duration-[1.4s] ease-[var(--ease-luxe)] group-hover:scale-[1.06]"
                       />
+                    ) : (
+                      // No photo yet: the function's item picture on the light panel.
+                      <span aria-hidden className="absolute inset-0 grid place-items-center sm:pb-16">
+                        <KitThumb
+                          itemId={f.icon ?? "dastarkhan"}
+                          sizes="200px"
+                          className="w-1/2 rounded-card bg-canvas transition-transform duration-[1.4s] ease-[var(--ease-luxe)] group-hover:scale-105"
+                        />
+                      </span>
+                    )}
+                    {/* A soft shade at the bottom so the frosted panel always sits on a calm background. */}
+                    <span aria-hidden className="absolute inset-x-0 bottom-0 hidden h-1/2 bg-gradient-to-t from-ink/45 to-transparent sm:block" />
+                  </span>
+                  <span className="flex flex-1 items-center justify-center px-2 py-3 sm:flex-none sm:justify-start sm:gap-3 sm:rounded-card sm:bg-raised/85 sm:py-3 sm:pl-4 sm:pr-2 sm:shadow-[0_8px_24px_-12px_rgb(34_41_35/0.5)] sm:ring-1 sm:ring-white/60 sm:backdrop-blur-md">
+                    <span className="min-w-0 sm:flex-1">
+                      <span className="block truncate text-center font-sans text-[0.95rem] font-semibold leading-tight text-ink sm:text-left sm:text-[1.05rem]">
+                        {f.name}
+                      </span>
+                      {/* {f.description && (
+                        <span className="mt-0.5 line-clamp-2 text-[0.75rem] leading-tight text-muted sm:text-[0.8rem]">{f.description}</span>
+                      )} */}
                     </span>
-                  )}
-                  <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-t from-ink/85 via-ink/30 to-ink/0" />
-                  <span className="font-serif text-[1.6rem] leading-tight sm:text-[2rem]">{f.name}</span>
-                  {f.description && <span className="mt-1 text-[0.85rem] text-canvas/90">{f.description}</span>}
-                  <span className="mt-3 inline-flex items-center gap-1.5 text-[0.7rem] font-medium uppercase tracking-[0.16em]">
-                    Build kit <ArrowRight aria-hidden className="size-3.5 transition-transform group-hover:translate-x-1" />
+                    <span
+                      aria-hidden
+                      className="hidden size-9 shrink-0 place-items-center rounded-full bg-brand text-brand-ink transition-transform duration-300 group-hover:translate-x-0.5 sm:grid"
+                    >
+                      <ArrowRight className="size-4" />
+                    </span>
                   </span>
                 </Link>
               </li>

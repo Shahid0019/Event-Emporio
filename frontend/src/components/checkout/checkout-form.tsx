@@ -8,7 +8,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import type { z } from "zod";
-import { AlertCircle, Banknote, Lock, ShoppingBag } from "lucide-react";
+import { AlertCircle, ArrowRight, Banknote, CalendarDays, ChevronRight, Lock, MapPin, ShoppingBag, Truck } from "lucide-react";
 import { CouponForm, KitMosaic, TotalsTable } from "@/components/cart/cart-parts";
 import { groupCart } from "@/lib/cart-groups";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -20,8 +20,10 @@ import { useCartTotals } from "@/components/cart/use-cart-totals";
 import type { CheckoutStart } from "@/app/api/checkout/order/route";
 import { storeSettings } from "@/lib/data/settings";
 import { SHIPPING_METHODS, shippingPrice } from "@/lib/settings";
+import { formatEventDate } from "@/lib/kit/format";
+import { kitStore } from "@/lib/kit/store";
 import { clearCart, couponStore, sessionStore } from "@/lib/store";
-import type { Address } from "@/lib/types";
+import type { Address, CartLine, OrderTotals } from "@/lib/types";
 import { checkoutSchema, indianStates } from "@/lib/validations";
 import { cn, formatPrice } from "@/lib/utils";
 
@@ -100,6 +102,8 @@ export function CheckoutForm() {
         country: "India",
       },
       deliveryInstructions: "",
+      // The date picked while planning a function, if any.
+      firstFunctionDate: kitStore.get().eventDate ?? "",
       shippingMethod: "standard",
       paymentMethod: "razorpay",
       saveAddress: false,
@@ -117,6 +121,8 @@ export function CheckoutForm() {
   const { lines, code: couponCode, quote, failed: quoteError } = useCartTotals(shippingMethod);
   const [testPayment, setTestPayment] = useState<CheckoutStart | null>(null);
   const [processing, setProcessing] = useState(false);
+  // Checked details waiting on the Review step (handbook screen 08) before paying.
+  const [review, setReview] = useState<Parsed | null>(null);
 
   if (!lines.length) {
     return (
@@ -146,7 +152,17 @@ export function CheckoutForm() {
       body: JSON.stringify({ ...values.shipping, phone: values.phone }),
     }).catch(() => undefined);
 
-  const onSubmit = handleSubmit(async (values) => {
+  // Details first, then a review screen; payment starts only from the review.
+  const onSubmit = handleSubmit((values) => {
+    setReview(values);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  const editDetails = (field?: string) => {
+    setReview(null);
+    if (field) requestAnimationFrame(() => document.getElementById(field)?.scrollIntoView({ block: "center" }));
+  };
+
+  const placeOrder = async (values: Parsed) => {
     if (!quote || quote.lines.length === 0) {
       toast.error("We couldn't confirm your bag. Please refresh and try again.");
       return;
@@ -213,7 +229,7 @@ export function CheckoutForm() {
       description: `Order ${start.number}`,
       order_id: start.razorpay.orderId,
       prefill: start.prefill,
-      theme: { color: "#5a2334" },
+      theme: { color: "#425e2a" },
       handler: async (response: RazorpayResponse) => {
         const confirm = await fetch("/api/checkout/confirm", {
           method: "POST",
@@ -241,7 +257,7 @@ export function CheckoutForm() {
       toast.error("Payment didn't go through", { description: "You haven't been charged. Try again or use another method." });
     });
     checkout.open();
-  });
+  };
 
   /** Local development only (no Razorpay keys): finish or fail the payment by hand. */
   const completeTestPayment = async (outcome: "success" | "failure") => {
@@ -263,6 +279,17 @@ export function CheckoutForm() {
 
   return (
     <div className="grid gap-12 lg:grid-cols-12 lg:gap-16">
+      {review ? (
+        <ReviewOrder
+          values={review}
+          lines={lines}
+          totals={quote?.totals}
+          paymentMethod={paymentMethod}
+          processing={processing}
+          onEdit={editDetails}
+          onPlace={() => void placeOrder(review)}
+        />
+      ) : (
       <form onSubmit={onSubmit} noValidate className="space-y-12 lg:col-span-7" aria-label="Checkout">
         <Section step={1} title="Contact">
           {!user && (
@@ -364,7 +391,26 @@ export function CheckoutForm() {
           </div>
         </Section>
 
-        <Section step={3} title="Delivery method">
+        <Section step={3} title="When is your first function?">
+          <Field
+            label="First function date"
+            htmlFor="firstFunctionDate"
+            optional
+            hint="Helps us plan your delivery in time. It isn't a fixed delivery slot."
+            error={errors.firstFunctionDate?.message}
+          >
+            <Input
+              type="date"
+              // Earliest choice is today, set when opened (a date read while rendering would be frozen at build time).
+              onFocus={(e) => (e.currentTarget.min = localToday())}
+              {...fieldAria("firstFunctionDate", errors.firstFunctionDate?.message)}
+              {...register("firstFunctionDate")}
+            />
+          </Field>
+          <OneDelivery className="mt-5" />
+        </Section>
+
+        <Section step={4} title="Delivery method">
           <fieldset>
             <legend className="sr-only">Choose a delivery method</legend>
             <div className="grid gap-3">
@@ -393,7 +439,7 @@ export function CheckoutForm() {
           </fieldset>
         </Section>
 
-        <Section step={4} title="Payment">
+        <Section step={5} title="Payment">
           {codEnabled ? (
             <fieldset>
               <legend className="sr-only">Choose how to pay</legend>
@@ -448,26 +494,14 @@ export function CheckoutForm() {
         </Section>
 
         <div className="space-y-4">
-          <Button type="submit" size="lg" className="w-full" loading={processing} disabled={!quote || quote.lines.length === 0}>
-            {!quote
-              ? "Confirming your bag…"
-              : paymentMethod === "cod"
-                ? `Place order · ${formatPrice(quote.totals.total)}`
-                : `Pay ${formatPrice(quote.totals.total)}`}
+          <Button type="submit" size="lg" className="w-full" disabled={!quote || quote.lines.length === 0}>
+            {!quote ? "Confirming your bag…" : "Review order"}
+            {quote && <ArrowRight aria-hidden />}
           </Button>
-          <p className="text-center text-[0.78rem] leading-relaxed text-muted">
-            By placing your order you agree to our{" "}
-            <Link href="/terms" className="underline underline-offset-4">
-              Terms
-            </Link>{" "}
-            and{" "}
-            <Link href="/privacy-policy" className="underline underline-offset-4">
-              Privacy Policy
-            </Link>
-            .
-          </p>
+          <p className="text-center text-[0.78rem] leading-relaxed text-muted">You&apos;ll see the exact total before you pay.</p>
         </div>
       </form>
+      )}
 
       <aside aria-label="Order summary" className="lg:col-span-5">
         <div className="space-y-6 rounded-card bg-surface p-6 sm:p-8 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
@@ -560,6 +594,148 @@ export function CheckoutForm() {
   );
 }
 
+/** Everything ships together; the date only helps planning (handbook: no promised slot). */
+function OneDelivery({ className }: { className?: string }) {
+  return (
+    <div className={cn("flex items-start gap-3 rounded-control bg-surface px-4 py-3.5 text-[0.88rem]", className)}>
+      <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-accent-ink" />
+      <p>
+        <span className="font-medium">One delivery for your entire order.</span>{" "}
+        <span className="text-muted">
+          All your function supplies come together, ahead of your first function. Our team will confirm the delivery schedule with you.
+        </span>
+      </p>
+    </div>
+  );
+}
+
+/** Handbook screen 08: one last look at everything, then pay. */
+function ReviewOrder({
+  values,
+  lines,
+  totals,
+  paymentMethod,
+  processing,
+  onEdit,
+  onPlace,
+}: {
+  values: Parsed;
+  lines: CartLine[];
+  totals?: OrderTotals;
+  paymentMethod: "razorpay" | "cod";
+  processing: boolean;
+  onEdit: (field?: string) => void;
+  onPlace: () => void;
+}) {
+  const entries = groupCart(lines);
+  const a = values.shipping;
+  const card = "rounded-card border border-line bg-raised p-4 sm:p-5";
+  const head = "flex items-center justify-between gap-3";
+  const edit = "inline-flex min-h-10 items-center gap-1 rounded-chip px-2 text-[0.85rem] font-medium text-brand hover:bg-surface";
+
+  return (
+    <section aria-labelledby="review-title" className="space-y-4 lg:col-span-7">
+      <div>
+        <h2 id="review-title" className="font-serif text-[2rem] leading-tight">
+          Review your order
+        </h2>
+        <p className="mt-1 text-[0.9rem] text-muted">Almost done — please check your details before placing the order.</p>
+      </div>
+
+      <div className={card}>
+        <div className={head}>
+          <h3 className="inline-flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal">
+            <ShoppingBag aria-hidden className="size-4 text-accent-ink" /> Your wedding supplies
+          </h3>
+          <Link href="/cart" className={edit}>
+            Edit <ChevronRight aria-hidden className="size-4" />
+          </Link>
+        </div>
+        <ul className="mt-2 divide-y divide-line">
+          {entries.map((e) => (
+            <li key={e.key} className="flex items-center justify-between gap-3 py-2.5">
+              <span className="min-w-0">
+                <span className="block truncate font-medium">{e.type === "kit" ? e.bundle.name : e.line.name}</span>
+                <span className="block truncate text-[0.8rem] text-muted">
+                  {e.type === "kit" ? e.bundle.summary : `${e.line.variantLabel ? `${e.line.variantLabel} · ` : ""}Qty ${e.line.quantity}`}
+                </span>
+              </span>
+              <span className="shrink-0 tabular-nums">{formatPrice(e.type === "kit" ? e.total : e.line.unitPrice * e.line.quantity)}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className={card}>
+        <div className={head}>
+          <h3 className="inline-flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal">
+            <MapPin aria-hidden className="size-4 text-accent-ink" /> Delivery details
+          </h3>
+          <button type="button" onClick={() => onEdit("fullName")} className={edit}>
+            Edit <ChevronRight aria-hidden className="size-4" />
+          </button>
+        </div>
+        <address className="mt-2 text-[0.92rem] not-italic leading-relaxed">
+          <span className="font-medium">{a.fullName}</span> · {values.phone}
+          <br />
+          {a.line1}
+          {a.line2 && <>, {a.line2}</>}
+          <br />
+          {a.city}, {a.state} – {a.pincode}
+        </address>
+        <p className="mt-1 text-[0.82rem] text-muted">{values.email}</p>
+      </div>
+
+      <div className={card}>
+        <div className={head}>
+          <h3 className="inline-flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal">
+            <CalendarDays aria-hidden className="size-4 text-accent-ink" /> First function date
+          </h3>
+          <button type="button" onClick={() => onEdit("firstFunctionDate")} className={edit}>
+            Edit <ChevronRight aria-hidden className="size-4" />
+          </button>
+        </div>
+        <p className="mt-1 text-[0.95rem]">
+          {values.firstFunctionDate ? formatEventDate(values.firstFunctionDate, "long") : <span className="text-muted">Not given — we&apos;ll ask when we call</span>}
+        </p>
+      </div>
+
+      <OneDelivery />
+
+      <div className={card}>
+        <h3 className="inline-flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal">
+          <Lock aria-hidden className="size-4 text-accent-ink" /> Payment summary
+        </h3>
+        <div className="mt-3">{totals ? <TotalsTable totals={totals} /> : <Skeleton className="h-24 w-full" />}</div>
+        <p className="mt-3 text-[0.85rem] text-muted">
+          Paying by <span className="font-medium text-ink">{paymentMethod === "cod" ? "cash on delivery" : "UPI / card (Razorpay)"}</span> ·{" "}
+          <button type="button" onClick={() => onEdit("paymentMethod")} className="text-brand underline underline-offset-4">
+            change
+          </button>
+        </p>
+      </div>
+
+      <div className="space-y-3 pt-1">
+        <Button size="lg" className="h-14 w-full" loading={processing} disabled={!totals} onClick={onPlace}>
+          {paymentMethod === "cod" ? "Place order" : "Pay & place order"}
+          {totals && ` · ${formatPrice(totals.total)}`}
+        </Button>
+        <p className="text-center text-[0.78rem] leading-relaxed text-muted">
+          By placing your order you agree to our{" "}
+          <Link href="/terms" className="underline underline-offset-4">
+            Terms
+          </Link>{" "}
+          and{" "}
+          <Link href="/privacy-policy" className="underline underline-offset-4">
+            Privacy Policy
+          </Link>
+          .
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function Section({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
   return (
     <section aria-labelledby={`step-${step}`}>
@@ -570,4 +746,10 @@ function Section({ step, title, children }: { step: number; title: string; child
       {children}
     </section>
   );
+}
+
+/** Today's date (YYYY-MM-DD) in the shopper's own time zone. */
+function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }

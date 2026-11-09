@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { SearchBar } from "@/components/layout/search-bar";
 import { CatalogResults, CatalogSkeleton } from "@/components/shop/catalog";
+import { CategoryChips } from "@/components/shop/category-chips";
 import { Breadcrumbs } from "@/components/ui/primitives";
 import { getCategories } from "@/lib/catalog";
 import { categoryBySlug } from "@/lib/data/categories";
@@ -56,12 +58,17 @@ async function CategoryContent({ params, searchParams }: Pick<PageProps<"/catego
   return (
     <div className="pb-24">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd).replace(/</g, "\\u003c") }} />
-      <header className="container-luxe grid items-end gap-8 pb-12 pt-8 sm:pt-12 md:grid-cols-12 md:pb-16">
-        <div className="md:col-span-7">
+      {/* Phones: compact app-style header so products show sooner. */}
+      <header className="container-luxe grid items-end gap-8 pb-5 pt-2 sm:pb-12 sm:pt-12 md:grid-cols-12 md:pb-16">
+        <div className="min-w-0 md:col-span-7">
           <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, { label: category.name }]} />
-          <p className="eyebrow mt-8 text-accent-ink">Category</p>
-          <h1 className="mt-4 text-h1">{category.name}</h1>
-          <p className="mt-5 max-w-xl text-[1.05rem] leading-relaxed text-muted">{category.description}</p>
+          <p className="eyebrow mt-8 hidden text-accent-ink sm:block">Category</p>
+          <h1 className="mt-2 text-[2.2rem] leading-none sm:mt-4 sm:text-h1">{category.name}</h1>
+          <p className="mt-5 hidden max-w-xl text-[1.05rem] leading-relaxed text-muted sm:block">{category.description}</p>
+          <SearchBar className="mt-4" />
+          <Suspense fallback={null}>
+            <CategoryChips active={category.slug} />
+          </Suspense>
         </div>
         <div className="relative hidden aspect-[16/10] overflow-hidden rounded-media bg-surface md:col-span-5 md:block">
           <Image

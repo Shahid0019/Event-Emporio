@@ -59,7 +59,7 @@ export function Sheet({
             }
           }}
           className={cn(
-            "fixed z-50 flex flex-col overflow-hidden bg-canvas shadow-[0_30px_80px_-20px_rgb(36_32_32/0.35)] focus:outline-none",
+            "fixed z-50 flex flex-col overflow-hidden bg-canvas shadow-[0_30px_80px_-20px_rgb(34_41_35/0.35)] focus:outline-none",
             panel[side],
             className,
           )}

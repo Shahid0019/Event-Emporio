@@ -30,7 +30,7 @@ function FilterChips<T extends string>({
           aria-pressed={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "h-9 rounded-full border px-3.5 text-[0.8rem] transition-colors",
+            "h-9 rounded-control border px-3.5 text-[0.8rem] transition-colors",
             value === o.value ? "border-ink bg-ink text-canvas" : "border-line-strong hover:border-ink",
           )}
         >

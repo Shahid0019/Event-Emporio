@@ -22,4 +22,4 @@ export async function readBody<S extends z.ZodType>(request: Request, schema: S)
 }
 
 /** What the browser may keep about the signed-in customer (for the header and form prefill). */
-export const publicUser = (a: Account) => ({ name: a.name, email: a.email, ...(a.phone && { phone: a.phone }) });
+export const publicUser = (a: Account) => ({ name: a.name, email: a.email, ...(a.phone && { phone: a.phone }), signInWith: a.signInWith });

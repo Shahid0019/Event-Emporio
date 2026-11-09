@@ -365,7 +365,7 @@ export function ImageField({
               <button
                 type="button"
                 onClick={() => inputRef.current?.click()}
-                className="inline-flex h-9 items-center gap-2 rounded-full border border-line-strong px-4 text-[0.8rem] hover:border-ink"
+                className="inline-flex h-9 items-center gap-2 rounded-control border border-line-strong px-4 text-[0.8rem] hover:border-ink"
               >
                 <ImageUp className="size-4" /> Replace
               </button>
@@ -373,7 +373,7 @@ export function ImageField({
                 <button
                   type="button"
                   onClick={() => onChange(undefined)}
-                  className="inline-flex h-9 items-center gap-2 rounded-full px-3 text-[0.8rem] text-danger hover:bg-danger/10"
+                  className="inline-flex h-9 items-center gap-2 rounded-control px-3 text-[0.8rem] text-danger hover:bg-danger/10"
                 >
                   <Trash2 className="size-4" /> Remove
                 </button>
@@ -460,7 +460,7 @@ export function PhotoList({ value, onChange }: { value: ImageAsset[]; onChange: 
                 type="button"
                 disabled={i === 0}
                 onClick={() => move(i, -1)}
-                className="inline-flex min-h-9 items-center rounded-full px-2.5 text-[0.78rem] font-medium hover:bg-surface disabled:opacity-35"
+                className="inline-flex min-h-9 items-center rounded-control px-2.5 text-[0.78rem] font-medium hover:bg-surface disabled:opacity-35"
                 aria-label={`Move photo ${i + 1} earlier`}
               >
                 ↑ Earlier
@@ -469,7 +469,7 @@ export function PhotoList({ value, onChange }: { value: ImageAsset[]; onChange: 
                 type="button"
                 disabled={i === value.length - 1}
                 onClick={() => move(i, 1)}
-                className="inline-flex min-h-9 items-center rounded-full px-2.5 text-[0.78rem] font-medium hover:bg-surface disabled:opacity-35"
+                className="inline-flex min-h-9 items-center rounded-control px-2.5 text-[0.78rem] font-medium hover:bg-surface disabled:opacity-35"
                 aria-label={`Move photo ${i + 1} later`}
               >
                 ↓ Later
@@ -477,7 +477,7 @@ export function PhotoList({ value, onChange }: { value: ImageAsset[]; onChange: 
               <button
                 type="button"
                 onClick={() => onChange(value.filter((_, j) => j !== i))}
-                className="ml-auto inline-flex min-h-9 items-center gap-1 rounded-full px-2.5 text-[0.78rem] font-medium text-danger hover:bg-danger/10"
+                className="ml-auto inline-flex min-h-9 items-center gap-1 rounded-control px-2.5 text-[0.78rem] font-medium text-danger hover:bg-danger/10"
                 aria-label={`Remove photo ${i + 1}`}
               >
                 <Trash2 aria-hidden className="size-3.5" /> Remove
@@ -590,7 +590,7 @@ export function OptionPhotos({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-dashed border-line-strong px-3 text-[0.78rem] font-medium text-muted transition-colors hover:border-ink hover:text-ink"
+          className="inline-flex min-h-9 items-center gap-1.5 rounded-control border border-dashed border-line-strong px-3 text-[0.78rem] font-medium text-muted transition-colors hover:border-ink hover:text-ink"
         >
           <ImageUp aria-hidden className="size-3.5" />
           {value.length ? "Add photos" : "Add photos of this option"}
@@ -601,7 +601,7 @@ export function OptionPhotos({
         onClick={() => setOpen(true)}
         aria-label={`${label}: ${summary}. Manage photos`}
         className={cn(
-          "inline-flex min-h-9 items-center rounded-full px-2.5 text-[0.78rem] font-medium text-muted underline-offset-4 hover:text-ink hover:underline",
+          "inline-flex min-h-9 items-center rounded-control px-2.5 text-[0.78rem] font-medium text-muted underline-offset-4 hover:text-ink hover:underline",
           !value.length && "sr-only focus:not-sr-only",
         )}
       >

@@ -8,6 +8,13 @@ async function addRoseBasketToBag(page: Page) {
   await expect(page.getByText("added to your bag")).toBeVisible();
 }
 
+/** Checkout is two steps: details, then a review screen where payment starts. */
+async function reviewOrder(page: Page) {
+  await page.getByRole("button", { name: "Review order" }).click();
+  await expect(page.getByRole("heading", { name: "Review your order" })).toBeVisible();
+  return page.getByRole("button", { name: /^Pay & place order · ₹/ });
+}
+
 async function fillCheckout(page: Page, email = "guest@example.com") {
   const form = page.getByRole("form", { name: "Checkout" });
   await form.getByLabel("Email", { exact: true }).fill(email);
@@ -69,12 +76,12 @@ test.describe("purchase journey", () => {
     await page.getByRole("button", { name: "Increase quantity" }).first().click();
     await expect(page.getByText("₹4,398").first()).toBeVisible();
 
-    await page.getByRole("link", { name: "Proceed to checkout" }).click();
-    await expect(page.getByRole("heading", { level: 1, name: "Checkout" })).toBeVisible();
+    await page.getByRole("link", { name: "Continue to checkout" }).click();
+    await expect(page.getByRole("heading", { level: 1, name: "Delivery & payment" })).toBeVisible();
     await fillCheckout(page, email);
 
-    // The pay button shows the server-side quote total.
-    const pay = page.getByRole("button", { name: /^Pay ₹/ });
+    // The pay button on the review shows the server-side quote total.
+    const pay = await reviewOrder(page);
     await expect(pay).toBeEnabled();
     await pay.click();
     await page.getByRole("button", { name: "Simulate successful payment" }).click();
@@ -97,6 +104,7 @@ test.describe("purchase journey", () => {
     // Signing in again later finds the same order.
     await page.context().clearCookies();
     await page.goto("/login?next=/account/orders");
+    await page.getByRole("tab", { name: "Email" }).click();
     await page.getByRole("main").getByLabel("Email", { exact: true }).fill(email);
     await page.getByLabel("Password", { exact: true }).fill("wedding-2026");
     await page.getByRole("button", { name: "Sign in" }).click();
@@ -104,8 +112,34 @@ test.describe("purchase journey", () => {
     await expect(page.getByText(number).filter({ visible: true }).first()).toBeVisible();
   });
 
+  test("a new customer signs in with a mobile number and a code, then again with the same number", async ({ page }) => {
+    // The e2e server has no SMS service, so it shows the code on screen (test mode).
+    const number = `9${String(Date.now()).slice(-9)}`;
+    const enterCode = async () => {
+      await page.getByLabel("Mobile number").fill(number);
+      await page.getByRole("button", { name: "Send code" }).click();
+      const note = page.getByText("Test mode");
+      await expect(note).toBeVisible();
+      const code = (await note.textContent())!.match(/\d{6}/)![0];
+      await page.getByLabel("6-digit code").fill(code);
+    };
+    await page.goto("/login?next=/account");
+    await enterCode();
+    await page.getByLabel("Full name").fill("Phone Customer");
+    await page.getByRole("main").getByLabel("Email", { exact: true }).fill(`${number}@example.com`);
+    await page.getByRole("button", { name: "Create my account" }).click();
+    await expect(page).toHaveURL((url) => url.pathname === "/account");
+
+    await page.context().clearCookies();
+    await page.goto("/login?next=/account/profile");
+    await enterCode();
+    await expect(page).toHaveURL(/\/account\/profile/);
+    await expect(page.getByText("· verified")).toBeVisible();
+  });
+
   test("signing in with an unknown account is refused", async ({ page }) => {
     await page.goto("/login");
+    await page.getByRole("tab", { name: "Email" }).click();
     await page.getByRole("main").getByLabel("Email", { exact: true }).fill("nobody@example.com");
     await page.getByLabel("Password", { exact: true }).fill("not-a-real-pass1");
     await page.getByRole("button", { name: "Sign in" }).click();
@@ -117,7 +151,7 @@ test.describe("purchase journey", () => {
     await addRoseBasketToBag(page);
     await page.goto("/checkout");
     await fillCheckout(page);
-    await page.getByRole("button", { name: /^Pay ₹/ }).click();
+    await (await reviewOrder(page)).click();
     await page.getByRole("button", { name: "Simulate failed payment" }).click();
     await expect(page.getByText("Payment didn't go through")).toBeVisible();
     await expect(page).toHaveURL(/\/checkout$/);
@@ -127,7 +161,7 @@ test.describe("purchase journey", () => {
   test("checkout validates required fields", async ({ page }) => {
     await addRoseBasketToBag(page);
     await page.goto("/checkout");
-    await page.getByRole("button", { name: /^Pay ₹/ }).click();
+    await page.getByRole("button", { name: "Review order" }).click();
     await expect(page.getByText("Please enter a valid email address")).toBeVisible();
     await expect(page.getByText("Enter a valid 6-digit PIN code")).toBeVisible();
   });

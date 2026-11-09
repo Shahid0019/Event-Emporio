@@ -146,7 +146,7 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
           <p className="mt-10 rounded-card border border-line bg-raised px-5 py-4 text-[0.95rem]">
             Need it for a whole function?{" "}
             <Link href="/kit" className="link-underline font-medium text-brand">
-              Build a kit
+              Plan your function
             </Link>{" "}
             — we count every item per trami.
           </p>

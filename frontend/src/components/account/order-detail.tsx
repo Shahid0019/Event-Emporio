@@ -1,10 +1,30 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Check } from "lucide-react";
+import { BadgeCheck, Check, ClipboardCheck, House, PackageOpen, Truck, type LucideIcon } from "lucide-react";
 import { Badge } from "@/components/ui/primitives";
 import { cashDue, fulfilmentSteps, orderStatusLabel, paymentLabel } from "@/lib/order-status";
 import type { Order, OrderStatus } from "@/lib/types";
-import { cn, formatDate, formatDateTime, formatPrice } from "@/lib/utils";
+import { cn, formatDateTime, formatPrice } from "@/lib/utils";
+
+/** Customer wording for each stage (handbook screen 10). */
+const stageLabel: Partial<Record<OrderStatus, string>> = {
+  confirmed: "Order confirmed",
+  processing: "Preparing your order",
+  shipped: "Out for delivery",
+  delivered: "Delivered",
+};
+const stageShort: Partial<Record<OrderStatus, string>> = {
+  confirmed: "Confirmed",
+  processing: "Preparing",
+  shipped: "On the way",
+  delivered: "Delivered",
+};
+const stageNote: Partial<Record<OrderStatus, string>> = {
+  confirmed: "We've checked stock and accepted your order.",
+  processing: "Your supplies are being picked and packed.",
+  shipped: "Everything is on its way to you, in one delivery.",
+  delivered: "Delivered. We hope your function goes beautifully.",
+};
 
 export function statusTone(status: OrderStatus) {
   if (status === "delivered") return "success" as const;
@@ -13,7 +33,19 @@ export function statusTone(status: OrderStatus) {
   return "accent" as const;
 }
 
-export function OrderTimeline({ order }: { order: Order }) {
+/** One icon per stage, so progress reads at a glance. */
+const stageIcon: Partial<Record<OrderStatus, LucideIcon>> = {
+  confirmed: BadgeCheck,
+  processing: PackageOpen,
+  shipped: Truck,
+  delivered: House,
+};
+
+/**
+ * Order progress. `vertical` (default): every stage with its time and a note on
+ * the current one. `steps`: a compact row of icons for the order-received page.
+ */
+export function OrderTimeline({ order, layout = "vertical" }: { order: Order; layout?: "vertical" | "steps" }) {
   if (order.status === "cancelled" || order.status === "refunded") {
     return (
       <p className="rounded-control border-l-2 border-danger bg-danger/5 px-4 py-3 text-[0.9rem]">
@@ -21,25 +53,91 @@ export function OrderTimeline({ order }: { order: Order }) {
       </p>
     );
   }
+  // Handbook screen 10: five stages, only completed ones ticked, each with its real time.
   const reached = fulfilmentSteps.indexOf(order.status);
+  const stages = [
+    {
+      label: "Order received",
+      short: "Received",
+      icon: ClipboardCheck,
+      note: "We've received your order.",
+      done: true,
+      at: order.createdAt,
+    },
+    ...fulfilmentSteps.map((step, i) => ({
+      label: stageLabel[step] ?? orderStatusLabel[step],
+      short: stageShort[step] ?? orderStatusLabel[step],
+      icon: stageIcon[step] ?? Check,
+      note: stageNote[step] ?? "",
+      done: i <= reached,
+      at: order.history.find((h) => h.status === step)?.at,
+    })),
+  ];
+  const current = stages.findLastIndex((s) => s.done);
+
+  if (layout === "steps")
+    return (
+      <ol className="grid grid-cols-5" aria-label="Order progress">
+        {stages.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <li key={s.label} className="relative flex flex-col items-center text-center" aria-current={i === current ? "step" : undefined}>
+              {/* The joining line runs from this stage to the next. */}
+              {i < stages.length - 1 && (
+                <span
+                  aria-hidden
+                  className={cn("absolute left-1/2 top-5 h-0.5 w-full", stages[i + 1].done ? "bg-brand" : "bg-line-strong")}
+                />
+              )}
+              <span
+                aria-hidden
+                className={cn(
+                  "relative grid size-10 place-items-center rounded-full border-2 transition-colors",
+                  s.done ? "border-brand bg-brand text-brand-ink" : "border-line-strong bg-raised text-muted",
+                  i === current && "ring-4 ring-brand/15",
+                )}
+              >
+                <Icon className="size-[1.1rem]" />
+              </span>
+              <span
+                className={cn("mt-2 px-0.5 text-[0.7rem] font-medium leading-tight sm:text-[0.8rem]", s.done ? "text-ink" : "text-muted")}
+              >
+                {s.short}
+              </span>
+              <span className="sr-only">{s.done ? (i === current ? "current step" : "done") : "not yet"}</span>
+            </li>
+          );
+        })}
+      </ol>
+    );
+
   return (
-    <ol className="grid grid-cols-4 gap-2" aria-label="Order progress">
-      {fulfilmentSteps.map((step, i) => {
-        const done = i <= reached;
-        const event = order.history.find((h) => h.status === step);
+    <ol className="rounded-card border border-line bg-raised px-4 py-2 sm:px-5" aria-label="Order progress">
+      {stages.map((s, i) => {
+        const Icon = s.icon;
         return (
-          <li key={step} className="relative" aria-current={i === reached ? "step" : undefined}>
-            <span className={cn("block h-0.5 w-full", done ? "bg-brand" : "bg-line")} />
+          <li key={s.label} className="relative flex gap-3.5 py-2.5" aria-current={i === current ? "step" : undefined}>
+            {i < stages.length - 1 && (
+              <span
+                aria-hidden
+                className={cn("absolute left-[1.1875rem] top-12 h-[calc(100%-2.5rem)] w-0.5", stages[i + 1].done ? "bg-brand" : "bg-line")}
+              />
+            )}
             <span
+              aria-hidden
               className={cn(
-                "mt-3 flex items-center gap-1.5 text-[0.75rem] font-medium uppercase tracking-[0.1em] sm:text-[0.8rem]",
-                done ? "text-ink" : "text-muted",
+                "relative grid size-10 shrink-0 place-items-center rounded-full border-2",
+                s.done ? "border-brand bg-brand text-brand-ink" : "border-line-strong bg-raised text-muted",
+                i === current && "ring-4 ring-brand/15",
               )}
             >
-              {done && <Check className="hidden size-3.5 text-brand sm:block" />}
-              {orderStatusLabel[step]}
+              <Icon className="size-[1.1rem]" />
             </span>
-            {event && <span className="mt-0.5 block text-[0.72rem] text-muted">{formatDate(event.at)}</span>}
+            <span className="min-w-0 pt-1.5">
+              <span className={cn("block font-serif text-[1.1rem] leading-tight", s.done ? "text-ink" : "text-muted")}>{s.label}</span>
+              {i === current && s.note && <span className="mt-0.5 block text-[0.82rem] text-muted">{s.note}</span>}
+              {s.done && s.at && <span className="mt-0.5 block text-[0.75rem] text-muted">{formatDateTime(s.at)}</span>}
+            </span>
           </li>
         );
       })}

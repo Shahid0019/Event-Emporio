@@ -65,7 +65,7 @@ function ValueChips({
       )}
     >
       {values.map((v) => (
-        <span key={v} className="inline-flex h-8 items-center gap-1 rounded-full bg-surface pl-3 pr-1 text-[0.85rem]">
+        <span key={v} className="inline-flex h-8 items-center gap-1 rounded-chip bg-surface pl-3 pr-1 text-[0.85rem]">
           {v}
           <button
             type="button"
@@ -783,7 +783,7 @@ function EditorForm({
                                   setValue(`options.${i}.name`, p.name, { shouldDirty: true, shouldValidate: true });
                                   syncVariants(getValues("options"));
                                 }}
-                                className="rounded-full border border-line-strong px-2.5 py-1 text-[0.75rem] transition-colors hover:border-ink aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink"
+                                className="rounded-chip border border-line-strong px-2.5 py-1 text-[0.75rem] transition-colors hover:border-ink aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink"
                               >
                                 {p.name}
                               </button>
@@ -813,7 +813,7 @@ function EditorForm({
                                   <span
                                     key={v}
                                     className={cn(
-                                      "rounded-full border px-3 py-1 text-[0.78rem]",
+                                      "rounded-chip border px-3 py-1 text-[0.78rem]",
                                       n === 0 ? "border-ink bg-raised" : "border-line-strong",
                                     )}
                                   >
@@ -937,7 +937,7 @@ function EditorForm({
                       {hasOptions && (
                         <div className="col-span-2 flex min-h-10 items-center gap-1.5 md:col-span-1">
                           {parts.map((p) => (
-                            <span key={p} className="rounded-full bg-surface px-2.5 py-1 text-[0.82rem] font-medium">
+                            <span key={p} className="rounded-chip bg-surface px-2.5 py-1 text-[0.82rem] font-medium">
                               {p}
                             </span>
                           ))}

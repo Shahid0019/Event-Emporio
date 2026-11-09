@@ -92,7 +92,7 @@ export function QuantitySelector({
 }) {
   const { inputProps, stepBy } = useNumberField({ value, onChange, min, max, step });
   const btn = cn(
-    "grid shrink-0 place-items-center rounded-full text-ink transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:text-line-strong disabled:hover:bg-transparent",
+    "grid shrink-0 place-items-center rounded-chip text-ink transition-colors hover:bg-surface disabled:cursor-not-allowed disabled:text-line-strong disabled:hover:bg-transparent",
     size === "sm" ? "size-9" : "size-12",
   );
   // Wide enough for the longest number allowed, never narrower than before.
@@ -102,7 +102,7 @@ export function QuantitySelector({
       role="group"
       aria-label={label}
       className={cn(
-        "inline-flex items-center overflow-hidden rounded-full border border-line-strong bg-raised focus-within:border-ink",
+        "inline-flex items-center overflow-hidden rounded-control border border-line-strong bg-raised focus-within:border-ink",
         className,
       )}
     >

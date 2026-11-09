@@ -33,6 +33,12 @@ export const checkoutSchema = z.object({
   phone,
   shipping: addressSchema.omit({ phone: true }),
   deliveryInstructions: z.string().trim().max(300, "Please keep instructions under 300 characters").optional().or(z.literal("")),
+  /** The earliest function's date (YYYY-MM-DD): helps the shop plan the one delivery; not a promised slot. */
+  firstFunctionDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Choose a date")
+    .optional()
+    .or(z.literal("")),
   shippingMethod: z.enum(["standard", "express"]),
   /** "cod" is accepted only while the shop has cash on delivery turned on (checked on the server). */
   paymentMethod: z.enum(["razorpay", "cod"]).default("razorpay"),
@@ -68,9 +74,15 @@ export const resetPasswordSchema = z
 
 export const profileSchema = z.object({ name, email, phone: phone.optional().or(z.literal("")) });
 
+/** `currentPassword` is left empty when the account has no password yet (made with Google or a phone code). */
 export const changePasswordSchema = z
-  .object({ currentPassword: z.string().min(1, "Enter your current password"), password, confirmPassword: z.string() })
+  .object({ currentPassword: z.string(), password, confirmPassword: z.string() })
   .refine((d) => d.password === d.confirmPassword, { path: ["confirmPassword"], message: "Passwords don't match" });
+
+/* Phone sign-in: a 6-digit code by SMS, then (for a new number) name and email. */
+export const phoneSchema = z.object({ phone });
+export const phoneCodeSchema = z.object({ phone, code: z.string().trim().regex(/^d{6}$/, "Enter the 6-digit code") });
+export const phoneProfileSchema = z.object({ ticket: z.string().min(1), name, email });
 
 export const contactSchema = z.object({
   name,

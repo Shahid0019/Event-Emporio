@@ -196,14 +196,33 @@ export function bucketForDate(isoDate: string, today = new Date()): FunctionDate
 
 export const answerExactDate = (isoDate: string) => edit((s) => ({ date: bucketForDate(isoDate), eventDate: isoDate, ...nextSteps(s, 2) }));
 
-/** Go back one question; answers are kept and re-answering returns to where the shopper was. */
-export const goBack = () => kitStore.set((s) => (s.step > 0 ? { ...s, step: (s.step - 1) as KitStep } : s));
+/**
+ * Go back one question; answers are kept and re-answering returns to where the shopper was.
+ * Step 4 (the old extras question) is no longer asked, so going back from the kit skips it.
+ */
+export const goBack = () =>
+  kitStore.set((s) => (s.step > 0 ? { ...s, step: (s.step === 5 ? 3 : s.step - 1) as KitStep } : s));
 
-export const answerTier = (tier: Tier) => edit((s) => ({ tier, overrides: withoutVariantOverrides(s.overrides), ...nextSteps(s, 3) }));
+/** The budget is the last question: answering it finishes the kit. */
+export const answerTier = (tier: Tier) => edit((s) => ({ tier, overrides: withoutVariantOverrides(s.overrides), ...nextSteps(s, 4) }));
 
-export const togglePref = (key: keyof KitPrefs) =>
-  resize((s) => ({ prefs: { ...s.prefs, [key]: !s.prefs[key] }, overrides: withoutVariantOverrides(s.overrides) }));
-export const confirmPrefs = () => edit((s) => nextSteps(s, 4));
+/** Moves a kit left on the retired extras question (step 4) on to the finished kit. */
+export const skipRetiredStep = () => edit((s) => nextSteps(s, 4));
+
+/**
+ * Phones' one-screen planner (handbook screen 04): function and size in one go,
+ * straight to the shopping list. The date is asked at checkout and the budget
+ * starts at Standard, which can be changed on the list.
+ * Editing an existing plan keeps the shopper's item changes.
+ */
+export function createShoppingList(occasion: Occasion, size: { by: "trami" | "guests"; value: number }, title?: string) {
+  edit(() => ({ occasion, title: cleanTitle(title) }));
+  if (size.by === "guests") setGuests(size.value);
+  else setTrami(size.value);
+  edit((s) => ({ date: s.date ?? "undecided", tier: s.tier ?? "standard", step: 5, furthest: 5 }));
+}
+
+export const setTier = (tier: Tier) => edit((s) => ({ tier, overrides: withoutVariantOverrides(s.overrides) }));
 
 /** Tap an earlier answer bubble to change it. */
 export const reopenStep = (step: KitStep) => kitStore.set((s) => (step < s.furthest ? { ...s, step } : s));

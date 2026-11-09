@@ -12,7 +12,7 @@ export async function Footer() {
 
   return (
     <footer>
-      <div className="bg-brand-deep text-canvas">
+      <div className="bg-ink text-canvas">
         <div className="container-luxe pt-20 pb-10 sm:pt-24">
           <div className="grid gap-14 lg:grid-cols-12 lg:gap-10">
             <div className="lg:col-span-5">
@@ -50,7 +50,7 @@ export async function Footer() {
 
           <div className="mt-16 grid gap-8 border-t border-canvas/15 pt-10 text-[0.88rem] sm:grid-cols-3">
             <div>
-              <p className="eyebrow mb-3 text-accent">Visit</p>
+              <p className="eyebrow mb-3 text-accent-soft">Visit</p>
               <address className="not-italic leading-relaxed text-canvas/80">
                 {contact.address && (
                   <>
@@ -64,7 +64,7 @@ export async function Footer() {
               </address>
             </div>
             <div>
-              <p className="eyebrow mb-3 text-accent">Get in touch</p>
+              <p className="eyebrow mb-3 text-accent-soft">Get in touch</p>
               <ul className="space-y-1.5 text-canvas/80">
                 {contact.email && (
                   <li>
@@ -88,7 +88,7 @@ export async function Footer() {
               </ul>
             </div>
             <div>
-              <p className="eyebrow mb-3 text-accent">Follow</p>
+              <p className="eyebrow mb-3 text-accent-soft">Follow</p>
               <a
                 href={social.instagram}
                 target="_blank"
@@ -114,7 +114,7 @@ export async function Footer() {
 function FooterColumn({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="eyebrow mb-5 text-accent">{title}</p>
+      <p className="eyebrow mb-5 text-accent-soft">{title}</p>
       <ul className="space-y-3">{children}</ul>
     </div>
   );

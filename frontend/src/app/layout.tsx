@@ -1,29 +1,51 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Sans, Pinyon_Script, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import { Toaster } from "sonner";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
-/* High-contrast display serif with true italics for the shop's headings. */
-const playfair = Playfair_Display({
+/*
+ * Every font is a file in public/fonts, so builds and the dev server never need to reach
+ * Google Fonts. Playfair, Pinyon and DM Sans are Google's OFL files (latin set, via Fontsource).
+ */
+
+/* Fallback for titles (Vintage Glamour lacks ₹ and some symbols); still has true italics. */
+const playfair = localFont({
+  src: [
+    { path: "../../public/fonts/playfair-display-latin-wght-normal.woff2", weight: "400 900", style: "normal" },
+    { path: "../../public/fonts/playfair-display-latin-wght-italic.woff2", weight: "400 900", style: "italic" },
+  ],
   variable: "--font-playfair",
-  subsets: ["latin"],
-  style: ["normal", "italic"],
   display: "swap",
+  fallback: ["Georgia", "serif"],
+  adjustFontFallback: "Times New Roman",
 });
 
 /* Calligraphic accent words ("for every occasion"); one weight. */
-const pinyon = Pinyon_Script({
+const pinyon = localFont({
+  src: "../../public/fonts/pinyon-script-latin-400-normal.woff2",
   variable: "--font-pinyon",
-  subsets: ["latin"],
   weight: "400",
   display: "swap",
+  fallback: ["Snell Roundhand", "cursive"],
+  adjustFontFallback: "Times New Roman",
 });
 
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
+/* Title serif (Vintage Glamour, one weight). It lacks ₹ ! ? & ( ) / # %, so those glyphs come from Playfair. */
+const vintageGlamour = localFont({
+  src: "../../public/fonts/VintageGlamourRegular-ALX27.ttf",
+  variable: "--font-vintage-glamour",
+  weight: "400",
   display: "swap",
+  fallback: ["Playfair Display", "Georgia", "serif"],
+});
+
+const dmSans = localFont({
+  src: "../../public/fonts/dm-sans-latin-wght-normal.woff2",
+  variable: "--font-dm-sans",
+  weight: "100 1000",
+  display: "swap",
+  fallback: ["system-ui", "sans-serif"],
 });
 
 export const metadata: Metadata = {
@@ -44,14 +66,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#fbf7f1",
+  themeColor: "#f8f6f1",
   width: "device-width",
   initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-IN" className={`${playfair.variable} ${pinyon.variable} ${dmSans.variable} antialiased`}>
+    <html lang="en-IN" className={`${playfair.variable} ${vintageGlamour.variable} ${pinyon.variable} ${dmSans.variable} antialiased`}>
       <body className="min-h-dvh bg-canvas text-ink">
         {children}
         <Toaster

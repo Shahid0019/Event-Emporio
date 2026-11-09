@@ -25,9 +25,9 @@ export function MobileMenu({ menu, instagram }: { menu: MegaMenuData; instagram:
           <Link
             href="/kit"
             onClick={close}
-            className="flex min-h-12 items-center justify-between rounded-full bg-brand px-5 text-[0.78rem] font-medium uppercase tracking-[0.12em] text-brand-ink"
+            className="flex min-h-12 items-center justify-between rounded-control bg-brand px-5 text-[0.78rem] font-medium uppercase tracking-[0.12em] text-brand-ink"
           >
-            Build my kit
+            Plan My Function
             <ArrowUpRight className="size-4" />
           </Link>
         </div>

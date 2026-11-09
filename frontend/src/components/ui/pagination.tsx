@@ -39,7 +39,7 @@ export function Pagination({
     return s ? `${basePath}?${s}` : basePath;
   };
 
-  const item = "grid h-11 min-w-11 place-items-center rounded-full px-3 text-sm transition-colors";
+  const item = "grid h-11 min-w-11 place-items-center rounded-control px-3 text-sm transition-colors";
 
   return (
     <nav aria-label="Pagination" className="mt-16 flex items-center justify-center gap-1">

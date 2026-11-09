@@ -333,7 +333,7 @@ function KitProductEditor({ initial, existing, takenItemIds }: { initial: KitPro
                   type="button"
                   aria-pressed={occasionSet === null}
                   onClick={() => update({ occasions: occasionSet === null ? [] : null })}
-                  className="min-h-10 rounded-full border border-line-strong px-4 text-[0.85rem] transition-colors hover:border-ink aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink"
+                  className="min-h-10 rounded-control border border-line-strong px-4 text-[0.85rem] transition-colors hover:border-ink aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink"
                 >
                   All functions
                 </button>
@@ -346,7 +346,7 @@ function KitProductEditor({ initial, existing, takenItemIds }: { initial: KitPro
                       aria-pressed={occasionSet?.includes(o.id) ?? false}
                       disabled={occasionSet === null}
                       onClick={() => toggleOccasion(o.id)}
-                      className="min-h-10 rounded-full border border-line-strong px-4 text-[0.85rem] transition-colors hover:border-ink disabled:opacity-40 aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink"
+                      className="min-h-10 rounded-control border border-line-strong px-4 text-[0.85rem] transition-colors hover:border-ink disabled:opacity-40 aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink"
                     >
                       {o.name}
                       {!o.isActive && <span className="ml-1 text-[0.72rem] opacity-70">(hidden)</span>}
@@ -511,7 +511,7 @@ function KitProductEditor({ initial, existing, takenItemIds }: { initial: KitPro
       {dirty && !isNew && (
         <div
           role="status"
-          className="sticky bottom-4 z-20 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-card border border-brand/30 bg-raised/95 px-4 py-3 shadow-[0_18px_40px_-20px_rgb(36_32_32/0.4)] backdrop-blur"
+          className="sticky bottom-4 z-20 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-card border border-brand/30 bg-raised/95 px-4 py-3 shadow-[0_18px_40px_-20px_rgb(34_41_35/0.4)] backdrop-blur"
         >
           <p className="text-[0.88rem]">
             <span className="font-medium">Unsaved changes</span>

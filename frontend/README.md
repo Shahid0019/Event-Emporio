@@ -47,7 +47,7 @@ No state library, no smooth-scroll library, no chart library — small, purpose-
 
 ## Design system
 
-**Direction:** modern editorial luxury — ivory canvas, burgundy actions, champagne accents, generous whitespace, asymmetric editorial layouts.
+**Direction:** modern editorial luxury — off-white canvas, charcoal text, deep pine-green actions and soft sage accents, one corner system (12px controls, 16px cards), generous whitespace, asymmetric editorial layouts.
 
 | Token (`src/app/globals.css`) | Value     | Use                                           |
 | ----------------------------- | --------- | --------------------------------------------- |
@@ -75,7 +75,7 @@ Colors are defined once on `:root` and mapped to Tailwind via `@theme inline`, s
 
 Drawers are full-screen with square edges on phones (maximum space), and float with rounded corners from the `sm` breakpoint up.
 
-**Type:** Playfair Display (headings and `font-serif` details, with true italics) + Pinyon Script (`script-accent` words) + DM Sans (UI/body), via `next/font`. Admin uses DM Sans only. Fluid scale with `clamp()`: `text-display`, `text-h1`, `text-h2`, `text-h3`, plus `eyebrow`.
+**Type:** Vintage Glamour (headings and `font-serif` titles, local file `public/fonts/VintageGlamourRegular-ALX27.ttf`; Playfair Display as fallback for ₹ and the symbols it lacks) + Pinyon Script (`script-accent` words) + DM Sans (UI/body), via `next/font`. Admin uses DM Sans only. Fluid scale with `clamp()`: `text-display`, `text-h1`, `text-h2`, `text-h3`, plus `eyebrow`.
 
 **Motion:** hero entrance is pure CSS (never hidden waiting for JS; protects LCP). GSAP handles scroll reveals and gentle parallax, wrapped in `gsap.matchMedia` so `prefers-reduced-motion` disables it, and cleaned up by `useGSAP`. Content is visible in server HTML even if scripts fail.
 
@@ -138,7 +138,7 @@ tests/
 | Checkout pricing | ✅ `POST /api/checkout/quote` recalculates prices, stock, coupons and shipping on the server | — |
 | Payment | — | “Simulate success / failure” dialog stands in for Razorpay |
 | Orders | ✅ Created from the server quote, shown in confirmation/account/tracking | Stored in `localStorage` |
-| Auth & account | ✅ Validated forms, guarded account UI | Session is a browser-only demo; no passwords stored |
+| Auth & account | ✅ Email + password, "Continue with Google", and mobile number with a 6-digit SMS code; HTTP-only session cookie | Google needs `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`; SMS needs Twilio Verify keys (see `.env.example`). Admin sign-in is unchanged |
 | Admin | ✅ Every screen is editable (CRUD, status transitions, stock adjustments, exports) | Edits live in this browser’s `localStorage` (“Reset demo” restores seed) and **do not change the storefront** |
 | Contact / custom order / newsletter forms | ✅ Validated | Nothing is sent |
 

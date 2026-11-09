@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
-import { CheckCircle2, Send } from "lucide-react";
+import { CheckCircle2, ChevronRight, Headphones, Send, Truck } from "lucide-react";
 import { OrderDetail } from "@/components/account/order-detail";
 import { Button } from "@/components/ui/button";
 import { Field, fieldAria, Input, Select, Textarea } from "@/components/ui/field";
@@ -90,7 +90,7 @@ export function ContactForm() {
           {topics.map((t) => (
             <label key={t.value} className="cursor-pointer">
               <input type="radio" value={t.value} className="peer sr-only" {...register("subject")} />
-              <span className="inline-flex min-h-11 items-center rounded-full border border-line-strong px-4 text-[0.88rem] transition-colors hover:border-ink peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink">
+              <span className="inline-flex min-h-11 items-center rounded-control border border-line-strong px-4 text-[0.88rem] transition-colors hover:border-ink peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink">
                 {t.label}
               </span>
             </label>
@@ -236,8 +236,17 @@ export function CustomOrderForm() {
 /* ------------------------------- Track order ----------------------------- */
 export function TrackOrderForm() {
   const [result, setResult] = useState<Order | "missing" | null>(null);
-  const { register, handleSubmit, formState } = useForm<z.input<typeof trackOrderSchema>>({ resolver: zodResolver(trackOrderSchema) });
+  const { register, handleSubmit, formState, setValue } = useForm<z.input<typeof trackOrderSchema>>({ resolver: zodResolver(trackOrderSchema) });
   const e = formState.errors;
+
+  // Arriving from the order-received page: number and email come filled in.
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search);
+    const number = q.get("order");
+    const email = q.get("email");
+    if (number) setValue("orderNumber", number.slice(0, 40));
+    if (email) setValue("email", email.slice(0, 120));
+  }, [setValue]);
 
   return (
     <>
@@ -273,6 +282,24 @@ export function TrackOrderForm() {
           <div>
             <h2 className="mb-8 font-serif text-3xl">Order {result.number}</h2>
             <OrderDetail order={result} />
+            <div className="mt-8 grid gap-3 sm:grid-cols-2">
+              <p className="flex items-start gap-3 rounded-card bg-surface px-4 py-3.5 text-[0.88rem]">
+                <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-accent-ink" />
+                <span>
+                  <span className="font-medium">One delivery. Everything together.</span>{" "}
+                  <span className="text-muted">Our team confirms the delivery schedule with you.</span>
+                </span>
+              </p>
+              <Link
+                href="/contact"
+                className="flex min-h-14 items-center justify-between gap-3 rounded-card border border-line bg-raised px-4 text-[0.95rem] font-medium hover:border-ink"
+              >
+                <span className="inline-flex items-center gap-3">
+                  <Headphones aria-hidden className="size-5 text-accent-ink" /> Need help?
+                </span>
+                <ChevronRight aria-hidden className="size-4 text-muted" />
+              </Link>
+            </div>
           </div>
         )}
       </div>

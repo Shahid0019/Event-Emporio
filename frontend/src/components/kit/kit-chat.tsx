@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   ArrowRight,
   CalendarDays,
-  Check,
   ChevronUp,
   Gift,
   Minus,
@@ -17,7 +16,7 @@ import {
 } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useNumberField } from "@/components/ui/quantity-selector";
-import { buildKit, kitTotal, type KitPrefs } from "@/lib/kit/buildKit";
+import { buildKit, kitTotal } from "@/lib/kit/buildKit";
 import { activeKitFunctions, getKitCatalog } from "@/lib/kit/catalog";
 import { CUSTOM_FUNCTION, FUNCTION_TITLE_MAX, functionDates, GUESTS_PER_TRAMI, TRAMI, tiers } from "@/lib/kit/config";
 import { formatEventDate, formatKitAmount } from "@/lib/kit/format";
@@ -27,7 +26,6 @@ import {
   answerOccasion,
   answerTier,
   cancelReopen,
-  confirmPrefs,
   confirmTrami,
   daysUntil,
   goBack,
@@ -40,8 +38,8 @@ import {
   queryOf,
   reopenStep,
   setTrami,
+  skipRetiredStep,
   startOver,
-  togglePref,
   type KitState,
   type KitStep,
 } from "@/lib/kit/store";
@@ -53,12 +51,6 @@ import { KitThumb } from "./kit-thumb";
 import { SavedKitsList } from "./saved-kits";
 import { savedKitsStore } from "@/lib/kit/saved";
 import { useKit } from "./use-kit";
-
-const prefOptions: { key: keyof KitPrefs; label: string }[] = [
-  { key: "bio", label: "Bio / eco items" },
-  { key: "printed", label: "Printed names" },
-  { key: "extra", label: "Extra 10% stock" },
-];
 
 type Message = { key: string; from: "shop"; text: string } | { key: string; from: "user"; text: string; step: KitStep };
 
@@ -72,10 +64,10 @@ function shopText(step: KitStep, s: KitState, itemCount: number, total: number):
       return `${s.trami >= 100 ? "That's a big celebration!" : "Lovely."} When is the function?`;
     case 3:
       return `${s.date === "this-week" ? "We'll send it by express delivery this week, so don't worry. " : ""}What budget do you have in mind? Each option shows its estimate.`;
-    case 4:
-      return "Anything special? Bio items, printed names, or a little extra stock?";
     case 5:
       return `Your kit is ready: ${itemCount} items, ${formatKitAmount(total)} in total. Take a look and change anything you like.`;
+    default:
+      return "";
   }
 }
 
@@ -93,10 +85,6 @@ function answerText(step: KitStep, s: KitState): string {
       return s.eventDate ? formatEventDate(s.eventDate) : (functionDates.find((d) => d.id === s.date)?.label ?? "");
     case 3:
       return s.tier ? tierName(s.tier) : "";
-    case 4: {
-      const chosen = prefOptions.filter((p) => s.prefs[p.key]).map((p) => p.label);
-      return chosen.length ? chosen.join(", ") : "Nothing special";
-    }
     default:
       return "";
   }
@@ -109,7 +97,7 @@ const isoOf = (date: Date) =>
   `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
 const chip =
-  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full border px-4 text-sm transition-colors aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink";
+  "inline-flex min-h-11 items-center justify-center gap-1.5 rounded-control border px-4 text-sm transition-colors aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink";
 const chipIdle = "border-line-strong bg-raised text-ink hover:border-ink";
 
 /** First-visit guide shown under the greeting so the empty chat explains itself. */
@@ -130,8 +118,14 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
   const savedCount = savedKitsStore.useStore((list) => list.length);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // A kit saved on the retired extras question (step 4) moves straight on to the finished kit.
+  useEffect(() => {
+    if (state.furthest === 4) skipRetiredStep();
+  }, [state.furthest]);
+
   const messages: Message[] = [];
   for (let step = 0 as KitStep; step <= state.furthest; step = (step + 1) as KitStep) {
+    if (step === 4) continue; // the retired extras question
     messages.push({ key: `shop-${step}`, from: "shop", text: shopText(step, state, active.length, total) });
     if (step < state.furthest) messages.push({ key: `user-${step}`, from: "user", text: answerText(step, state), step });
   }
@@ -187,7 +181,7 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
               onClick={goBack}
               aria-label="Previous question"
               title="Previous question"
-              className="-my-1 ml-auto inline-flex min-h-9 shrink-0 items-center gap-1 rounded-full border border-line px-2.5 text-[0.75rem] font-medium text-muted transition-colors hover:border-ink hover:text-ink"
+              className="-my-1 ml-auto inline-flex min-h-9 shrink-0 items-center gap-1 rounded-control border border-line px-2.5 text-[0.75rem] font-medium text-muted transition-colors hover:border-ink hover:text-ink"
             >
               <ArrowLeft aria-hidden className="size-3.5" />
               Back
@@ -352,27 +346,8 @@ function StepControls({ step }: { step: KitStep }) {
     }
 
     case 4:
-      return (
-        <div className="space-y-3">
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Preferences">
-            {prefOptions.map((p) => (
-              <button
-                key={p.key}
-                type="button"
-                aria-pressed={state.prefs[p.key]}
-                onClick={() => togglePref(p.key)}
-                className={cn(chip, chipIdle)}
-              >
-                {state.prefs[p.key] && <Check aria-hidden className="size-4" />}
-                {p.label}
-              </button>
-            ))}
-          </div>
-          <Button className="w-full" onClick={confirmPrefs}>
-            Show my kit
-          </Button>
-        </div>
-      );
+      // The extras question is retired; a kit left here moves on by itself.
+      return null;
 
     case 5: {
       const query = { ...queryOf(state), trami: state.trami };
@@ -513,7 +488,7 @@ function CountStep() {
   const picks = byGuests ? GUEST_PICKS : TRAMI.quickPicks;
   const unit = byGuests ? (guests === 1 ? "guest" : "guests") : "trami";
   const stepBtn =
-    "grid size-9 shrink-0 place-items-center rounded-full text-ink transition-colors hover:bg-surface disabled:text-line-strong disabled:hover:bg-transparent [&_svg]:size-[1.15rem]";
+    "grid size-9 shrink-0 place-items-center rounded-chip text-ink transition-colors hover:bg-surface disabled:text-line-strong disabled:hover:bg-transparent [&_svg]:size-[1.15rem]";
 
   // Kept compact so the conversation above gets most of the height on phones.
   return (
@@ -523,7 +498,7 @@ function CountStep() {
         <p id="count-hint" className="min-w-0 text-[0.76rem] leading-tight text-muted">
           {byGuests ? "One of each item per guest" : `≈ ${state.trami * GUESTS_PER_TRAMI} guests · ${GUESTS_PER_TRAMI} per trami`}
         </p>
-        <div role="radiogroup" aria-label="Count by" className="flex shrink-0 rounded-full bg-surface p-0.5">
+        <div role="radiogroup" aria-label="Count by" className="flex shrink-0 rounded-control bg-surface p-0.5">
           {(
             [
               ["trami", "Trami"],
@@ -537,7 +512,7 @@ function CountStep() {
               aria-checked={(state.countBy ?? "trami") === id}
               aria-label={`By ${id}`}
               onClick={() => setCountBy(id)}
-              className="h-8 rounded-full px-3 text-[0.78rem] font-medium text-muted transition-colors hover:text-ink aria-checked:bg-raised aria-checked:text-ink aria-checked:shadow-sm"
+              className="h-8 rounded-chip px-3 text-[0.78rem] font-medium text-muted transition-colors hover:text-ink aria-checked:bg-raised aria-checked:text-ink aria-checked:shadow-sm"
             >
               {label}
             </button>
@@ -546,7 +521,7 @@ function CountStep() {
       </div>
 
       <div>
-        <div className="flex items-center gap-2 rounded-full border border-line-strong bg-raised p-0.5 focus-within:border-ink">
+        <div className="flex items-center gap-2 rounded-control border border-line-strong bg-raised p-0.5 focus-within:border-ink">
           <button
             type="button"
             aria-label={byGuests ? "10 fewer guests" : "1 fewer trami"}
@@ -590,7 +565,7 @@ function CountStep() {
             type="button"
             aria-pressed={value === n}
             onClick={() => (byGuests ? setGuests(n) : setTrami(n))}
-            className="h-8 rounded-full border border-line text-[0.82rem] tabular-nums transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
+            className="h-8 rounded-control border border-line text-[0.82rem] tabular-nums transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
           >
             {n}
           </button>
@@ -655,7 +630,7 @@ function DateStep() {
               if (e.key === "Enter" && valid) answerExactDate(picked);
             }}
             aria-describedby="kit-date-hint"
-            className="h-12 w-full rounded-full border border-line-strong bg-raised pl-11 pr-4 text-sm tabular-nums focus:border-ink focus:outline-none"
+            className="h-12 w-full rounded-control border border-line-strong bg-raised pl-11 pr-4 text-sm tabular-nums focus:border-ink focus:outline-none"
           />
         </label>
         <Button className="h-12 shrink-0" disabled={!valid} onClick={() => answerExactDate(picked)}>
