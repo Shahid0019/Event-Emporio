@@ -197,22 +197,20 @@ function EmailSignIn({ onSignedIn }: { onSignedIn: (user: SessionUser) => void }
 /* -------------------------------- Register ------------------------------ */
 export function RegisterForm({ google, phone }: SignInOptions) {
   const router = useRouter();
-  const { register, handleSubmit, formState, setError } = useForm<z.input<typeof registerSchema>>({
-    resolver: zodResolver(registerSchema),
-    mode: "onTouched",
-  });
-  const { errors, isSubmitting } = formState;
+  const asked = useSearch().get("method");
+  const [method, setMethod] = useState<"phone" | "email" | null>(null);
+  // Mobile number first; email stays one tap away.
+  const current = phone ? (method ?? (asked === "email" ? "email" : "phone")) : "email";
 
-  const onSubmit = handleSubmit(async (values) => {
-    const res = await sendJson<{ user: SessionUser }>("/api/account/register", values);
-    if (!res.ok) {
-      setError(res.status === 409 ? "email" : "password", { message: res.error });
-      return;
-    }
-    signIn(res.data.user);
-    toast.success("Your account is ready", { description: "Welcome to Events Emporio." });
+  const done = (user: SessionUser, isNew = true) => {
+    signIn(user);
+    if (isNew) toast.success("Your account is ready", { description: "Welcome to Events Emporio." });
+    else
+      toast.success(`Welcome back, ${user.name.split(" ")[0]}`, {
+        description: "This number already had an account, so we signed you in.",
+      });
     router.replace(safeNext());
-  });
+  };
 
   return (
     <>
@@ -227,57 +225,69 @@ export function RegisterForm({ google, phone }: SignInOptions) {
         Track orders, save addresses and keep a wishlist across visits.
       </AuthHeading>
       <GoogleProblem />
-      {(google || phone) && (
+      {google && (
         <>
-          <div className="space-y-3">
-            {google && <GoogleButton label="Sign up with Google" next={() => safeNext()} />}
-            {phone && (
-              <button
-                type="button"
-                onClick={() => {
-                  const next = safeNext("");
-                  router.push(`/login?method=phone${next ? `&next=${encodeURIComponent(next)}` : ""}`);
-                }}
-                className="flex h-14 w-full items-center justify-center gap-3 rounded-control border border-line-strong bg-raised px-5 text-[0.95rem] font-medium text-ink transition-colors hover:border-ink"
-              >
-                <Smartphone className="size-5 text-brand" /> Sign up with mobile number
-              </button>
-            )}
-          </div>
-          <OrDivider>or use email</OrDivider>
+          <GoogleButton label="Sign up with Google" next={() => safeNext()} />
+          <OrDivider />
         </>
       )}
-      <form onSubmit={onSubmit} noValidate className="space-y-5">
-        <Field label="Full name" htmlFor="name" error={errors.name?.message}>
-          <Input autoComplete="name" {...fieldAria("name", errors.name?.message)} {...register("name")} />
-        </Field>
-        <Field label="Email" htmlFor="email" error={errors.email?.message}>
-          <Input type="email" autoComplete="email" {...fieldAria("email", errors.email?.message)} {...register("email")} />
-        </Field>
-        <Field
-          label="Password"
-          htmlFor="password"
-          error={errors.password?.message}
-          hint="At least 8 characters, with a letter and a number"
-        >
-          <PasswordInput id="password" autoComplete="new-password" error={errors.password?.message} {...register("password")} />
-        </Field>
-        <Field label="Confirm password" htmlFor="confirmPassword" error={errors.confirmPassword?.message}>
-          <PasswordInput
-            id="confirmPassword"
-            autoComplete="new-password"
-            error={errors.confirmPassword?.message}
-            {...register("confirmPassword")}
-          />
-        </Field>
-        <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
-          Create account
-        </Button>
-      </form>
+      {phone && (
+        <MethodTabs
+          value={current}
+          onChange={setMethod}
+          options={[
+            { value: "phone", label: "Mobile number", icon: <Smartphone /> },
+            { value: "email", label: "Email", icon: <Mail /> },
+          ]}
+        />
+      )}
+      {current === "phone" ? <PhoneSignIn autoFocus={method === "phone"} onSignedIn={done} /> : <EmailRegister onRegistered={done} />}
       <p className="mt-8 text-center text-[0.9rem] text-muted">
         Already have an account? <SwitchLink href="/login">Sign in</SwitchLink>
       </p>
     </>
+  );
+}
+
+function EmailRegister({ onRegistered }: { onRegistered: (user: SessionUser) => void }) {
+  const { register, handleSubmit, formState, setError } = useForm<z.input<typeof registerSchema>>({
+    resolver: zodResolver(registerSchema),
+    mode: "onTouched",
+  });
+  const { errors, isSubmitting } = formState;
+
+  const onSubmit = handleSubmit(async (values) => {
+    const res = await sendJson<{ user: SessionUser }>("/api/account/register", values);
+    if (!res.ok) {
+      setError(res.status === 409 ? "email" : "password", { message: res.error });
+      return;
+    }
+    onRegistered(res.data.user);
+  });
+
+  return (
+    <form onSubmit={onSubmit} noValidate className="space-y-5">
+      <Field label="Full name" htmlFor="name" error={errors.name?.message}>
+        <Input autoComplete="name" {...fieldAria("name", errors.name?.message)} {...register("name")} />
+      </Field>
+      <Field label="Email" htmlFor="email" error={errors.email?.message}>
+        <Input type="email" autoComplete="email" {...fieldAria("email", errors.email?.message)} {...register("email")} />
+      </Field>
+      <Field label="Password" htmlFor="password" error={errors.password?.message} hint="At least 8 characters, with a letter and a number">
+        <PasswordInput id="password" autoComplete="new-password" error={errors.password?.message} {...register("password")} />
+      </Field>
+      <Field label="Confirm password" htmlFor="confirmPassword" error={errors.confirmPassword?.message}>
+        <PasswordInput
+          id="confirmPassword"
+          autoComplete="new-password"
+          error={errors.confirmPassword?.message}
+          {...register("confirmPassword")}
+        />
+      </Field>
+      <Button type="submit" size="lg" className="w-full" loading={isSubmitting}>
+        Create account
+      </Button>
+    </form>
   );
 }
 

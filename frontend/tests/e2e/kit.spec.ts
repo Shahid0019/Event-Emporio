@@ -213,8 +213,9 @@ test("mobile: plan a function on one screen, then change the shopping list", asy
   await page.goto("/kit");
   await page.evaluate(() => localStorage.removeItem("ee.kit.v1"));
   await page.goto("/kit");
-  // Handbook screen 04: function, guests or tramies, one button.
-  await expect(page.getByRole("heading", { name: /plan your function/ })).toBeVisible();
+  // Handbook screen 04: function, tramies (the default) or guests, one button.
+  await expect(page.getByRole("heading", { name: "Select function" })).toBeVisible();
+  await expect(page.getByRole("radio", { name: /By Tramies/ })).toBeChecked();
   await page.getByRole("button", { name: /Create my shopping list/i }).click();
   await expect(page.getByText("Choose your function first.")).toBeVisible();
   await page.getByRole("radio", { name: /^Wazwan/ }).click();
