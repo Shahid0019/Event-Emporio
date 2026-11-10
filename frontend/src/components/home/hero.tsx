@@ -54,7 +54,7 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
             <span className="block animate-rise text-brand [animation-delay:340ms]">{hero.titleLines[1]}</span>
           </h1>
 
-          <div className="mt-5 flex w-full animate-rise items-center justify-center gap-2.5 [animation-delay:600ms] md:mt-8 md:justify-start md:gap-3">
+          <div className="mt-5.5 flex w-full animate-rise items-center justify-center gap-2.5 [animation-delay:600ms] md:mt-8 md:justify-start md:gap-3">
             <Link
               href={hero.primaryCta.href}
               className={buttonVariants({ size: "lg", className: `px-5 shadow-[0_12px_30px_-12px_rgb(66_94_42/0.6)] sm:px-7 ${phoneButton}` })}
