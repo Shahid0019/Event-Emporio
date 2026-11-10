@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useState } from "react";
 import { ArrowRight, Check, Gift, Pencil, Plus, RotateCcw, Share2, ShoppingBasket, Sparkles, Users, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,7 +42,8 @@ function PlanForm({ onDone, onCancel }: { onDone: () => void; onCancel?: () => v
   const [occasion, setOccasion] = useState<Occasion | null>(state.occasion);
   const [own, setOwn] = useState(state.occasion === CUSTOM_FUNCTION);
   const [name, setName] = useState(state.title ?? "");
-  const [by, setBy] = useState<"guests" | "trami">(state.countBy ?? "guests");
+  // Tramies first: that is how families count a Kashmiri feast. Guests stay one tap away.
+  const [by, setBy] = useState<"guests" | "trami">(state.countBy ?? "trami");
   const [guests, setGuestsLocal] = useState(guestsOf(state));
   const [trami, setTramiLocal] = useState(state.trami);
   const [tried, setTried] = useState(false);
@@ -77,24 +77,8 @@ function PlanForm({ onDone, onCancel }: { onDone: () => void; onCancel?: () => v
 
   return (
     <div className="space-y-6">
-      {/* Banner: the function table, with the promise underneath. */}
-      <div className="overflow-hidden rounded-card border border-line bg-raised">
-        <div className="relative h-32 bg-surface">
-          <Image
-            src="/images/hero/hero-desktop-v3.webp"
-            alt=""
-            fill
-            sizes="100vw"
-            priority
-            className="object-cover object-[78%_55%]"
-          />
-          <div aria-hidden className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-raised to-transparent" />
-        </div>
-        <div className="px-5 pb-5 pt-1 text-center">
-          <h1 className="font-serif text-[1.9rem] leading-tight">Let&rsquo;s plan your function</h1>
-          <p className="mt-1.5 text-[0.9rem] text-muted">Choose your function and guest count, and get a ready shopping list with the right quantities.</p>
-        </div>
-      </div>
+      {/* No banner on phones: straight to choosing. The page still has a heading for screen readers. */}
+      <h1 className="sr-only">Plan your function</h1>
 
       <section aria-labelledby="plan-event">
         <h2 id="plan-event" className="font-sans text-[1.05rem] font-semibold tracking-normal">
@@ -173,8 +157,8 @@ function PlanForm({ onDone, onCancel }: { onDone: () => void; onCancel?: () => v
         <div role="radiogroup" aria-labelledby="plan-size" className="mt-3 grid grid-cols-2 gap-1 rounded-control bg-surface p-1">
           {(
             [
-              ["guests", "By Guests", Users],
               ["trami", "By Tramies", UtensilsCrossed],
+              ["guests", "By Guests", Users],
             ] as const
           ).map(([id, label, Icon]) => (
             <button

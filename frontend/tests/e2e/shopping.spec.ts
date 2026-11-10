@@ -64,6 +64,7 @@ test.describe("purchase journey", () => {
     const email = `e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}@example.com`;
     await page.goto("/register?next=/cart");
     const main = page.getByRole("main");
+    await main.getByRole("tab", { name: "Email" }).click();
     await main.getByLabel("Full name").fill("Test Guest");
     await main.getByLabel("Email", { exact: true }).fill(email);
     await main.getByLabel("Password", { exact: true }).fill("wedding-2026");
@@ -235,6 +236,7 @@ test.describe("account menu", () => {
     const email = `e2e-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}@example.com`;
     await page.goto("/register");
     const main = page.getByRole("main");
+    await main.getByRole("tab", { name: "Email" }).click();
     await main.getByLabel("Full name").fill("Asha Bhat");
     await main.getByLabel("Email", { exact: true }).fill(email);
     await main.getByLabel("Password", { exact: true }).fill("wedding-2026");
