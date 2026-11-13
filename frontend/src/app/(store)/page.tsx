@@ -54,7 +54,7 @@ export default async function HomePage() {
       })),
   ];
   const picked = homepage.categoryHighlights.map((slug) => categories.find((c) => c.slug === slug)).filter((c) => c !== undefined);
-  const highlighted = picked.length >= 3 ? picked : categories.slice(0, 5);
+  const highlighted = picked.length >= 3 ? picked : categories.slice(0, 6);
 
   const organization = {
     "@context": "https://schema.org",

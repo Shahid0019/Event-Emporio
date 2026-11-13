@@ -29,7 +29,7 @@ export const homepage = {
     inset: demoImage("gift-candlelight", "Gift box tied with a black ribbon beside glowing candles"),
     insetCaption: { label: "Bridal Hampers", href: "/category/bridal-hampers" },
   },
-  categoryHighlights: ["mehndi-baskets", "bridal-hampers", "luxury-hampers", "customised-gifts", "decorative-disposables"],
+  categoryHighlights: ["mehndi-baskets", "bridal-hampers", "luxury-hampers", "customised-gifts", "decorative-disposables", "wedding-essentials"],
   editorial: {
     eyebrow: "Thoughtful Gifting",
     title: "The Art of Thoughtful Gifting.",

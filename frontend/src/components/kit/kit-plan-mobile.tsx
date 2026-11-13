@@ -30,7 +30,10 @@ export function MobilePlanner() {
   const [editing, setEditing] = useState(false);
   const planned = state.occasion !== null && state.furthest >= 5;
 
-  if (!planned || editing) return <PlanForm onDone={() => setEditing(false)} onCancel={planned ? () => setEditing(false) : undefined} />;
+  // Keyed by the saved function: a link such as /kit?occasion=wazwan can set it just after the form appears
+  // (arriving from the home page), and the form should then start from that choice.
+  if (!planned || editing)
+    return <PlanForm key={state.occasion ?? "none"} onDone={() => setEditing(false)} onCancel={planned ? () => setEditing(false) : undefined} />;
   return <ShoppingList onEdit={() => setEditing(true)} />;
 }
 
