@@ -23,7 +23,7 @@ export function EditorialBanner() {
             The Art of <br className="hidden sm:block" />
             <em className="script-accent text-brand">Thoughtful</em> Gifting.
           </h2>
-          <p className="mt-8 max-w-md text-[1.05rem] leading-relaxed text-muted">{e.body}</p>
+          <p className="mt-8 max-w-md text-base leading-relaxed text-muted">{e.body}</p>
           <Link href={e.cta.href} className={buttonVariants({ variant: "secondary", className: "mt-10" })}>
             {e.cta.label}
           </Link>
@@ -57,7 +57,7 @@ export function GiftingSection() {
             Made Personal. <br />
             <em className="script-accent text-brand">Made Memorable.</em>
           </h2>
-          <p className="mt-7 max-w-lg text-[1.02rem] leading-relaxed text-muted">{g.intro}</p>
+          <p className="mt-7 max-w-lg text-base leading-relaxed text-muted">{g.intro}</p>
 
           <Reveal stagger={0.08}>
             <ol className="mt-12 grid gap-x-10 sm:grid-cols-2">
@@ -65,7 +65,7 @@ export function GiftingSection() {
                 <li key={o.title} data-reveal className="border-t border-line-strong py-6">
                   <span className="font-serif text-lg italic text-accent-ink">{String(i + 1).padStart(2, "0")}</span>
                   <h3 className="mt-2 font-serif text-2xl">{o.title}</h3>
-                  <p className="mt-2 text-[0.92rem] leading-relaxed text-muted">{o.body}</p>
+                  <p className="mt-2 text-md leading-relaxed text-muted">{o.body}</p>
                 </li>
               ))}
             </ol>
@@ -96,14 +96,14 @@ export function BrandStory() {
             Every Celebration Deserves Something <em className="script-accent text-brand">Extraordinary.</em>
           </h2>
           {s.body.map((para) => (
-            <p key={para} className="mt-6 max-w-lg text-[1.05rem] leading-relaxed text-muted">
+            <p key={para} className="mt-6 max-w-lg text-base leading-relaxed text-muted">
               {para}
             </p>
           ))}
           <p className="mt-10 text-3xl text-accent-ink">
             <span className="script-accent">“{storeSettings.tagline}.”</span>
           </p>
-          <Link href={s.cta.href} className={buttonVariants({ variant: "link", className: "mt-10 text-[0.72rem]" })}>
+          <Link href={s.cta.href} className={buttonVariants({ variant: "link", className: "mt-10 text-xs" })}>
             {s.cta.label}
           </Link>
         </Reveal>

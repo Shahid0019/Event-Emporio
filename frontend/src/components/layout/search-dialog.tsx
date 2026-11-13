@@ -64,11 +64,11 @@ export function SearchDialog() {
               if (e.target.value.trim().length < 2) setResults(null);
             }}
             placeholder="Search baskets, hampers, gifts…"
-            className="h-16 w-full border-b border-line-strong bg-transparent pl-10 pr-24 font-serif text-[1.6rem] text-ink placeholder:text-muted/60 focus:border-ink focus:outline-none sm:text-[2.2rem]"
+            className="h-16 w-full border-b border-line-strong bg-transparent pl-10 pr-24 font-serif text-2xl text-ink placeholder:text-muted/60 focus:border-ink focus:outline-none sm:text-4xl"
           />
           <button
             type="submit"
-            className="absolute right-0 top-1/2 -translate-y-1/2 text-[0.7rem] font-medium uppercase tracking-[0.16em] text-ink"
+            className="absolute right-0 top-1/2 -translate-y-1/2 text-2xs font-medium uppercase tracking-[0.16em] text-ink"
           >
             Search
           </button>
@@ -113,7 +113,7 @@ export function SearchDialog() {
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block truncate font-serif text-xl group-hover:text-brand">{p.name}</span>
-                          <span className="text-[0.8rem] text-muted">{p.categoryName}</span>
+                          <span className="text-sm text-muted">{p.categoryName}</span>
                         </span>
                         <span className="text-sm">{formatPrice(p.price)}</span>
                       </Link>
@@ -123,7 +123,7 @@ export function SearchDialog() {
                 <Link
                   href={`/search?q=${encodeURIComponent(query.trim())}`}
                   onClick={close}
-                  className="mt-5 inline-flex items-center gap-2 text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline"
+                  className="mt-5 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.16em] link-underline"
                 >
                   See all results <ArrowRight className="size-3.5" />
                 </Link>

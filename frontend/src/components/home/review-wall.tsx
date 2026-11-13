@@ -124,12 +124,12 @@ function ReviewCard({ review: r, repeat }: { review: WallReview; repeat?: boolea
       <figcaption className="flex items-center gap-3">
         <span
           aria-hidden
-          className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft font-serif text-[1rem] text-accent-ink"
+          className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft font-serif text-base text-accent-ink"
         >
           {initials}
         </span>
         <span className="min-w-0">
-          <span className="flex items-center gap-1.5 text-[0.92rem] font-medium text-ink">
+          <span className="flex items-center gap-1.5 text-md font-medium text-ink">
             {r.name}
             {r.verified && <BadgeCheck aria-label="Verified purchase" className="size-3.5 shrink-0 text-success" />}
           </span>
@@ -137,7 +137,7 @@ function ReviewCard({ review: r, repeat }: { review: WallReview; repeat?: boolea
             <Link
               href={`/products/${r.productSlug}`}
               tabIndex={repeat ? -1 : undefined}
-              className="group/link inline-flex max-w-full items-center gap-0.5 text-[0.78rem] text-muted transition-colors hover:text-brand"
+              className="group/link inline-flex max-w-full items-center gap-0.5 text-xs text-muted transition-colors hover:text-brand"
             >
               <span className="truncate">
                 on{" "}
@@ -151,13 +151,13 @@ function ReviewCard({ review: r, repeat }: { review: WallReview; repeat?: boolea
               />
             </Link>
           ) : (
-            <span className="block truncate text-[0.78rem] text-muted">{r.product ? `on ${r.product}` : "Customer"}</span>
+            <span className="block truncate text-xs text-muted">{r.product ? `on ${r.product}` : "Customer"}</span>
           )}
         </span>
       </figcaption>
       {r.rating ? <Stars rating={r.rating} className="mt-4" /> : null}
-      {r.title && <p className="mt-3 text-[0.92rem] font-medium text-ink">{r.title}</p>}
-      <blockquote className={cn("font-serif text-[1.15rem] leading-snug text-ink", r.title ? "mt-1" : "mt-3")}>“{r.text}”</blockquote>
+      {r.title && <p className="mt-3 text-md font-medium text-ink">{r.title}</p>}
+      <blockquote className={cn("font-serif text-lg leading-snug text-ink", r.title ? "mt-1" : "mt-3")}>“{r.text}”</blockquote>
     </figure>
   );
 }

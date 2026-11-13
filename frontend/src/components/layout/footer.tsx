@@ -17,7 +17,7 @@ export async function Footer() {
           <div className="grid gap-14 lg:grid-cols-12 lg:gap-10">
             <div className="lg:col-span-5">
               <Logo tone="light" className="[&>span]:h-10" />
-              <p className="mt-6 max-w-sm text-[0.95rem] leading-relaxed text-canvas/75">
+              <p className="mt-6 max-w-sm text-md leading-relaxed text-canvas/75">
                 {storeSettings.shortBio} {storeSettings.tagline}.
               </p>
             </div>
@@ -48,7 +48,7 @@ export async function Footer() {
             </div>
           </div>
 
-          <div className="mt-16 grid gap-8 border-t border-canvas/15 pt-10 text-[0.88rem] sm:grid-cols-3">
+          <div className="mt-16 grid gap-8 border-t border-canvas/15 pt-10 text-sm sm:grid-cols-3">
             <div>
               <p className="eyebrow mb-3 text-accent-soft">Visit</p>
               <address className="not-italic leading-relaxed text-canvas/80">
@@ -101,7 +101,7 @@ export async function Footer() {
             </div>
           </div>
 
-          <div className="mt-14 flex flex-col gap-4 border-t border-canvas/15 pt-8 text-[0.75rem] text-canvas/60 md:flex-row md:items-center md:justify-between">
+          <div className="mt-14 flex flex-col gap-4 border-t border-canvas/15 pt-8 text-xs text-canvas/60 md:flex-row md:items-center md:justify-between">
             <p>© {storeSettings.name}. All rights reserved.</p>
             <p>Secure online payments via Razorpay · Prices in INR</p>
           </div>
@@ -123,7 +123,7 @@ function FooterColumn({ title, children }: { title: string; children: React.Reac
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <li>
-      <Link href={href} className="text-[0.9rem] text-canvas/75 transition-colors hover:text-canvas">
+      <Link href={href} className="text-md text-canvas/75 transition-colors hover:text-canvas">
         {children}
       </Link>
     </li>

@@ -14,7 +14,7 @@ export function OccasionCards({ functions }: { functions: KitFunction[] }) {
         <SectionHeading
           title={
             <span id="occasions-title">
-              Which <em className="text-brand">function</em> is it for?
+              Which <span className="text-brand">function</span> is it for ?
             </span>
           }
         />
@@ -52,11 +52,11 @@ export function OccasionCards({ functions }: { functions: KitFunction[] }) {
                   </span>
                   <span className="flex flex-1 items-center justify-center px-2 py-3 sm:flex-none sm:justify-start sm:gap-3 sm:rounded-card sm:bg-raised/85 sm:py-3 sm:pl-4 sm:pr-2 sm:shadow-[0_8px_24px_-12px_rgb(34_41_35/0.5)] sm:ring-1 sm:ring-white/60 sm:backdrop-blur-md">
                     <span className="min-w-0 sm:flex-1">
-                      <span className="block truncate text-center font-sans text-[0.95rem] font-semibold leading-tight text-ink sm:text-left sm:text-[1.05rem]">
+                      <span className="block truncate text-center font-sans text-md font-semibold leading-tight text-ink sm:text-left sm:text-base">
                         {f.name}
                       </span>
                       {/* {f.description && (
-                        <span className="mt-0.5 line-clamp-2 text-[0.75rem] leading-tight text-muted sm:text-[0.8rem]">{f.description}</span>
+                        <span className="mt-0.5 line-clamp-2 text-xs leading-tight text-muted sm:text-sm">{f.description}</span>
                       )} */}
                     </span>
                     <span
@@ -81,10 +81,10 @@ export function OccasionCards({ functions }: { functions: KitFunction[] }) {
             <Sparkles aria-hidden className="size-5" strokeWidth={1.75} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-sans text-[1rem] font-semibold leading-tight text-ink">
+            <span className="block font-sans text-md font-semibold leading-tight text-ink">
               {functions.length ? "Other function" : "Plan your function"}
             </span>
-            <span className="mt-0.5 block truncate text-[0.82rem] text-muted">Aqeeqah, engagement, dawat…</span>
+            <span className="mt-0.5 block truncate text-sm text-muted">Aqeeqah, engagement, dawat…</span>
           </span>
           <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-brand text-brand-ink transition-transform duration-300 group-hover:translate-x-0.5">
             <ArrowRight className="size-4" />

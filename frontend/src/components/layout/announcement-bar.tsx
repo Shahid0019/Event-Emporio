@@ -33,7 +33,7 @@ export function AnnouncementBar({ items }: { items: Announcement[] }) {
     >
       <div className="container-luxe grid h-9 place-items-center text-center">
         {items.map((item, i) => {
-          const content = <span className="line-clamp-1 text-[0.7rem] tracking-[0.14em] uppercase">{item.message}</span>;
+          const content = <span className="line-clamp-1 text-2xs tracking-[0.14em] uppercase">{item.message}</span>;
           return (
             <div
               key={item.id}

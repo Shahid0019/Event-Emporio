@@ -143,7 +143,7 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
         />
         <ProductView product={product} categoryName={catName} />
         {product.categorySlug === "decorative-disposables" && (
-          <p className="mt-10 rounded-card border border-line bg-raised px-5 py-4 text-[0.95rem]">
+          <p className="mt-10 rounded-card border border-line bg-raised px-5 py-4 text-md">
             Need it for a whole function?{" "}
             <Link href="/kit" className="link-underline font-medium text-brand">
               Plan your function

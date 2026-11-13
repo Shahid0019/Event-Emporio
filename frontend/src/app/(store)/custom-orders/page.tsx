@@ -30,7 +30,7 @@ export default function CustomOrdersPage() {
           <li key={s.title} className="bg-canvas px-6 py-6 sm:px-8">
             <span className="font-serif text-xl italic text-accent-ink">0{i + 1}</span>
             <h2 className="mt-2 font-serif text-2xl">{s.title}</h2>
-            <p className="mt-2 text-[0.92rem] text-muted">{s.body}</p>
+            <p className="mt-2 text-md text-muted">{s.body}</p>
           </li>
         ))}
       </ol>

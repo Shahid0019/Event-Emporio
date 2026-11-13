@@ -39,7 +39,7 @@ export function BottomNav() {
           <Link
             href="/kit"
             aria-current={pathname.startsWith("/kit") ? "page" : undefined}
-            className="group flex h-full flex-col items-center justify-end pb-1.5 text-[0.68rem] font-medium text-brand"
+            className="group flex h-full flex-col items-center justify-end pb-1.5 text-2xs font-medium text-brand"
           >
             <span
               aria-hidden
@@ -79,7 +79,7 @@ const kitIcon = { mask: kitIconMask, WebkitMask: kitIconMask } as const;
 
 const tabClass = (active: boolean) =>
   cn(
-    "flex h-full w-full flex-col items-center justify-center gap-1 text-[0.68rem] font-medium transition-colors active:bg-surface/70",
+    "flex h-full w-full flex-col items-center justify-center gap-1 text-2xs font-medium transition-colors active:bg-surface/70",
     active ? "text-brand" : "text-muted hover:text-ink",
   );
 
@@ -102,7 +102,7 @@ function Icon({ count, children }: { count?: number; children: React.ReactNode }
     <span aria-hidden className="relative [&_svg]:size-[1.35rem] [&_svg]:stroke-[1.5]">
       {children}
       {count ? (
-        <span className="absolute -right-2.5 -top-1.5 grid h-[1.05rem] min-w-[1.05rem] place-items-center rounded-full bg-brand px-1 text-[0.6rem] font-medium leading-none text-brand-ink">
+        <span className="absolute -right-2.5 -top-1.5 grid h-[1.05rem] min-w-[1.05rem] place-items-center rounded-full bg-brand px-1 text-2xs font-medium leading-none text-brand-ink">
           {count > 99 ? "99+" : count}
         </span>
       ) : null}

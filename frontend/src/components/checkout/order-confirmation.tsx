@@ -53,7 +53,7 @@ function groupLines(lines: OrderLine[]): Group[] {
 }
 
 const card = "rounded-card border border-line bg-raised p-5 sm:p-6";
-const cardTitle = "flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal";
+const cardTitle = "flex items-center gap-2 font-sans text-base font-semibold tracking-normal";
 
 /**
  * Order received (handbook screen 09): the order is in, but not yet accepted
@@ -107,8 +107,8 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
             <Check className="size-10" strokeWidth={2.5} />
           </span>
         </span>
-        <h1 className="mt-6 text-[2.4rem] leading-tight sm:text-[3.2rem]">Order received!</h1>
-        <p className="mx-auto mt-3 max-w-md text-[1rem] leading-relaxed text-muted">
+        <h1 className="mt-6 text-h1 leading-tight">Order received!</h1>
+        <p className="mx-auto mt-3 max-w-md text-base leading-relaxed text-muted">
           Thank you, <span className="text-ink">{order.customer.name.split(" ")[0]}</span>. We&apos;ve got your order and will keep you
           updated at <span className="break-all text-ink">{order.customer.email}</span>.
         </p>
@@ -117,9 +117,9 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
       {/* Order number */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-card bg-surface px-5 py-4">
         <div>
-          <p className="text-[0.8rem] text-muted">Order number</p>
-          <p className="font-serif text-[1.7rem] leading-tight tracking-wide">#{order.number}</p>
-          <p className="text-[0.78rem] text-muted">Placed {formatDateTime(order.createdAt)}</p>
+          <p className="text-sm text-muted">Order number</p>
+          <p className="font-serif text-3xl leading-tight tracking-wide">#{order.number}</p>
+          <p className="text-xs text-muted">Placed {formatDateTime(order.createdAt)}</p>
         </div>
         <CopyButton value={order.number} />
       </div>
@@ -135,7 +135,7 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
         <div className="mt-6">
           <OrderTimeline order={order} layout="steps" />
         </div>
-        <Link href={trackHref} className={buttonVariants({ size: "lg", className: "mt-6 w-full normal-case tracking-normal text-[0.95rem]" })}>
+        <Link href={trackHref} className={buttonVariants({ size: "lg", className: "mt-6 w-full normal-case tracking-normal text-md" })}>
           Track my order <ArrowRight aria-hidden />
         </Link>
       </section>
@@ -150,13 +150,13 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
             <li key={title} className="flex gap-3 sm:flex-col">
               <span className="relative grid size-11 shrink-0 place-items-center rounded-control bg-surface text-accent-ink">
                 <Icon aria-hidden className="size-5" />
-                <span className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-brand text-[0.68rem] font-semibold text-brand-ink">
+                <span className="absolute -right-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-brand text-2xs font-semibold text-brand-ink">
                   {i + 1}
                 </span>
               </span>
               <span>
                 <span className="block font-medium">{title}</span>
-                <span className="block text-[0.85rem] leading-snug text-muted">{text}</span>
+                <span className="block text-sm leading-snug text-muted">{text}</span>
               </span>
             </li>
           ))}
@@ -171,7 +171,7 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
         <ul className="mt-3 divide-y divide-line">
           {groups.map((g) => (g.kit ? <KitRow key={g.key} group={g} /> : <ItemRow key={g.key} line={g.lines[0]} />))}
         </ul>
-        <dl className="mt-3 space-y-2 border-t border-line pt-4 text-[0.92rem]">
+        <dl className="mt-3 space-y-2 border-t border-line pt-4 text-md">
           <Row label="Subtotal" value={formatPrice(order.totals.subtotal)} />
           {order.totals.discount > 0 && (
             <Row
@@ -183,7 +183,7 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
           <Row label="Delivery" value={order.totals.shipping ? formatPrice(order.totals.shipping) : "Free"} />
           <div className="flex items-baseline justify-between border-t border-line pt-3">
             <dt className="font-medium">Total {paid ? "paid" : ""}</dt>
-            <dd className="font-serif text-[1.6rem] tabular-nums">{formatPrice(order.totals.total)}</dd>
+            <dd className="font-serif text-2xl tabular-nums">{formatPrice(order.totals.total)}</dd>
           </div>
         </dl>
       </section>
@@ -194,7 +194,7 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
           <h2 id="deliver-title" className={cardTitle}>
             <MapPin aria-hidden className="size-[1.1rem] text-accent-ink" /> Delivering to
           </h2>
-          <address className="mt-3 text-[0.92rem] not-italic leading-relaxed text-muted">
+          <address className="mt-3 text-md not-italic leading-relaxed text-muted">
             <span className="font-medium text-ink">{a.fullName}</span>
             <br />
             {a.line1}
@@ -205,7 +205,7 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
             {a.phone}
           </address>
           {order.firstFunctionDate && (
-            <p className="mt-3 text-[0.85rem]">
+            <p className="mt-3 text-sm">
               <span className="text-muted">First function:</span> <span className="font-medium">{formatEventDate(order.firstFunctionDate, "long")}</span>
             </p>
           )}
@@ -219,15 +219,15 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
             )}
             Payment
           </h2>
-          <p className="mt-3 text-[0.92rem]">{order.paymentMethod === "cod" ? "Cash on delivery" : "Paid online (Razorpay)"}</p>
-          <p className="mt-1 text-[0.85rem] text-muted">
+          <p className="mt-3 text-md">{order.paymentMethod === "cod" ? "Cash on delivery" : "Paid online (Razorpay)"}</p>
+          <p className="mt-1 text-sm text-muted">
             {cod
               ? `Please keep ${formatPrice(order.totals.total)} ready in cash when your order arrives.`
               : paid
                 ? "Your payment is confirmed."
                 : "We're confirming your payment — this page updates in a moment."}
           </p>
-          {order.paymentReference && <p className="mt-2 break-all text-[0.75rem] text-muted">Ref. {order.paymentReference}</p>}
+          {order.paymentReference && <p className="mt-2 break-all text-xs text-muted">Ref. {order.paymentReference}</p>}
         </section>
       </div>
 
@@ -242,13 +242,13 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
           </span>
           <span>
             <span className="block font-medium">Need help with this order?</span>
-            <span className="block text-[0.82rem] text-muted">Quote #{order.number} and we&apos;ll sort it out.</span>
+            <span className="block text-sm text-muted">Quote #{order.number} and we&apos;ll sort it out.</span>
           </span>
         </span>
         <ArrowRight aria-hidden className="size-4 text-muted" />
       </Link>
 
-      <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 pt-2 text-[0.9rem] font-medium">
+      <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 pt-2 text-md font-medium">
         <Link href="/shop" className="inline-flex min-h-11 items-center underline underline-offset-4">
           Continue shopping
         </Link>
@@ -265,18 +265,18 @@ export function OrderConfirmation({ order }: { order: Order | null }) {
 function PaymentChip({ paid, cod, total }: { paid: boolean; cod: boolean; total: number }) {
   if (paid)
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-chip bg-success/10 px-2.5 py-1 text-[0.8rem] font-medium text-success">
+      <span className="inline-flex items-center gap-1.5 rounded-chip bg-success/10 px-2.5 py-1 text-sm font-medium text-success">
         <CircleCheck aria-hidden className="size-4" /> Payment successful
       </span>
     );
   if (cod)
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-chip bg-accent-soft px-2.5 py-1 text-[0.8rem] font-medium text-accent-ink">
+      <span className="inline-flex items-center gap-1.5 rounded-chip bg-accent-soft px-2.5 py-1 text-sm font-medium text-accent-ink">
         <Banknote aria-hidden className="size-4" /> Pay {formatPrice(total)} on delivery
       </span>
     );
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-chip bg-surface px-2.5 py-1 text-[0.8rem] font-medium text-muted">
+    <span className="inline-flex items-center gap-1.5 rounded-chip bg-surface px-2.5 py-1 text-sm font-medium text-muted">
       <Clock aria-hidden className="size-4" /> Confirming payment
     </span>
   );
@@ -297,7 +297,7 @@ function CopyButton({ value }: { value: string }) {
           toast("Couldn't copy — please note it down", { description: value });
         }
       }}
-      className="inline-flex min-h-11 items-center gap-2 rounded-control border border-line-strong bg-raised px-4 text-[0.85rem] font-medium transition-colors hover:border-ink"
+      className="inline-flex min-h-11 items-center gap-2 rounded-control border border-line-strong bg-raised px-4 text-sm font-medium transition-colors hover:border-ink"
     >
       {copied ? <Check aria-hidden className="size-4 text-success" /> : <Copy aria-hidden className="size-4" />}
       {copied ? "Copied" : "Copy"}
@@ -320,7 +320,7 @@ function KitRow({ group }: { group: Group }) {
         </span>
         <span className="min-w-0 flex-1">
           <span className="block truncate font-medium">{group.kit!.name}</span>
-          <span className="block truncate text-[0.8rem] text-muted">
+          <span className="block truncate text-sm text-muted">
             {group.lines.length} items · {pieces} pcs
           </span>
         </span>
@@ -328,7 +328,7 @@ function KitRow({ group }: { group: Group }) {
         <ChevronDown aria-hidden className={cn("size-4 shrink-0 text-muted transition-transform", open && "rotate-180")} />
       </button>
       {open && (
-        <ul className="mt-3 space-y-1.5 rounded-control bg-surface/70 p-3 text-[0.82rem]">
+        <ul className="mt-3 space-y-1.5 rounded-control bg-surface/70 p-3 text-sm">
           {group.lines.map((l) => (
             <li key={l.variantId} className="flex justify-between gap-3">
               <span className="min-w-0">
@@ -353,10 +353,10 @@ function ItemRow({ line }: { line: OrderLine }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium">{line.name}</span>
-        <span className="block truncate text-[0.8rem] text-muted">
+        <span className="block truncate text-sm text-muted">
           {line.variantLabel ? `${line.variantLabel} · ` : ""}Qty {line.quantity}
         </span>
-        {line.giftMessage && <span className="block truncate text-[0.78rem] italic text-muted">Gift note: “{line.giftMessage}”</span>}
+        {line.giftMessage && <span className="block truncate text-xs italic text-muted">Gift note: “{line.giftMessage}”</span>}
       </span>
       <span className="shrink-0 tabular-nums">{formatPrice(line.unitPrice * line.quantity)}</span>
     </li>

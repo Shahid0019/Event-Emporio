@@ -44,7 +44,7 @@ export function GoogleButton({ next, link, label = "Continue with Google" }: { n
         // eslint-disable-next-line @next/next/no-location-assign-relative-destination
         window.location.assign(`/api/account/google?${params}`);
       }}
-      className="flex h-14 w-full items-center justify-center gap-3 rounded-control border border-line-strong bg-raised px-5 text-[0.95rem] font-medium text-ink transition-colors hover:border-ink disabled:opacity-70"
+      className="flex h-14 w-full items-center justify-center gap-3 rounded-control border border-line-strong bg-raised px-5 text-md font-medium text-ink transition-colors hover:border-ink disabled:opacity-70"
     >
       {leaving ? <span aria-hidden className="size-5 animate-spin rounded-full border-2 border-line-strong border-t-ink" /> : <GoogleMark />}
       {leaving ? "Opening Google…" : label}
@@ -54,7 +54,7 @@ export function GoogleButton({ next, link, label = "Continue with Google" }: { n
 
 export function OrDivider({ children = "or" }: { children?: React.ReactNode }) {
   return (
-    <div className="my-7 flex items-center gap-4 text-[0.75rem] uppercase tracking-[0.16em] text-muted" role="separator">
+    <div className="my-7 flex items-center gap-4 text-xs uppercase tracking-[0.16em] text-muted" role="separator">
       <span className="h-px flex-1 bg-line" />
       {children}
       <span className="h-px flex-1 bg-line" />
@@ -122,7 +122,7 @@ export function PhoneVerify({
     >
       <Field label="Mobile number" htmlFor="phone" error={error} hint="We'll text you a 6-digit code. No password needed.">
         <div className="relative">
-          <span aria-hidden className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-[0.95rem] text-muted">
+          <span aria-hidden className="pointer-events-none absolute inset-y-0 left-4 flex items-center text-md text-muted">
             +91
           </span>
           <Input
@@ -132,7 +132,7 @@ export function PhoneVerify({
             placeholder="98765 43210"
             maxLength={14}
             autoFocus={autoFocus}
-            className="pl-14 text-[1.05rem] tracking-wide"
+            className="pl-14 text-base tracking-wide"
             {...fieldAria("phone", error, true)}
             {...numberForm.register("phone")}
           />
@@ -201,7 +201,7 @@ function CodeStep({
         void submit(code);
       }}
     >
-      <div className="flex items-start justify-between gap-3 rounded-card bg-surface px-4 py-3.5 text-[0.9rem]">
+      <div className="flex items-start justify-between gap-3 rounded-card bg-surface px-4 py-3.5 text-md">
         <p className="text-muted">
           Code sent to <span className="whitespace-nowrap font-medium text-ink">{showPhone(phone)}</span>
         </p>
@@ -226,13 +226,13 @@ function CodeStep({
             // Typed or pasted the whole code (or picked it from the SMS suggestion): check it straight away.
             if (value.length === 6) void submit(value);
           }}
-          className="h-14 text-center text-[1.6rem] tracking-[0.5em] placeholder:tracking-[0.5em]"
+          className="h-14 text-center text-2xl tracking-[0.5em] placeholder:tracking-[0.5em]"
           {...fieldAria("otp", error)}
         />
       </Field>
 
       {devCode && (
-        <p className="rounded-control border border-dashed border-line-strong px-4 py-3 text-[0.82rem] text-muted">
+        <p className="rounded-control border border-dashed border-line-strong px-4 py-3 text-sm text-muted">
           Test mode — SMS isn&apos;t set up yet, so here&apos;s your code: <span className="font-medium tracking-[0.2em] text-ink">{devCode}</span>
         </p>
       )}
@@ -241,7 +241,7 @@ function CodeStep({
         Verify &amp; continue
       </Button>
 
-      <p className="text-center text-[0.88rem] text-muted">
+      <p className="text-center text-sm text-muted">
         Didn&apos;t get it?{" "}
         {wait > 0 ? (
           <span className="tabular-nums">Resend in 0:{String(wait).padStart(2, "0")}</span>
@@ -285,7 +285,7 @@ export function PhoneSignIn({ onSignedIn, autoFocus }: { onSignedIn: (user: Sess
   return (
     <>
       {expired && (
-        <p role="alert" className="mb-5 rounded-control bg-surface px-4 py-3 text-[0.88rem] text-ink">
+        <p role="alert" className="mb-5 rounded-control bg-surface px-4 py-3 text-sm text-ink">
           That took a little long — please verify your number again.
         </p>
       )}
@@ -329,7 +329,7 @@ function NewPhoneAccount({
         form.setError(res.status === 409 ? "email" : "name", { message: res.error });
       })}
     >
-      <div className="rounded-card bg-accent-soft/60 px-4 py-3.5 text-[0.9rem]">
+      <div className="rounded-card bg-accent-soft/60 px-4 py-3.5 text-md">
         <p className="font-medium text-ink">{showPhone(phone)} is verified</p>
         <p className="mt-0.5 text-muted">You&apos;re new here — just two details to finish your account.</p>
       </div>
@@ -366,7 +366,7 @@ export function MethodTabs<T extends string>({
           aria-selected={value === o.value}
           onClick={() => onChange(o.value)}
           className={cn(
-            "inline-flex h-11 items-center justify-center gap-2 rounded-chip text-[0.9rem] font-medium transition-colors [&_svg]:size-4",
+            "inline-flex h-11 items-center justify-center gap-2 rounded-chip text-md font-medium transition-colors [&_svg]:size-4",
             value === o.value ? "bg-raised text-ink shadow-[0_1px_3px_rgb(34_41_35/0.12)]" : "text-muted hover:text-ink",
           )}
         >

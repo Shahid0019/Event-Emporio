@@ -19,9 +19,9 @@ function Submitted({ title, children, onReset }: { title: string; children: Reac
   return (
     <div role="status" className="rounded-card border border-line bg-surface p-8 sm:p-10">
       <CheckCircle2 className="size-8 stroke-[1.5] text-success" />
-      <h2 className="mt-6 font-serif text-3xl">{title}</h2>cd
+      <h2 className="mt-6 font-serif text-h3">{title}</h2>
       <div className="mt-3 leading-relaxed text-muted">{children}</div>
-      <button type="button" onClick={onReset} className="mt-6 text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline">
+      <button type="button" onClick={onReset} className="mt-6 text-xs font-medium uppercase tracking-[0.16em] link-underline">
         Send another
       </button>
     </div>
@@ -85,12 +85,12 @@ export function ContactForm() {
       })}
     >
       <fieldset className="sm:col-span-2">
-        <legend className="mb-3 text-[0.85rem] font-medium">What&apos;s it about?</legend>
+        <legend className="mb-3 text-sm font-medium">What&apos;s it about?</legend>
         <div className="flex flex-wrap gap-2">
           {topics.map((t) => (
             <label key={t.value} className="cursor-pointer">
               <input type="radio" value={t.value} className="peer sr-only" {...register("subject")} />
-              <span className="inline-flex min-h-11 items-center rounded-control border border-line-strong px-4 text-[0.88rem] transition-colors hover:border-ink peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink">
+              <span className="inline-flex min-h-11 items-center rounded-control border border-line-strong px-4 text-sm transition-colors hover:border-ink peer-checked:border-brand peer-checked:bg-brand peer-checked:text-brand-ink peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink">
                 {t.label}
               </span>
             </label>
@@ -122,7 +122,7 @@ export function ContactForm() {
         />
       </Field>
       <div className="flex flex-col gap-4 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-[0.78rem] text-muted sm:max-w-sm">
+        <p className="text-xs text-muted sm:max-w-sm">
           We use your details only to reply to this message. See our{" "}
           <Link href="/privacy-policy" className="underline underline-offset-4">
             privacy policy
@@ -274,16 +274,16 @@ export function TrackOrderForm() {
 
       <div aria-live="polite" className="mt-12">
         {result === "missing" && (
-          <p className="rounded-control border-l-2 border-danger bg-danger/5 px-5 py-4 text-[0.92rem]">
+          <p className="rounded-control border-l-2 border-danger bg-danger/5 px-5 py-4 text-md">
             We couldn&apos;t find an order with those details. Check the order number in your confirmation and try again.
           </p>
         )}
         {result && result !== "missing" && (
           <div>
-            <h2 className="mb-8 font-serif text-3xl">Order {result.number}</h2>
+            <h2 className="mb-8 font-serif text-h3">Order {result.number}</h2>
             <OrderDetail order={result} />
             <div className="mt-8 grid gap-3 sm:grid-cols-2">
-              <p className="flex items-start gap-3 rounded-card bg-surface px-4 py-3.5 text-[0.88rem]">
+              <p className="flex items-start gap-3 rounded-card bg-surface px-4 py-3.5 text-sm">
                 <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-accent-ink" />
                 <span>
                   <span className="font-medium">One delivery. Everything together.</span>{" "}
@@ -292,7 +292,7 @@ export function TrackOrderForm() {
               </p>
               <Link
                 href="/contact"
-                className="flex min-h-14 items-center justify-between gap-3 rounded-card border border-line bg-raised px-4 text-[0.95rem] font-medium hover:border-ink"
+                className="flex min-h-14 items-center justify-between gap-3 rounded-card border border-line bg-raised px-4 text-md font-medium hover:border-ink"
               >
                 <span className="inline-flex items-center gap-3">
                   <Headphones aria-hidden className="size-5 text-accent-ink" /> Need help?

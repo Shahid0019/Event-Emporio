@@ -95,7 +95,7 @@ function GoogleProblem() {
   const problem = googleProblems[useSearch().get("google") ?? ""];
   if (!problem) return null;
   return (
-    <p role="alert" className="mb-6 rounded-control border border-danger/30 bg-danger/5 px-4 py-3 text-[0.88rem] text-ink">
+    <p role="alert" className="mb-6 rounded-control border border-danger/30 bg-danger/5 px-4 py-3 text-sm text-ink">
       {problem}
     </p>
   );
@@ -147,7 +147,7 @@ export function LoginForm({ google, phone }: SignInOptions) {
       {current === "phone" ? (
         <>
           <PhoneSignIn autoFocus={method === "phone"} onSignedIn={done} />
-          <p className="mt-8 text-center text-[0.9rem] text-muted">New here? Your account is made as soon as your number is verified.</p>
+          <p className="mt-8 text-center text-md text-muted">New here? Your account is made as soon as your number is verified.</p>
         </>
       ) : (
         <EmailSignIn onSignedIn={done} />
@@ -179,7 +179,7 @@ function EmailSignIn({ onSignedIn }: { onSignedIn: (user: SessionUser) => void }
           <PasswordInput id="password" autoComplete="current-password" error={errors.password?.message} {...register("password")} />
         </Field>
         <div className="flex justify-end">
-          <Link href="/forgot-password" className="text-[0.85rem] text-muted underline underline-offset-4 hover:text-ink">
+          <Link href="/forgot-password" className="text-sm text-muted underline underline-offset-4 hover:text-ink">
             Forgot password?
           </Link>
         </div>
@@ -187,7 +187,7 @@ function EmailSignIn({ onSignedIn }: { onSignedIn: (user: SessionUser) => void }
           Sign in
         </Button>
       </form>
-      <p className="mt-8 text-center text-[0.9rem] text-muted">
+      <p className="mt-8 text-center text-md text-muted">
         New to Khandr? <SwitchLink href="/register">Create an account</SwitchLink>
       </p>
     </>
@@ -242,7 +242,7 @@ export function RegisterForm({ google, phone }: SignInOptions) {
         />
       )}
       {current === "phone" ? <PhoneSignIn autoFocus={method === "phone"} onSignedIn={done} /> : <EmailRegister onRegistered={done} />}
-      <p className="mt-8 text-center text-[0.9rem] text-muted">
+      <p className="mt-8 text-center text-md text-muted">
         Already have an account? <SwitchLink href="/login">Sign in</SwitchLink>
       </p>
     </>
@@ -319,7 +319,7 @@ export function ForgotPasswordForm() {
         <p className="mt-4 leading-relaxed text-muted">
           If an account exists for <span className="text-ink">{sentTo}</span>, you&apos;ll receive a link to reset your password shortly.
         </p>
-        <Link href="/login" className="mt-10 inline-block text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline">
+        <Link href="/login" className="mt-10 inline-block text-xs font-medium uppercase tracking-[0.16em] link-underline">
           Back to sign in
         </Link>
       </div>
@@ -339,7 +339,7 @@ export function ForgotPasswordForm() {
           Send reset link
         </Button>
       </form>
-      <p className="mt-8 text-center text-[0.9rem] text-muted">
+      <p className="mt-8 text-center text-md text-muted">
         Remembered it?{" "}
         <Link href="/login" className="text-ink underline underline-offset-4">
           Sign in

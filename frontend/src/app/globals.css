@@ -69,14 +69,28 @@
   --font-sans: var(--font-cinea), var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
   --font-script: var(--font-pinyon), "Pinyon Script", "Snell Roundhand", cursive;
 
-  /* Fluid type scale */
-  --text-display: clamp(3rem, 1.6rem + 6.2vw, 7.75rem);
+  /* Type scale — the storefront uses only these steps (no one-off text-[…rem] sizes), so the
+     same kind of text is the same size everywhere:
+       2xs 11px  labels, badges, tab bar     xs 12px  eyebrows, meta
+       sm  14px  secondary text              md 15px  body, names, buttons
+       base 16px lead text                   lg 18 · xl 20 · 2xl 24 · 3xl 30 · 4xl 36  titles
+     xs, sm, base, lg… are Tailwind's own values; 2xs and md fill the gaps. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: calc(1 / 0.6875);
+  --text-md: 0.9375rem;
+  --text-md--line-height: calc(1.375 / 0.9375);
+
+  /* Fluid headings. Every phone (up to ~30rem wide) sits exactly on the minimum — display 44px,
+     h1 36px, h2 24px, h3 20px — so headings of one level are the same size on every phone, and
+     a section heading ("Which function is it for?") fits on one line from 360px up. They grow to
+     full size on tablets and desktop. */
+  --text-display: clamp(2.75rem, 0.6rem + 7.4vw, 7.75rem);
   --text-display--line-height: 0.92;
-  --text-h1: clamp(2.5rem, 1.6rem + 3.6vw, 4.75rem);
-  --text-h1--line-height: 1;
-  --text-h2: clamp(2rem, 1.45rem + 2.3vw, 3.5rem);
-  --text-h2--line-height: 1.05;
-  --text-h3: clamp(1.5rem, 1.25rem + 1vw, 2.125rem);
+  --text-h1: clamp(2.25rem, 1.2rem + 4vw, 4.75rem);
+  --text-h1--line-height: 1.05;
+  --text-h2: clamp(1.5rem, 0.45rem + 3.6vw, 3.5rem);
+  --text-h2--line-height: 1.15;
+  --text-h3: clamp(1.25rem, 0.9rem + 1.4vw, 2.125rem);
   --text-h3--line-height: 1.15;
   --text-eyebrow: 0.75rem;
   --text-eyebrow--line-height: 1.2;

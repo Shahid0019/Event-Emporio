@@ -25,7 +25,7 @@ export async function CategoryChips({ active }: { active?: string }) {
             <span className={cn("grid aspect-square w-full place-items-center rounded-chip", !active ? "bg-raised" : "bg-surface")}>
               <LayoutGrid aria-hidden className="size-6 text-accent-ink" />
             </span>
-            <span className="text-[0.72rem] font-medium leading-tight">All</span>
+            <span className="text-xs font-medium leading-tight">All</span>
           </Link>
         </li>
         {categories.map((c) => (
@@ -34,7 +34,7 @@ export async function CategoryChips({ active }: { active?: string }) {
               <span className="relative block aspect-square w-full overflow-hidden rounded-chip bg-surface">
                 <Image src={c.image.src} alt="" fill sizes="76px" className="object-cover" />
               </span>
-              <span className="line-clamp-2 text-[0.72rem] font-medium leading-tight">{c.name}</span>
+              <span className="line-clamp-2 text-xs font-medium leading-tight">{c.name}</span>
             </Link>
           </li>
         ))}

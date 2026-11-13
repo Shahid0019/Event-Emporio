@@ -76,7 +76,7 @@ export function KitPanel({ showHeader = true, bar = false, className }: { showHe
       {showHeader && (
         <header className="px-5 pb-3 pt-5 sm:px-6">
           <div className="flex items-center justify-between gap-3">
-            <h2 id="kit-title" className="whitespace-nowrap font-serif text-[1.9rem] leading-none">
+            <h2 id="kit-title" className="whitespace-nowrap font-serif text-3xl leading-none">
               Your kit
             </h2>
             <div className="flex items-center gap-1">
@@ -91,7 +91,7 @@ export function KitPanel({ showHeader = true, bar = false, className }: { showHe
           {state.occasion && (
             <>
               <KitTitleEditor className="mt-2" />
-              <p className="mt-1.5 truncate text-[0.82rem] text-muted">{kitSummary(state)}</p>
+              <p className="mt-1.5 truncate text-sm text-muted">{kitSummary(state)}</p>
             </>
           )}
         </header>
@@ -298,12 +298,12 @@ function ItemRow({
               {item.name}
             </span>
             {!suggested && (
-              <span className="shrink-0 rounded-chip bg-accent-soft px-2 py-0.5 text-[0.65rem] font-medium uppercase tracking-[0.1em] text-ink">
+              <span className="shrink-0 rounded-chip bg-accent-soft px-2 py-0.5 text-2xs font-medium uppercase tracking-[0.1em] text-ink">
                 Added
               </span>
             )}
           </span>
-          <span className="block truncate text-[0.82rem] text-muted">
+          <span className="block truncate text-sm text-muted">
             {single ? (
               <>
                 {item.variants[first.variantIndex].name} · <span className="tabular-nums">{first.qty} pcs</span>
@@ -320,7 +320,7 @@ function ItemRow({
         </span>
         <span className="w-20 shrink-0 text-right tabular-nums">
           <span className="block font-medium">{formatKitAmount(totalPrice)}</span>
-          <span className="block text-[0.75rem] text-muted">{single ? `${formatUnitPrice(first.unitPrice)} each` : `${totalQty} pcs`}</span>
+          <span className="block text-xs text-muted">{single ? `${formatUnitPrice(first.unitPrice)} each` : `${totalQty} pcs`}</span>
         </span>
         <ChevronDown aria-hidden className={cn("size-4 shrink-0 text-muted transition-transform duration-300", open && "rotate-180")} />
       </button>
@@ -330,12 +330,12 @@ function ItemRow({
           <button
             type="button"
             onClick={() => showDetails()}
-            className="mb-2 inline-flex min-h-9 items-center gap-1.5 text-[0.8rem] font-medium text-brand underline-offset-4 hover:underline"
+            className="mb-2 inline-flex min-h-9 items-center gap-1.5 text-sm font-medium text-brand underline-offset-4 hover:underline"
           >
             <Info aria-hidden className="size-3.5" />
             View details
           </button>
-          <p className="mb-2 text-[0.8rem] font-medium">
+          <p className="mb-2 text-sm font-medium">
             How many of each {item.optionName.toLowerCase()}?
             <span className="font-normal text-muted"> Mix {item.optionName.toLowerCase()}s, up to {baseQty} in total.</span>
           </p>
@@ -357,8 +357,8 @@ function ItemRow({
                     <KitThumb itemId={item.id} variantIndex={i} className={cn("w-10", !optionPhotos && "opacity-90")} />
                   </button>
                   <span className="min-w-0 flex-1">
-                    <span className={cn("block text-[0.9rem]", line && "font-medium")}>{v.name}</span>
-                    <span className="block text-[0.75rem] tabular-nums text-muted">{formatUnitPrice(v.price)} each</span>
+                    <span className={cn("block text-md", line && "font-medium")}>{v.name}</span>
+                    <span className="block text-xs tabular-nums text-muted">{formatUnitPrice(v.price)} each</span>
                   </span>
                   {line ? (
                     <span className="flex items-center gap-2">
@@ -370,7 +370,7 @@ function ItemRow({
                         onChange={(q) => changeQty(line, q)}
                         label={`Quantity for ${item.name} ${v.name}`}
                       />
-                      <span className="hidden w-16 text-right text-[0.85rem] font-medium tabular-nums sm:block">
+                      <span className="hidden w-16 text-right text-sm font-medium tabular-nums sm:block">
                         {formatKitAmount(line.lineTotal)}
                       </span>
                       {!single && (
@@ -392,7 +392,7 @@ function ItemRow({
                           type="button"
                           onClick={() => switchTo(i)}
                           aria-label={`Switch to ${v.name}`}
-                          className="inline-flex min-h-10 items-center rounded-control px-3 text-[0.8rem] font-medium text-muted underline-offset-4 hover:text-ink hover:underline"
+                          className="inline-flex min-h-10 items-center rounded-control px-3 text-sm font-medium text-muted underline-offset-4 hover:text-ink hover:underline"
                         >
                           Switch
                         </button>
@@ -403,7 +403,7 @@ function ItemRow({
                         disabled={!canAddType}
                         aria-label={`Add ${v.name}`}
                         title={left > 0 ? `Adds the ${left} left` : "Moves some over from your biggest type"}
-                        className="inline-flex min-h-10 items-center gap-1 rounded-control border border-line-strong px-3.5 text-[0.8rem] font-medium transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line-strong"
+                        className="inline-flex min-h-10 items-center gap-1 rounded-control border border-line-strong px-3.5 text-sm font-medium transition-colors hover:border-ink disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:border-line-strong"
                       >
                         <Plus aria-hidden className="size-3.5" />
                         Add
@@ -422,7 +422,7 @@ function ItemRow({
               <button
                 type="button"
                 onClick={() => resetQty(item.id)}
-                className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap px-2 text-[0.82rem] font-medium underline-offset-4 hover:underline"
+                className="inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap px-2 text-sm font-medium underline-offset-4 hover:underline"
               >
                 <RotateCcw aria-hidden className="size-3.5" />
                 Reset to {baseQty}
@@ -463,7 +463,7 @@ function LimitMeter({ used, limit, hint, several }: { used: number; limit: numbe
   const full = used >= limit;
   return (
     <div className="mt-3" role="status">
-      <div className="flex items-baseline justify-between gap-3 text-[0.78rem]">
+      <div className="flex items-baseline justify-between gap-3 text-xs">
         <span className="font-medium tabular-nums">
           {used} of {limit} pcs
         </span>
@@ -475,7 +475,7 @@ function LimitMeter({ used, limit, hint, several }: { used: number; limit: numbe
           style={{ width: `${Math.min(100, (used / limit) * 100)}%` }}
         />
       </div>
-      <p className="mt-1.5 text-[0.75rem] text-muted">
+      <p className="mt-1.5 text-xs text-muted">
         {full
           ? several
             ? "All set for your kit. To have more of one type, lower another."
@@ -490,7 +490,7 @@ function OverBudget({ over, lines }: { over: number; lines: KitLine[] }) {
   const suggestions = swapSuggestions(lines);
   return (
     <section aria-labelledby="kit-over" className="rounded-card border border-danger/30 bg-danger/[0.04] p-4">
-      <h3 id="kit-over" className="font-sans text-[0.95rem] font-medium tracking-normal text-danger">
+      <h3 id="kit-over" className="font-sans text-md font-medium tracking-normal text-danger">
         {formatKitAmount(over)} over budget
       </h3>
       {suggestions.length > 0 && (
@@ -502,7 +502,7 @@ function OverBudget({ over, lines }: { over: number; lines: KitLine[] }) {
             return (
               <li key={s.itemId} className="flex items-center gap-3 rounded-control bg-raised p-2 pr-2.5">
                 <KitThumb itemId={s.itemId} className="w-9" />
-                <p className="min-w-0 flex-1 text-[0.85rem] leading-snug">
+                <p className="min-w-0 flex-1 text-sm leading-snug">
                   <span className="font-medium">{s.name}:</span> {from} → {to}
                   <span className="block text-success">Save {formatKitAmount(s.saving)}</span>
                 </p>
@@ -609,8 +609,8 @@ function KitFooter({
       <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-6 pt-2.5 shadow-[0_-12px_30px_-24px_rgb(34_41_35/0.5)] backdrop-blur">
         <div className="mx-auto flex max-w-xl items-center gap-2.5">
           <div className="min-w-0 flex-1">
-            <p className="font-serif text-[1.45rem] leading-none tabular-nums">{formatKitAmount(total)}</p>
-            <p className="mt-1 text-[0.75rem] leading-tight text-muted">
+            <p className="font-serif text-2xl leading-none tabular-nums">{formatKitAmount(total)}</p>
+            <p className="mt-1 text-xs leading-tight text-muted">
               {count} {count === 1 ? "item" : "items"}
               {budget !== null && (
                 // Its own line on narrow phones rather than being cut off.
@@ -624,7 +624,7 @@ function KitFooter({
               ✓ View bag
             </Link>
           ) : (
-            <Button className="h-12 shrink-0 px-4 normal-case tracking-normal text-[0.9rem]" disabled={count === 0} onClick={putInBag}>
+            <Button className="h-12 shrink-0 px-4 normal-case tracking-normal text-md" disabled={count === 0} onClick={putInBag}>
               <ShoppingBag />
               {inBag ? "Update bag" : "Add to bag"}
             </Button>
@@ -641,8 +641,8 @@ function KitFooter({
       {/* Price on the left, actions on the right; stacked when the panel is narrow. */}
       <div className="flex flex-col gap-3 @[25rem]:flex-row @[25rem]:items-center @[25rem]:justify-between @[25rem]:gap-5">
         <div className="min-w-0">
-          <p className="text-[1.65rem] font-medium leading-none tabular-nums">{formatKitAmount(total)}</p>
-          <p className="mt-1.5 text-[0.8rem] tabular-nums text-muted">
+          <p className="text-2xl font-medium leading-none tabular-nums">{formatKitAmount(total)}</p>
+          <p className="mt-1.5 text-sm tabular-nums text-muted">
             {count} {count === 1 ? "item" : "items"} · {formatKitAmount(perUnit)}/{unit}
           </p>
         </div>
@@ -673,7 +673,7 @@ function KitFooter({
               style={{ width: `${Math.min(100, (itemsTotal / budget) * 100)}%` }}
             />
           </div>
-          <p className={cn("mt-1.5 text-[0.8rem] font-medium", within ? "text-success" : "text-danger")}>
+          <p className={cn("mt-1.5 text-sm font-medium", within ? "text-success" : "text-danger")}>
             {within ? "Within" : "Over"} your {tierLabel} budget of {formatKitAmount(budget)}
             {total > itemsTotal && <span className="font-normal text-muted"> · giveaways extra</span>}
           </p>

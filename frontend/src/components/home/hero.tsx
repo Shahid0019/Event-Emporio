@@ -63,7 +63,7 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
           {...photo.props}
           alt=""
           aria-hidden
-          className="block aspect-[16/10] w-full animate-fade object-cover object-left md:absolute md:inset-0 md:-z-10 md:aspect-auto md:size-full md:object-[30%_60%]"
+          className="block aspect-[6/5] w-full animate-fade object-cover object-left md:absolute md:inset-0 md:-z-10 md:aspect-auto md:size-full md:object-[30%_60%]"
         />
 
         {/* A soft cream wash over the left of the photo, so the words stay crisp over the flowers and shelves. */}
@@ -72,10 +72,10 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
           className="absolute inset-y-0 left-0 w-[68%] bg-gradient-to-r from-[#f7f1e8]/90 via-[#f7f1e8]/65 to-transparent md:-z-10 md:w-[60%] md:from-[#f7f1e8]/90 md:via-[#f7f1e8]/70"
         />
 
-        {/* Phones: the words on the wall, left of the shelves. Sized to the card (cqw) like the mock-up,
-            but never below a comfortable reading size (about 17px headline, 12px subtitle; the site font is wide). */}
-        <div className="absolute inset-y-0 left-0 flex w-[52%] flex-col justify-center pl-[6%] pb-[2%] md:hidden">
-          <h1 className="animate-rise text-[max(1.05rem,5.1cqw)] font-bold leading-[1.12] tracking-[-0.01em] text-ink [animation-delay:150ms]">
+        {/* Phones: the words on the wall, left of the shelves. The headline uses the section-heading size
+            (text-h2, 24px on phones) so every heading on the page matches; the 6:5 photo leaves the wall wide enough for it. */}
+        <div className="absolute inset-y-0 left-0 flex w-[66%] flex-col justify-center pl-[6%] pb-[2%] md:hidden">
+          <h1 className="animate-rise text-h2 font-bold max-[359px]:text-xl leading-[1.12] tracking-[-0.01em] text-ink [animation-delay:150ms]">
             {phone.title.map((line) => (
               <span key={line} className="block">
                 {line}
@@ -83,7 +83,7 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
             ))}
           </h1>
           {/* <span aria-hidden className="mt-[max(0.6rem,3.2cqw)] block h-[2px] w-[max(1.75rem,8cqw)] animate-rise rounded-full bg-[#8dbda6] [animation-delay:260ms]" /> */}
-          <p className="mt-[max(0.5rem,2.6cqw)] animate-rise text-[max(0.75rem,3.05cqw)] font-medium leading-[1.4] text-ink/90 [animation-delay:320ms]">
+          <p className="mt-2.5 animate-rise text-sm font-medium max-[359px]:text-xs leading-[1.4] text-ink/90 [animation-delay:320ms]">
             {phone.note}
             <br />
             {phone.noteEnd[0]} <strong className="font-bold text-ink">{phone.noteEnd[1]}</strong>
@@ -145,7 +145,7 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
           {hero.secondaryCta.label?.trim() && hero.secondaryCta.href && hero.secondaryCta.href !== "/kit" && (
             <Link
               href={hero.secondaryCta.href}
-              className="mt-5 inline-block animate-rise text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline [animation-delay:700ms]"
+              className="mt-5 inline-block animate-rise text-xs font-medium uppercase tracking-[0.16em] link-underline [animation-delay:700ms]"
             >
               {hero.secondaryCta.label}
             </Link>

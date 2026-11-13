@@ -12,12 +12,12 @@ import { cn } from "@/lib/utils";
  * Tablets (2 columns): the first and last tiles run full width, the rest in pairs.
  */
 const slots = [
-  { cell: "col-span-2 lg:col-span-6 lg:row-span-2", sizes: "(min-width: 1024px) 48vw, 100vw", title: "text-[2rem] sm:text-[2.6rem]" },
-  { cell: "lg:col-span-3", sizes: "(min-width: 1024px) 24vw, 50vw", title: "text-[1.2rem] sm:text-[1.7rem]" },
-  { cell: "lg:col-span-3", sizes: "(min-width: 1024px) 24vw, 50vw", title: "text-[1.2rem] sm:text-[1.7rem]" },
-  { cell: "lg:col-span-6", sizes: "(min-width: 1024px) 48vw, 50vw", title: "text-[1.2rem] sm:text-[1.9rem]" },
-  { cell: "lg:col-span-5", sizes: "(min-width: 1024px) 40vw, 50vw", title: "text-[1.2rem] sm:text-[1.9rem]" },
-  { cell: "col-span-2 lg:col-span-7", sizes: "(min-width: 1024px) 56vw, 100vw", title: "text-[1.2rem] sm:text-[1.9rem]" },
+  { cell: "col-span-2 lg:col-span-6 lg:row-span-2", sizes: "(min-width: 1024px) 48vw, 100vw", title: "text-3xl sm:text-4xl" },
+  { cell: "lg:col-span-3", sizes: "(min-width: 1024px) 24vw, 50vw", title: "text-xl sm:text-3xl" },
+  { cell: "lg:col-span-3", sizes: "(min-width: 1024px) 24vw, 50vw", title: "text-xl sm:text-3xl" },
+  { cell: "lg:col-span-6", sizes: "(min-width: 1024px) 48vw, 50vw", title: "text-xl sm:text-3xl" },
+  { cell: "lg:col-span-5", sizes: "(min-width: 1024px) 40vw, 50vw", title: "text-xl sm:text-3xl" },
+  { cell: "col-span-2 lg:col-span-7", sizes: "(min-width: 1024px) 56vw, 100vw", title: "text-xl sm:text-3xl" },
 ];
 
 export function CategoryGrid({ categories }: { categories: Category[] }) {
@@ -35,7 +35,7 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
                 <span className="relative block aspect-square">
                   <Image src={category.image.src} alt="" fill sizes="33vw" className="object-cover" />
                 </span>
-                <span className="flex min-h-11 items-center justify-center px-1.5 py-2 text-center text-[0.8rem] font-medium leading-tight">
+                <span className="flex min-h-11 items-center justify-center px-1.5 py-2 text-center text-md font-semibold leading-tight">
                   {category.name}
                 </span>
               </Link>
@@ -76,7 +76,7 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
         </Reveal>
 
         <div className="mt-8 text-center lg:mt-12">
-          <Link href="/shop" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
+          <Link href="/shop" className="link-underline text-xs font-medium uppercase tracking-[0.16em]">
             View all products
           </Link>
         </div>

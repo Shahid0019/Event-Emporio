@@ -35,7 +35,7 @@ export function RecentlyViewed({ excludeSlug }: { excludeSlug: string }) {
         <button
           type="button"
           onClick={() => recentStore.set([])}
-          className="text-[0.72rem] uppercase tracking-[0.14em] text-muted underline underline-offset-4 hover:text-ink"
+          className="text-xs uppercase tracking-[0.14em] text-muted underline underline-offset-4 hover:text-ink"
         >
           Clear history
         </button>

@@ -37,7 +37,7 @@ export function KitTitleEditor({ className }: { className?: string }) {
           placeholder="e.g. Sana's Mehndi"
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => e.key === "Escape" && setEditing(false)}
-          className="h-10 min-w-0 flex-1 rounded-control border border-ink bg-raised px-4 text-[0.9rem] outline-none"
+          className="h-10 min-w-0 flex-1 rounded-control border border-ink bg-raised px-4 text-md outline-none"
         />
         <button
           type="submit"
@@ -61,14 +61,14 @@ export function KitTitleEditor({ className }: { className?: string }) {
         "group inline-flex max-w-full items-center gap-2 rounded-chip text-left transition-colors",
         state.title
           ? "text-ink"
-          : "border border-dashed border-line-strong px-3 py-1.5 text-[0.8rem] text-muted hover:border-ink hover:text-ink",
+          : "border border-dashed border-line-strong px-3 py-1.5 text-sm text-muted hover:border-ink hover:text-ink",
         className,
       )}
     >
       {state.title ? (
         <>
           <Tag aria-hidden className="size-3.5 shrink-0 text-accent-ink" />
-          <span className="truncate font-serif text-[1.15rem] italic leading-tight text-brand">{state.title}</span>
+          <span className="truncate font-serif text-lg italic leading-tight text-brand">{state.title}</span>
           <Pencil aria-hidden className="size-3 shrink-0 text-muted opacity-60 group-hover:opacity-100" />
           <span className="sr-only">— change function name</span>
         </>

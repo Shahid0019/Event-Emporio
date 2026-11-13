@@ -181,13 +181,13 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
               onClick={goBack}
               aria-label="Previous question"
               title="Previous question"
-              className="-my-1 ml-auto inline-flex min-h-9 shrink-0 items-center gap-1 rounded-control border border-line px-2.5 text-[0.75rem] font-medium text-muted transition-colors hover:border-ink hover:text-ink"
+              className="-my-1 ml-auto inline-flex min-h-9 shrink-0 items-center gap-1 rounded-control border border-line px-2.5 text-xs font-medium text-muted transition-colors hover:border-ink hover:text-ink"
             >
               <ArrowLeft aria-hidden className="size-3.5" />
               Back
             </button>
           )}
-          <p className="shrink-0 text-[0.78rem] tabular-nums text-muted">
+          <p className="shrink-0 text-xs tabular-nums text-muted">
             {state.furthest >= 5 ? "Kit ready" : `Question ${state.furthest + 1} of 5`}
           </p>
           {onClose && (
@@ -235,7 +235,7 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
             <p
               key={m.key}
               className={cn(
-                "mr-10 w-fit rounded-2xl rounded-tl-sm bg-surface px-4 py-2.5 text-[0.95rem] leading-relaxed text-ink",
+                "mr-10 w-fit rounded-2xl rounded-tl-sm bg-surface px-4 py-2.5 text-md leading-relaxed text-ink",
                 !initialKeys.has(m.key) && "animate-overlay-in",
               )}
             >
@@ -248,7 +248,7 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
                 onClick={() => reopenStep(m.step)}
                 aria-label={`Change answer: ${m.text}`}
                 className={cn(
-                  "group ml-10 inline-flex min-h-11 items-center gap-2 rounded-2xl rounded-tr-sm bg-brand px-4 py-2.5 text-left text-[0.95rem] text-brand-ink transition-colors hover:bg-brand-deep",
+                  "group ml-10 inline-flex min-h-11 items-center gap-2 rounded-2xl rounded-tr-sm bg-brand px-4 py-2.5 text-left text-md text-brand-ink transition-colors hover:bg-brand-deep",
                   state.step === m.step && "ring-2 ring-accent ring-offset-2 ring-offset-raised",
                 )}
               >
@@ -262,10 +262,10 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
           <ol aria-label="How it works" className="mr-10 space-y-3 pt-3">
             {howItWorks().map((h, n) => (
               <li key={h.title} className="flex items-start gap-3">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full border border-line-strong text-[0.75rem] font-medium tabular-nums">
+                <span className="grid size-7 shrink-0 place-items-center rounded-full border border-line-strong text-xs font-medium tabular-nums">
                   {n + 1}
                 </span>
-                <span className="text-[0.88rem] leading-snug">
+                <span className="text-sm leading-snug">
                   <span className="block font-medium">{h.title}</span>
                   <span className="block text-muted">{h.text}</span>
                 </span>
@@ -275,7 +275,7 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
         )}
         {state.furthest === 0 && !typing && savedCount > 0 && (
           <div className="mr-10 pt-2">
-            <p className="mb-2 text-[0.85rem] font-medium">Or open one of your saved kits</p>
+            <p className="mb-2 text-sm font-medium">Or open one of your saved kits</p>
             <SavedKitsList />
           </div>
         )}
@@ -290,7 +290,7 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
 
       <div className="border-t border-line bg-canvas px-4 pb-4 pt-3">
         {editing && (
-          <div className="-mt-1 mb-1.5 flex items-center justify-between gap-3 text-[0.8rem]">
+          <div className="-mt-1 mb-1.5 flex items-center justify-between gap-3 text-sm">
             <span className="text-accent-ink">Changing an answer</span>
             <button type="button" onClick={cancelReopen} className="min-h-9 px-2 font-medium underline underline-offset-4">
               Keep it
@@ -331,9 +331,9 @@ function StepControls({ step }: { step: KitStep }) {
                 onClick={() => answerTier(t.id)}
                 className="flex min-h-24 flex-col items-start justify-between rounded-control border border-line-strong bg-raised p-2.5 text-left transition-colors hover:border-ink aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink sm:p-3"
               >
-                <span className="text-[0.72rem] font-medium uppercase tracking-[0.12em]">{t.name}</span>
+                <span className="text-xs font-medium uppercase tracking-[0.12em]">{t.name}</span>
                 <span className="mt-1 text-base font-medium tabular-nums sm:text-lg">{formatKitAmount(tierTotal)}</span>
-                <span className="text-[0.72rem] tabular-nums opacity-90">
+                <span className="text-xs tabular-nums opacity-90">
                   {state.guests
                     ? `${formatKitAmount(tierTotal / state.guests)}/guest`
                     : `${formatKitAmount(tierTotal / state.trami)}/trami`}
@@ -372,7 +372,7 @@ function StepControls({ step }: { step: KitStep }) {
             <RotateCcw aria-hidden />
             Start over
           </Button>
-          <p className="col-span-2 text-center text-[0.78rem] text-muted">
+          <p className="col-span-2 text-center text-xs text-muted">
             {formatKitAmount(total)} in total · you can change anything in your kit
           </p>
         </div>
@@ -406,7 +406,7 @@ function FunctionStep() {
   return (
     <div className="space-y-3">
       <div>
-        <label htmlFor="kit-function-name" className="mb-1.5 flex items-baseline justify-between gap-2 text-[0.8rem] font-medium">
+        <label htmlFor="kit-function-name" className="mb-1.5 flex items-baseline justify-between gap-2 text-sm font-medium">
           Function name
           <span className={cn("font-normal", needName && !named ? "text-danger" : "text-muted")}>
             {needName ? "Needed for your own function" : "Optional"}
@@ -424,7 +424,7 @@ function FunctionStep() {
             if (e.key === "Enter" && needName) pickOwn();
           }}
           className={cn(
-            "h-11 w-full rounded-control border bg-raised px-3.5 text-[0.95rem] outline-none transition-colors placeholder:text-muted/70 focus:border-ink",
+            "h-11 w-full rounded-control border bg-raised px-3.5 text-md outline-none transition-colors placeholder:text-muted/70 focus:border-ink",
             needName && !named ? "border-danger" : "border-line-strong",
           )}
         />
@@ -441,8 +441,8 @@ function FunctionStep() {
           >
             <KitThumb itemId={f.icon ?? "dastarkhan"} className="w-10" />
             <span className="min-w-0">
-              <span className="block truncate font-serif text-[1.2rem] leading-tight">{f.name}</span>
-              <span className="block truncate text-[0.75rem] leading-snug text-muted">{f.description}</span>
+              <span className="block truncate font-serif text-xl leading-tight">{f.name}</span>
+              <span className="block truncate text-xs leading-snug text-muted">{f.description}</span>
             </span>
           </button>
         ))}
@@ -460,15 +460,15 @@ function FunctionStep() {
             <Sparkles aria-hidden className="size-4" />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block truncate font-serif text-[1.2rem] leading-tight">{needName && named ? named : "Your own function"}</span>
-            <span className="block truncate text-[0.75rem] leading-snug text-muted">
+            <span className="block truncate font-serif text-xl leading-tight">{needName && named ? named : "Your own function"}</span>
+            <span className="block truncate text-xs leading-snug text-muted">
               {needName ? (named ? "Tap to continue" : "Type its name above") : "Something else? Name it yourself"}
             </span>
           </span>
           {needName && named && <ArrowRight aria-hidden className="mr-1 size-4 shrink-0 text-brand" />}
         </button>
       </div>
-      {needName && <p className="text-[0.78rem] text-muted">Every essential item is included — you can add extras later.</p>}
+      {needName && <p className="text-xs text-muted">Every essential item is included — you can add extras later.</p>}
     </div>
   );
 }
@@ -495,7 +495,7 @@ function CountStep() {
     <div className="space-y-2">
       {/* The count mode and what the number means share one slim row. */}
       <div className="flex items-center justify-between gap-2">
-        <p id="count-hint" className="min-w-0 text-[0.76rem] leading-tight text-muted">
+        <p id="count-hint" className="min-w-0 text-xs leading-tight text-muted">
           {byGuests ? "One of each item per guest" : `≈ ${state.trami * GUESTS_PER_TRAMI} guests · ${GUESTS_PER_TRAMI} per trami`}
         </p>
         <div role="radiogroup" aria-label="Count by" className="flex shrink-0 rounded-control bg-surface p-0.5">
@@ -512,7 +512,7 @@ function CountStep() {
               aria-checked={(state.countBy ?? "trami") === id}
               aria-label={`By ${id}`}
               onClick={() => setCountBy(id)}
-              className="h-8 rounded-chip px-3 text-[0.78rem] font-medium text-muted transition-colors hover:text-ink aria-checked:bg-raised aria-checked:text-ink aria-checked:shadow-sm"
+              className="h-8 rounded-chip px-3 text-xs font-medium text-muted transition-colors hover:text-ink aria-checked:bg-raised aria-checked:text-ink aria-checked:shadow-sm"
             >
               {label}
             </button>
@@ -542,9 +542,9 @@ function CountStep() {
                 if (e.key === "Enter") confirmTrami();
               }}
               style={{ width: `${Math.max(2, String(field.inputProps.value).length) + 0.5}ch` }}
-              className="bg-transparent text-right text-[1.5rem] font-medium leading-none tabular-nums outline-none"
+              className="bg-transparent text-right text-2xl font-medium leading-none tabular-nums outline-none"
             />
-            <span className="text-[0.9rem] text-muted">{unit}</span>
+            <span className="text-md text-muted">{unit}</span>
           </label>
           <button
             type="button"
@@ -565,7 +565,7 @@ function CountStep() {
             type="button"
             aria-pressed={value === n}
             onClick={() => (byGuests ? setGuests(n) : setTrami(n))}
-            className="h-8 rounded-control border border-line text-[0.82rem] tabular-nums transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
+            className="h-8 rounded-control border border-line text-sm tabular-nums transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
           >
             {n}
           </button>
@@ -610,7 +610,7 @@ function DateStep() {
         ))}
       </div>
 
-      <div className="flex items-center gap-3 text-[0.75rem] uppercase tracking-[0.14em] text-muted">
+      <div className="flex items-center gap-3 text-xs uppercase tracking-[0.14em] text-muted">
         <span className="h-px flex-1 bg-line" />
         or an exact date
         <span className="h-px flex-1 bg-line" />
@@ -637,7 +637,7 @@ function DateStep() {
           Use this date
         </Button>
       </div>
-      <p id="kit-date-hint" className="min-h-5 text-center text-[0.8rem] text-muted" aria-live="polite">
+      <p id="kit-date-hint" className="min-h-5 text-center text-sm text-muted" aria-live="polite">
         {picked && !valid
           ? "Choose a date within the next year."
           : days !== null

@@ -93,7 +93,7 @@ export function ProductReviews({ productId, productSlug, reviews }: { productId:
               Reviews
             </h2>
             {rated.length > 0 ? (
-              <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9rem] text-muted">
+              <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-md text-muted">
                 <Stars rating={average} />
                 <span>
                   <span className="font-medium text-ink tabular-nums">{average.toFixed(1)}</span> out of 5 · {rated.length} review
@@ -101,13 +101,13 @@ export function ProductReviews({ productId, productSlug, reviews }: { productId:
                 </span>
               </p>
             ) : (
-              <p className="mt-3 text-[0.9rem] text-muted">No reviews yet — be the first to share yours.</p>
+              <p className="mt-3 text-md text-muted">No reviews yet — be the first to share yours.</p>
             )}
           </div>
           {writeButton && (
             <div className="flex flex-col items-start gap-1.5 sm:items-end">
               {writeButton}
-              {!user && <p className="text-[0.75rem] text-muted">Sign in first — you&apos;ll come straight back.</p>}
+              {!user && <p className="text-xs text-muted">Sign in first — you&apos;ll come straight back.</p>}
             </div>
           )}
         </div>
@@ -139,7 +139,7 @@ export function ProductReviews({ productId, productSlug, reviews }: { productId:
               {[5, 4, 3, 2, 1].map((n) => {
                 const count = rated.filter((r) => r.rating === n).length;
                 return (
-                  <li key={n} className="flex items-center gap-3 text-[0.8rem]">
+                  <li key={n} className="flex items-center gap-3 text-sm">
                     <span className="w-8 tabular-nums text-muted">{n} ★</span>
                     <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-surface">
                       <span
@@ -157,8 +157,8 @@ export function ProductReviews({ productId, productSlug, reviews }: { productId:
                 <li key={r.id} className="py-7 first:pt-7 lg:first:pt-0">
                   {r.rating && <Stars rating={r.rating} />}
                   {r.title && <p className="mt-3 font-medium">{r.title}</p>}
-                  <p className={cn("text-[1rem] leading-relaxed", r.title ? "mt-1" : "mt-3")}>{r.text}</p>
-                  <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.8rem] text-muted">
+                  <p className={cn("text-base leading-relaxed", r.title ? "mt-1" : "mt-3")}>{r.text}</p>
+                  <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
                     <span className="text-ink">{r.displayName}</span>
                     {r.verifiedPurchase && (
                       <span className="inline-flex items-center gap-1 text-success">
@@ -187,13 +187,13 @@ function OwnReview({ review }: { review: ProductReview }) {
   return (
     <div className="rounded-card border border-line bg-raised p-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-[0.72rem] font-medium uppercase tracking-[0.16em] text-muted">Your review</p>
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">Your review</p>
         <Badge tone={status.tone}>{status.label}</Badge>
       </div>
       <Stars rating={review.rating} className="mt-3" />
       {review.title && <p className="mt-2 font-medium">{review.title}</p>}
       <p className="mt-1 leading-relaxed">{review.text}</p>
-      <p className="mt-3 text-[0.8rem] text-muted">{status.note}</p>
+      <p className="mt-3 text-sm text-muted">{status.note}</p>
     </div>
   );
 }
@@ -261,7 +261,7 @@ function ReviewForm({
         void submit();
       }}
     >
-      <p id="rating-label" className="font-serif text-[1.35rem] leading-tight">
+      <p id="rating-label" className="font-serif text-2xl leading-tight">
         {initial ? "Edit your review" : "How would you rate it?"}
       </p>
 
@@ -288,12 +288,12 @@ function ReviewForm({
             </button>
           ))}
         </div>
-        <span className="text-[0.85rem] text-muted" aria-hidden>
+        <span className="text-sm text-muted" aria-hidden>
           {shown ? ratingWords[shown] : "Tap a star"}
         </span>
       </div>
       {error.rating && (
-        <p role="alert" className="mt-1 text-[0.8rem] text-danger">
+        <p role="alert" className="mt-1 text-sm text-danger">
           {error.rating}
         </p>
       )}
@@ -331,13 +331,13 @@ function ReviewForm({
               }}
             />
             {text.length > 0 && (
-              <span aria-hidden className="pointer-events-none absolute bottom-2.5 right-4 text-[0.7rem] tabular-nums text-muted">
+              <span aria-hidden className="pointer-events-none absolute bottom-2.5 right-4 text-2xs tabular-nums text-muted">
                 {text.trim().length}/{TEXT_MAX}
               </span>
             )}
           </div>
           {error.text && (
-            <p id="review-text-error" role="alert" className="text-[0.8rem] text-danger">
+            <p id="review-text-error" role="alert" className="text-sm text-danger">
               {error.text}
             </p>
           )}
@@ -352,11 +352,11 @@ function ReviewForm({
           type="button"
           disabled={saving}
           onClick={onCancel}
-          className="text-[0.72rem] font-medium uppercase tracking-[0.12em] text-muted transition-colors hover:text-ink"
+          className="text-xs font-medium uppercase tracking-[0.12em] text-muted transition-colors hover:text-ink"
         >
           Cancel
         </button>
-        <p className="w-full text-[0.75rem] text-muted sm:ml-auto sm:w-auto">
+        <p className="w-full text-xs text-muted sm:ml-auto sm:w-auto">
           Shown with your first name and initial · checked before it appears
         </p>
       </div>

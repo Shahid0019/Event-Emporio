@@ -15,7 +15,7 @@ export function SearchBar({ className }: { className?: string }) {
       type="button"
       onClick={() => setSearchOpen(true)}
       className={cn(
-        "flex h-12 w-full items-center gap-3 rounded-control border border-line-strong bg-raised px-4 text-left text-[0.95rem] text-muted shadow-[0_6px_20px_-14px_rgb(34_41_35/0.35)] transition-colors active:bg-surface md:hidden",
+        "flex h-12 w-full items-center gap-3 rounded-control border border-line-strong bg-raised px-4 text-left text-md text-muted shadow-[0_6px_20px_-14px_rgb(34_41_35/0.35)] transition-colors active:bg-surface md:hidden",
         className,
       )}
     >
