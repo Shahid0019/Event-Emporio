@@ -72,22 +72,23 @@ export function OccasionCards({ functions }: { functions: KitFunction[] }) {
           </ul>
         )}
 
+        {/* Any other function: one short row, styled like the cards above; opens the planner with it chosen. */}
         <Link
-          href="/kit"
-          className="group mt-3 flex items-center gap-4 rounded-media border border-dashed border-line-strong p-4 transition-colors hover:border-ink hover:bg-surface/60 sm:mt-5 sm:p-5"
+          href="/kit?occasion=other"
+          className="group mt-3 flex min-h-16 items-center gap-3 rounded-card border border-line bg-raised px-4 py-3 shadow-[0_1px_2px_rgb(34_41_35/0.06)] transition-[transform,border-color,box-shadow] duration-300 active:scale-[0.99] can-hover:hover:border-line-strong can-hover:hover:shadow-[0_10px_28px_-16px_rgb(34_41_35/0.4)] sm:mt-5 sm:px-5"
         >
-          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-ink">
-            <Sparkles aria-hidden className="size-5" strokeWidth={1.5} />
+          <span className="grid size-10 shrink-0 place-items-center rounded-full bg-accent-soft text-accent-ink">
+            <Sparkles aria-hidden className="size-5" strokeWidth={1.75} />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block font-serif text-[1.35rem] leading-tight">
-              {functions.length ? "Something else?" : "Your own function."} <em className="text-brand">Name it yourself.</em>
+            <span className="block font-sans text-[1rem] font-semibold leading-tight text-ink">
+              {functions.length ? "Other function" : "Plan your function"}
             </span>
-            <span className="mt-0.5 block text-[0.85rem] text-muted">
-              Aqeeqah, engagement, dawat — type your function&apos;s name and we&apos;ll count the kit for you.
-            </span>
+            <span className="mt-0.5 block truncate text-[0.82rem] text-muted">Aqeeqah, engagement, dawat…</span>
           </span>
-          <ArrowRight aria-hidden className="size-5 shrink-0 transition-transform group-hover:translate-x-1" />
+          <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-brand text-brand-ink transition-transform duration-300 group-hover:translate-x-0.5">
+            <ArrowRight className="size-4" />
+          </span>
         </Link>
       </div>
     </section>
