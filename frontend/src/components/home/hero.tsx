@@ -1,6 +1,6 @@
 import { getImageProps } from "next/image";
 import Link from "next/link";
-import { ArrowRight, CalendarDays, ShoppingBag, Sparkles } from "lucide-react";
+import { ArrowRight, CalendarDays, ShoppingBag } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import type { HeroContent } from "@/lib/settings";
 import { cn } from "@/lib/utils";
@@ -20,7 +20,7 @@ const photo = getImageProps({ ...shared, src: "/images/hero/ElegantLuxury.webp",
 // "/images/hero/hero-mobile-v2.webp" (310×400), "/images/hero/hero-desktop-v1.webp" (1672×478),
 // "/images/hero/table-spread-v2.webp" (2170×725), "/images/hero/table-spread.webp" (3200×893)
 
-/** Phone wording, from the client's mock-up. Wider screens show the hero text saved for the shop. */
+/** Hero wording, from the client's mock-up: the same on phones and desktop. */
 const phone = {
   title: ["Everything for", "your function.", "In one place."],
   note: "Great everyday prices.",
@@ -104,22 +104,25 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
       {/* Desktop: the cream wall on the left, at the photo's own shape but never taller than the screen;
           the text keeps clear of the header tiles. */}
       <div className="container-luxe hidden md:flex md:h-[clamp(26rem,calc(100vw*893/1760),100svh)] md:items-center md:pb-12 md:pt-[calc(var(--header-h)+1.5rem)]">
-        <div className="md:max-w-[44%] xl:max-w-[40%]">
-          {hero.eyebrow?.trim() && (
-            <p className="eyebrow mb-5 inline-flex animate-rise items-center gap-2 text-accent-ink [animation-delay:100ms]">
-              <Sparkles aria-hidden className="size-3.5" />
-              {hero.eyebrow}
-            </p>
-          )}
-
-          <h1 className="text-[clamp(2.8rem,0.6rem+4.6vw,5.5rem)] font-normal leading-[0.95] tracking-[-0.025em]">
-            <span className="block animate-rise [animation-delay:200ms]">{hero.titleLines[0]}</span>
-            <span className="block animate-rise text-brand [animation-delay:340ms]">{hero.titleLines[1]}</span>
+        <div className="md:max-w-[74%] xl:max-w-[90%]">
+          {/* Same words as on phones: headline, description and button labels. */}
+          <h1 className="text-[clamp(2.4rem,0.9rem+3.1vw,4.25rem)] font-bold leading-[1.08] tracking-[-0.015em] text-ink [font-family:var(--font-playfair),Georgia,serif]">
+            {phone.title.map((line, i) => (
+              <span key={line} className="block animate-rise" style={{ animationDelay: `${200 + i * 110}ms` }}>
+                {line}
+              </span>
+            ))}
           </h1>
 
-          <div className="mt-8 flex animate-rise items-center gap-3 [animation-delay:600ms]">
+          <p className="mt-6 max-w-md animate-rise text-[clamp(1.05rem,0.7rem+0.6vw,1.3rem)] font-medium leading-[1.5] text-ink/85 [animation-delay:560ms]">
+            {phone.note}
+            <br />
+            {phone.noteEnd[0]} <strong className="font-bold text-ink">{phone.noteEnd[1]}</strong>
+          </p>
+
+          <div className="mt-8 flex animate-rise items-center gap-3 [animation-delay:680ms]">
             <Link href={hero.primaryCta.href} className={buttonVariants({ size: "lg", className: "px-7 shadow-[0_12px_30px_-12px_rgb(66_94_42/0.6)]" })}>
-              {hero.primaryCta.label}
+              {phone.shop}
               <ArrowRight aria-hidden />
             </Link>
             <Link href="/kit" className={buttonVariants({ variant: "outline", size: "lg", className: "bg-canvas/80 px-7 backdrop-blur-sm" })}>
