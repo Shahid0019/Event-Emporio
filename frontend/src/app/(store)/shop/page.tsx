@@ -6,7 +6,7 @@ import { Breadcrumbs } from "@/components/ui/primitives";
 
 export const metadata: Metadata = {
   title: "Shop All",
-  description: "Shop mehndi baskets, bridal hampers, luxury gift hampers, customised gifts and decorative disposables from Events Emporio.",
+  description: "Shop mehndi baskets, bridal hampers, luxury gift hampers, customised gifts and decorative disposables from khandr.com.",
   alternates: { canonical: "/shop" },
 };
 

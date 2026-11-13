@@ -15,7 +15,7 @@ export function AdminLoginForm() {
   return (
     <>
       <AuthHeading eyebrow="Admin" title="Sign in to the dashboard">
-        For Events Emporio staff only.
+        For Khandr staff only.
       </AuthHeading>
       <form action={action} aria-label="Admin sign in" className="space-y-5">
         <input type="hidden" name="next" value={next} />

@@ -506,7 +506,7 @@ export function ProfileSettings({ google, phone }: { google: boolean; phone: boo
 /** Google returns here after "Connect" (?google=…). */
 const googleResults: Record<string, { ok: boolean; text: string }> = {
   linked: { ok: true, text: "Google is connected — you can now sign in with it." },
-  taken: { ok: false, text: "That Google account already signs in to another Events Emporio account." },
+  taken: { ok: false, text: "That Google account already signs in to another Khandr account." },
   cancelled: { ok: false, text: "Connecting Google was cancelled." },
   failed: { ok: false, text: "We couldn't connect Google. Please try again." },
   setup: { ok: false, text: "Google sign-in isn't set up yet." },

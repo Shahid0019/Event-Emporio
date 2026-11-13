@@ -16,7 +16,7 @@ export async function Footer() {
         <div className="container-luxe pt-20 pb-10 sm:pt-24">
           <div className="grid gap-14 lg:grid-cols-12 lg:gap-10">
             <div className="lg:col-span-5">
-              <Logo tone="light" className="[&_span]:text-[2rem]" />
+              <Logo tone="light" className="[&>span]:h-10" />
               <p className="mt-6 max-w-sm text-[0.95rem] leading-relaxed text-canvas/75">
                 {storeSettings.shortBio} {storeSettings.tagline}.
               </p>

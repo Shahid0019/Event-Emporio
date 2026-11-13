@@ -4,7 +4,7 @@
  * (Admin → Settings, see src/lib/settings.ts).
  */
 export const storeSettings = {
-  name: "Events Emporio",
+  name: "Khandr",
   tagline: "Elevating Traditions with a Touch of Class",
   /** Taken from the official Instagram bio. */
   shortBio: "Wedding Essentials & Décor — Mehndi Baskets, Bridal Hampers & Disposables.",

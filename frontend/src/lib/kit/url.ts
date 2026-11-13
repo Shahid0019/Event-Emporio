@@ -99,7 +99,7 @@ export function shareText(q: KitQuery & { trami: number }, lines: KitLine[], url
     return `• ${l.name}${variant ? ` (${variant})` : ""} × ${l.qty}`;
   });
   return [
-    `Events Emporio kit: ${head}`,
+    `Khandr kit: ${head}`,
     `${active.length + gifts.length} items, ${formatKitAmount(kitTotal(lines) + giftsTotal(gifts))} in total`,
     "",
     ...rows,

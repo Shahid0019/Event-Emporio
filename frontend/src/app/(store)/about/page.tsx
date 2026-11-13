@@ -10,7 +10,7 @@ import { storeSettings } from "@/lib/data/settings";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Events Emporio is a Srinagar-based studio for wedding essentials and décor — mehndi baskets, bridal hampers and disposables.",
+    "Khandr is a Srinagar-based studio for wedding essentials and décor — mehndi baskets, bridal hampers and disposables.",
   alternates: { canonical: "/about" },
 };
 

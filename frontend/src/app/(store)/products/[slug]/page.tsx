@@ -96,7 +96,7 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
     description: product.shortDescription,
     sku: product.sku,
     image: product.images.map((i) => `${siteUrl}${i.src}`),
-    brand: { "@type": "Brand", name: "Events Emporio" },
+    brand: { "@type": "Brand", name: "Khandr" },
     category: catName,
     ...(customerReviews.length > 0 && {
       aggregateRating: { "@type": "AggregateRating", ratingValue: average.toFixed(1), reviewCount: customerReviews.length },

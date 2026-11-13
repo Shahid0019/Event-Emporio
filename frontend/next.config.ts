@@ -24,6 +24,8 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     formats: ["image/avif", "image/webp"],
+    // Next's default widths plus 1440 and 1600, so common laptops (1280–1536px) don't get the 1920px file.
+    deviceSizes: [640, 750, 828, 1080, 1200, 1440, 1600, 1920, 2048, 3840],
     remotePatterns: s3PublicBase ? [new URL(`${s3PublicBase.replace(/\/$/, "")}/**`)] : [],
   },
   async headers() {

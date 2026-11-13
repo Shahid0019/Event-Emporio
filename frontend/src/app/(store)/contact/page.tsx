@@ -8,7 +8,7 @@ import { loadSettings } from "@/lib/db/queries";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: "Get in touch with Events Emporio about products, orders or custom requests.",
+  description: "Get in touch with Khandr about products, orders or custom requests.",
   alternates: { canonical: "/contact" },
 };
 

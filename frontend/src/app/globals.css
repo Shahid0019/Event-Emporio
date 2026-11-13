@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------
-   Events Emporio — design tokens
+   khandr.com — design tokens
    Palette values live on :root so an alternative palette (emerald,
    mocha, charcoal…) can be swapped in one place once the client logo
    is supplied. Components only ever reference the semantic tokens.
@@ -62,9 +62,11 @@
   --color-danger: var(--danger);
 
   /* Titles: Vintage Glamour, with Playfair for any character it lacks (₹ and a few symbols). */
-  --font-serif: var(--font-vintage-glamour), var(--font-playfair), "Playfair Display", Georgia, serif;
-  --font-display: var(--font-vintage-glamour), var(--font-playfair), "Playfair Display", Georgia, serif;
-  --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  /* One font for the whole site: TBJ Cinea Sans, with DM Sans for the punctuation and ₹ it lacks.
+     Previous: serif/display var(--font-vintage-glamour), var(--font-playfair); sans var(--font-dm-sans). */
+  --font-serif: var(--font-cinea), var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-display: var(--font-cinea), var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-sans: var(--font-cinea), var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
   --font-script: var(--font-pinyon), "Pinyon Script", "Snell Roundhand", cursive;
 
   /* Fluid type scale */
@@ -245,7 +247,7 @@
   h4 {
     font-family: var(--font-display);
     font-weight: 400;
-    letter-spacing: 0.07em;
+   
     text-wrap: balance;
   }
   p {

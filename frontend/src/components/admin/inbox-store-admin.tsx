@@ -136,7 +136,7 @@ export function CustomOrdersAdmin() {
               <p className="mt-4 whitespace-pre-line border-l-2 border-accent pl-4 text-[0.92rem] leading-relaxed">{r.details}</p>
               <div className="mt-4 flex flex-wrap gap-4 text-[0.78rem] uppercase tracking-[0.12em]">
                 <a
-                  href={`mailto:${r.email}?subject=Your custom order request — Events Emporio`}
+                  href={`mailto:${r.email}?subject=Your custom order request — khandr.com`}
                   className="underline underline-offset-4"
                   onClick={() => r.status === "new" && void setStatus(r.id, "quoted")}
                 >

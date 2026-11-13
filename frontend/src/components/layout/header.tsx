@@ -30,7 +30,7 @@ export function Header({ menu }: { menu: MegaMenuData }) {
       {/* Floating tiles: logo, frosted navigation, frosted actions, then the kit call to action.
           Phones get a single frosted bar. Tiles + padding add up to --header-h. */}
       <div className="container-luxe flex h-[var(--header-h)] items-stretch gap-2 py-2">
-        <div className={cn(tile, glass, "hidden shrink-0 items-center px-4 lg:flex xl:px-6 lg:[&>a>span]:text-[1.45rem] xl:[&>a>span]:text-[1.7rem]")}>
+        <div className={cn(tile, glass, "hidden shrink-0 items-center px-4 lg:flex xl:px-6 lg:[&>a>span]:h-7 xl:[&>a>span]:h-8")}>
           <Logo />
         </div>
 
@@ -43,7 +43,7 @@ export function Header({ menu }: { menu: MegaMenuData }) {
               <Menu />
             </IconButton>
           </div>
-          <Logo className="lg:hidden [&>span]:text-[1.35rem] sm:[&>span]:text-[1.5rem]" />
+          <Logo className="lg:hidden [&>span]:h-6 sm:[&>span]:h-7" />
           <div className="flex items-center justify-end lg:hidden">
             <IconButton label="Search" onClick={() => setSearchOpen(true)}>
               <Search />

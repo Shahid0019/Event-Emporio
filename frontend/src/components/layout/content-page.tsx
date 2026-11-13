@@ -24,7 +24,7 @@ export function ContentPage({
         {intro && <div className="mt-6 text-[1.08rem] leading-relaxed text-muted">{intro}</div>}
         {draft && (
           <DemoNote className="mt-8 max-w-xl">
-            Draft policy for development. Every detail marked “to be confirmed” must be finalised by Events Emporio (and reviewed for
+            Draft policy for development. Every detail marked “to be confirmed” must be finalised by Khandr (and reviewed for
             compliance with Indian consumer-protection and data-protection rules) before launch.
           </DemoNote>
         )}
