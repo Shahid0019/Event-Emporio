@@ -29,8 +29,7 @@ async function fillCheckout(page: Page, email = "guest@example.com") {
 test.describe("discovery", () => {
   test("home → category → filter → product", async ({ page, isMobile }) => {
     await page.goto("/");
-    // Phones have their own hero wording; wider screens show the saved hero text.
-    await expect(page.getByRole("heading", { level: 1, name: isMobile ? /Everything for/ : /Celebrate/ })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1, name: /Everything for your function/ })).toBeVisible();
 
     await page
       .locator('section[aria-labelledby="categories-title"]')
