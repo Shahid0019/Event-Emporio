@@ -10,7 +10,7 @@ import { rupeesToPaise } from "../utils";
  * checkout too. A future admin panel will edit this data.
  *
  * DEMO PRICES — every price below is an illustrative placeholder and must
- * be confirmed by Events Emporio before launch.
+ * be confirmed by Khandr before launch.
  *
  * A "trami" is one large shared plate that seats four guests.
  */

@@ -1,23 +1,28 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { preload } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn, discountPercent, formatPrice } from "@/lib/utils";
 
 /* ------------------------------- Logo -------------------------------- */
+const LOGO = "/brand/khandr-logo.svg";
+/** The wordmark mask, painted in the text colour: one file for the dark header and the light footer. */
+const logoMask = { WebkitMask: `url(${LOGO}) center / contain no-repeat`, mask: `url(${LOGO}) center / contain no-repeat` };
+
 /**
- * Typographic wordmark used until the client supplies the official logo.
- * Swap the inner markup for <Image src="/logo.svg" …/> once available.
+ * The khandr.com wordmark (public/brand/khandr-logo.svg, traced from the client's logo).
+ * Height sets the size, e.g. className="[&>span]:h-9"; the width follows the logo's shape.
  */
 export function Logo({ className, tone = "ink" }: { className?: string; tone?: "ink" | "light" }) {
+  // Fetched with the page rather than after the CSS, so the logo never appears late.
+  preload(LOGO, { as: "image", type: "image/svg+xml" });
   return (
     <Link
       href="/"
-      aria-label="Events Emporio — home"
-      className={cn("group inline-flex flex-col leading-none", tone === "light" ? "text-canvas" : "text-ink", className)}
+      aria-label="khandr.com — home"
+      className={cn("group inline-flex items-center leading-none", tone === "light" ? "text-canvas" : "text-ink", className)}
     >
-      <span className="font-serif text-[1.55rem] font-medium tracking-[0.01em] sm:text-[1.7rem]">
-        Events <em className={cn("font-normal italic", tone === "light" ? "text-accent-soft" : "text-brand")}>Emporio</em>
-      </span>
+      <span aria-hidden className="block aspect-[4047/855] h-7 bg-current sm:h-8" style={logoMask} />
     </Link>
   );
 }

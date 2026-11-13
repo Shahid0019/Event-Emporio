@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     const link = `${origin}/reset-password?token=${encodeURIComponent(reset.token)}`;
     await sendEmail(
       reset.account.email,
-      "Reset your Events Emporio password",
+      "Reset your khandr.com password",
       `Hi ${reset.account.name},\n\nUse this link within the next hour to choose a new password:\n${link}\n\nIf you didn't ask for this, you can ignore this email.`,
     );
   }

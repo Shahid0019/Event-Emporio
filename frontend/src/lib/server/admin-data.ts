@@ -480,6 +480,7 @@ Tracking number: ${tracking.number}`
 
 ${messages[status]}
 
-Events Emporio`,
+Team Khandr
+khandr.com`,
   );
 }

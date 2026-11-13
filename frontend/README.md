@@ -1,6 +1,6 @@
-# Events Emporio — Storefront & Admin (Frontend)
+# khandr.com — Storefront & Admin (Frontend)
 
-A premium, editorial e‑commerce frontend for **Events Emporio**, a Srinagar studio for wedding essentials and décor — mehndi baskets, bridal hampers, gifting and decorative disposables.
+A premium, editorial e‑commerce frontend for **Khandr** (khandr.com), a Srinagar studio for wedding essentials and décor — mehndi baskets, bridal hampers, gifting and decorative disposables.
 
 > **Status: frontend with demo data.** Every page and control works, but data comes from bundled demo files and browser storage.
 > No real payments, emails, accounts or persistence exist yet — see [What's real vs simulated](#whats-real-vs-simulated).
@@ -77,6 +77,8 @@ Drawers are full-screen with square edges on phones (maximum space), and float w
 
 **Type:** Vintage Glamour (headings and `font-serif` titles, local file `public/fonts/VintageGlamourRegular-ALX27.ttf`; Playfair Display as fallback for ₹ and the symbols it lacks) + Pinyon Script (`script-accent` words) + DM Sans (UI/body), via `next/font`. Admin uses DM Sans only. Fluid scale with `clamp()`: `text-display`, `text-h1`, `text-h2`, `text-h3`, plus `eyebrow`.
 
+**Logo:** `public/brand/khandr-logo.svg` (wordmark) and `public/brand/khandr-mark.svg` (the K mark), traced from the client's artwork. `<Logo>` paints the wordmark in the text colour (CSS mask), so one file serves the dark header and the light footer. Browser and home-screen icons are `src/app/icon.svg`, `favicon.ico` and `apple-icon.png`.
+
 **Motion:** hero entrance is pure CSS (never hidden waiting for JS; protects LCP). GSAP handles scroll reveals and gentle parallax, wrapped in `gsap.matchMedia` so `prefers-reduced-motion` disables it, and cleaned up by `useGSAP`. Content is visible in server HTML even if scripts fail.
 
 **Logo:** no logo file was supplied, so a typographic wordmark is used (`Logo` in `components/ui/primitives.tsx`). Swap in the official SVG there.
@@ -144,7 +146,7 @@ tests/
 
 ### Demo content — must be replaced before launch
 - **Products, prices, stock, collections** — illustrative only (`src/lib/data/products.ts`, `categories.ts`).
-- **Photography** — Unsplash placeholders that do **not** depict Events Emporio products. Sources in `public/images/demo/CREDITS.md`.
+- **Photography** — Unsplash placeholders that do **not** depict Khandr products. Sources in `public/images/demo/CREDITS.md`.
 - **Testimonials** — clearly flagged `isSample`, shown with a visible “Demo” note, and never emitted as review structured data.
 - **Policies** — drafts with highlighted “to be confirmed” placeholders.
 - **Contact details** — intentionally empty (`settings.ts`); the UI shows only what is configured. Only the Instagram handle, bio and Srinagar location are taken from the brand’s public profile.

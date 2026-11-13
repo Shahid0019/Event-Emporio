@@ -2,7 +2,7 @@ import type { ImageAsset } from "../types";
 
 /**
  * DEMO PLACEHOLDER IMAGERY — see public/images/demo/CREDITS.md.
- * These Unsplash photos do not depict Events Emporio products and must be
+ * These Unsplash photos do not depict Khandr products and must be
  * replaced with client-approved photography before launch.
  */
 const dims = {

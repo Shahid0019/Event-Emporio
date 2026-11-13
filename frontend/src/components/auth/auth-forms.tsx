@@ -110,7 +110,7 @@ export function LoginForm({ google, phone }: SignInOptions) {
 
   const done = (user: SessionUser, isNew = false) => {
     signIn(user);
-    if (isNew) toast.success("Your account is ready", { description: "Welcome to Events Emporio." });
+    if (isNew) toast.success("Your account is ready", { description: "Welcome to Khandr." });
     else toast.success(`Welcome back, ${user.name.split(" ")[0]}`);
     router.replace(safeNext());
   };
@@ -188,7 +188,7 @@ function EmailSignIn({ onSignedIn }: { onSignedIn: (user: SessionUser) => void }
         </Button>
       </form>
       <p className="mt-8 text-center text-[0.9rem] text-muted">
-        New to Events Emporio? <SwitchLink href="/register">Create an account</SwitchLink>
+        New to Khandr? <SwitchLink href="/register">Create an account</SwitchLink>
       </p>
     </>
   );
@@ -204,7 +204,7 @@ export function RegisterForm({ google, phone }: SignInOptions) {
 
   const done = (user: SessionUser, isNew = true) => {
     signIn(user);
-    if (isNew) toast.success("Your account is ready", { description: "Welcome to Events Emporio." });
+    if (isNew) toast.success("Your account is ready", { description: "Welcome to Khandr." });
     else
       toast.success(`Welcome back, ${user.name.split(" ")[0]}`, {
         description: "This number already had an account, so we signed you in.",

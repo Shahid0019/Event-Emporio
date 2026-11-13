@@ -6,7 +6,7 @@ import { faqs } from "@/lib/data/content";
 
 export const metadata: Metadata = {
   title: "FAQ",
-  description: "Answers about orders, custom requests, delivery and payments at Events Emporio.",
+  description: "Answers about orders, custom requests, delivery and payments at khandr.com.",
   alternates: { canonical: "/faq" },
 };
 

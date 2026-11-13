@@ -77,7 +77,8 @@ export async function refundOrder(orderId: string): Promise<SaveResponse & { man
 
 We've refunded ${formatPrice(order.totals.total)} for order ${order.number}. It can take 5–7 working days to reach your account.
 
-Events Emporio`,
+Team Khandr
+khandr.com`,
   );
   return { ok: true, manual: !viaRazorpay };
 }

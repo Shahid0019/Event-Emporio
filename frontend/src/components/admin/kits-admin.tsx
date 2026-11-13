@@ -133,7 +133,7 @@ const useHydrated = () =>
 function customerMessage(k: AdminKit, url: string) {
   const total = formatKitAmount(kitTotal(linesOf(k)));
   const hello = k.customerName ? `Hello ${k.customerName}!` : "Hello!";
-  return `${hello} Events Emporio has put together a kit for your ${kitTitle(k)}: ${k.trami} trami, ${total} in total.\nTake a look, change anything you like and order here: ${url}`;
+  return `${hello} Khandr has put together a kit for your ${kitTitle(k)}: ${k.trami} trami, ${total} in total.\nTake a look, change anything you like and order here: ${url}`;
 }
 
 function whatsappHref(k: AdminKit, url: string) {

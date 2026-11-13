@@ -8,7 +8,7 @@ export default function PrivacyPolicyPage() {
     <ContentPage eyebrow="Policies" title="Privacy Policy" draft>
       <Prose>
         <p>
-          This policy explains what personal data Events Emporio collects, why, and how it is protected. Data controller and grievance
+          This policy explains what personal data Khandr (khandr.com) collects, why, and how it is protected. Data controller and grievance
           officer: <Tbc>legal entity name, contact details</Tbc>.
         </p>
         <h2>What we collect</h2>

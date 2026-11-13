@@ -59,7 +59,7 @@ export const homepage = {
     eyebrow: "Our Story",
     title: "Every Celebration Deserves Something Extraordinary.",
     body: [
-      "Events Emporio is a Srinagar-based studio for wedding essentials and décor — mehndi baskets, bridal hampers and the finishing touches that make a celebration feel considered.",
+      "Khandr is a Srinagar-based studio for wedding essentials and décor — mehndi baskets, bridal hampers and the finishing touches that make a celebration feel considered.",
       "Our approach is simple: honour the traditions, and present them with a touch of class.",
     ],
     cta: { label: "Discover Our Story", href: "/about" },

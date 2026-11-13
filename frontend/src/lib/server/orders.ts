@@ -183,8 +183,8 @@ export async function markOrderPaid(orderId: string, paymentReference: string): 
   const order = publicOrder(doc);
   void sendEmail(
     order.customer.email,
-    `Order ${order.number} confirmed — Events Emporio`,
-    `Thank you, ${order.customer.name}!\n\nWe've received your payment of ${formatPrice(order.totals.total)} for order ${order.number}.\nWe'll let you know when it ships.\n\nEvents Emporio`,
+    `Order ${order.number} confirmed — khandr.com`,
+    `Thank you, ${order.customer.name}!\n\nWe've received your payment of ${formatPrice(order.totals.total)} for order ${order.number}.\nWe'll let you know when it ships.\n\nTeam Khandr\nkhandr.com`,
   );
   return order;
 }
@@ -241,13 +241,14 @@ export async function confirmCodOrder(orderId: string): Promise<Order | null> {
   const order = publicOrder(doc);
   void sendEmail(
     order.customer.email,
-    `Order ${order.number} confirmed — Events Emporio`,
+    `Order ${order.number} confirmed — khandr.com`,
     `Thank you, ${order.customer.name}!
 
 We've received your order ${order.number}. Please keep ${formatPrice(order.totals.total)} ready in cash for when it's delivered.
 We'll let you know when it ships.
 
-Events Emporio`,
+Team Khandr
+khandr.com`,
   );
   return order;
 }

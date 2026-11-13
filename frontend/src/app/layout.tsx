@@ -40,6 +40,19 @@ const vintageGlamour = localFont({
   fallback: ["Playfair Display", "Georgia", "serif"],
 });
 
+/*
+ * The site font (TBJ Cinea Sans, Extra Light, demo licence: personal use only — buy the commercial licence
+ * before launch). The demo has letters and digits only, so punctuation and ₹ come from DM Sans. It has one
+ * weight; declaring it as 400 lets the browser draw semibold/bold text (buttons, prices) thicker.
+ */
+const cinea = localFont({
+  src: "../../public/fonts/TbjCineaSansDemoExtraLight-V4X3y.ttf",
+  variable: "--font-cinea",
+  weight: "400",
+  display: "swap",
+  fallback: ["DM Sans", "system-ui", "sans-serif"],
+});
+
 const dmSans = localFont({
   src: "../../public/fonts/dm-sans-latin-wght-normal.woff2",
   variable: "--font-dm-sans",
@@ -51,15 +64,15 @@ const dmSans = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Events Emporio — Wedding Essentials, Mehndi Baskets & Bridal Hampers",
-    template: "%s | Events Emporio",
+    default: "khandr.com — Wedding Essentials, Mehndi Baskets & Bridal Hampers",
+    template: "%s | khandr.com",
   },
   description:
     "Wedding essentials & décor from Srinagar — mehndi baskets, bridal hampers, luxury gifting and decorative disposables. Elevating traditions with a touch of class.",
-  applicationName: "Events Emporio",
+  applicationName: "khandr.com",
   openGraph: {
     type: "website",
-    siteName: "Events Emporio",
+    siteName: "khandr.com",
     locale: "en_IN",
   },
   twitter: { card: "summary_large_image" },
@@ -73,7 +86,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-IN" className={`${playfair.variable} ${vintageGlamour.variable} ${pinyon.variable} ${dmSans.variable} antialiased`}>
+    <html lang="en-IN" className={`${playfair.variable} ${vintageGlamour.variable} ${pinyon.variable} ${dmSans.variable} ${cinea.variable} antialiased`}>
       <body className="min-h-dvh bg-canvas text-ink">
         {children}
         <Toaster

@@ -9,7 +9,7 @@ import { loadAdminData } from "@/lib/server/admin-data";
 import { AdminDataProvider } from "@/lib/store/admin-store";
 
 export const metadata: Metadata = {
-  title: { template: "%s · Admin · Events Emporio", default: "Admin · Events Emporio" },
+  title: { template: "%s · Admin · khandr.com", default: "Admin · khandr.com" },
   robots: { index: false, follow: false },
 };
 

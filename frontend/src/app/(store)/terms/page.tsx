@@ -8,7 +8,7 @@ export default function TermsPage() {
     <ContentPage eyebrow="Policies" title="Terms & Conditions" draft>
       <Prose>
         <p>
-          These terms govern purchases from Events Emporio (<Tbc>registered business name, GSTIN and address</Tbc>). By placing an order you
+          These terms govern purchases from Khandr at khandr.com (<Tbc>registered business name, GSTIN and address</Tbc>). By placing an order you
           agree to them.
         </p>
         <h2>Products & pricing</h2>

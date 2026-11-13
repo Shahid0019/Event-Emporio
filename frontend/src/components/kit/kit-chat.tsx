@@ -173,7 +173,7 @@ export function KitChat({ className, onClose }: { className?: string; onClose?: 
             E
           </span>
           {/* Narrow phones: the name gives way to Back (the "E" badge still says who's talking). */}
-          <p className={cn("min-w-0 flex-1 truncate font-medium leading-tight", state.step > 0 && "max-[399px]:sr-only")}>Events Emporio</p>
+          <p className={cn("min-w-0 flex-1 truncate font-medium leading-tight", state.step > 0 && "max-[399px]:sr-only")}>Khandr</p>
           {/* Back lives up here rather than above the answers, leaving the conversation more room. */}
           {state.step > 0 && (
             <button

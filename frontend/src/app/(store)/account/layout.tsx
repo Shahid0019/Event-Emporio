@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { AccountShell } from "@/components/account/account-shell";
 
 export const metadata: Metadata = {
-  title: { template: "%s | My Account | Events Emporio", default: "My Account" },
+  title: { template: "%s | My Account | khandr.com", default: "My Account" },
   robots: { index: false, follow: false },
 };
 

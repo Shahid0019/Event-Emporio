@@ -10,12 +10,24 @@ import { cn } from "@/lib/utils";
  * left. The words sit on that wall, so they never cover the products.
  */
 // Eager + high priority as it's the LCP image. Phones and desktop use the same file, so it downloads once.
-const shared = { alt: "", sizes: "100vw", loading: "eager", fetchPriority: "high" } as const;
+// Next serves it as AVIF/WebP at the width each screen needs: on phones it is a card inside the page
+// margins (a little under the screen width), from md up it fills the hero. A 150-byte blurred copy shows
+// at once while the photo loads.
+const shared = {
+  alt: "",
+  sizes: "(min-width: 48rem) 100vw, calc(100vw - 2rem)",
+  loading: "eager",
+  fetchPriority: "high",
+  placeholder: "blur",
+  blurDataURL: "data:image/webp;base64,UklGRo4AAABXRUJQVlA4IIIAAAAwBACdASoYAAwAPu1iqU2ppaOiMAgBMB2JaACdMoSA2B7R5tXq5l/hu5gA/uGW6jA6j6Ju84nzsXQw3QWyv/zKpo0TUy96AwCfRGLPFyjpJAOVbYki38JTOL6lMwQNscWb3E1c36f9fdszZt2OiatgvwxRS9cnMkspjDQxDB0bfMAA",
+} as const;
 // const desktop = getImageProps({ ...shared, src: "/images/hero/hero-desktop-v3.webp", width: 1671, height: 941 });
 // const mobile = getImageProps({ ...shared, src: "/images/hero/hero-mobile-v3.webp", width: 1100, height: 1430 });
-const photo = getImageProps({ ...shared, src: "/images/hero/ElegantLuxury.webp", width: 1760, height: 893 });
+// const photo = getImageProps({ ...shared, src: "/images/hero/ElegantLuxury.webp", width: 1760, height: 893 });
+const photo = getImageProps({ ...shared, src: "/images/hero/elegant-luxury-v2.webp", width: 1760, height: 893 });
 
-// Previous spreads, kept for now to switch back: "/images/hero/hero-desktop-v3.webp" (1671×941),
+// Previous spreads, kept for now to switch back: "/images/hero/ElegantLuxury.webp" (1760×893),
+// "/images/hero/hero-desktop-v3.webp" (1671×941),
 // "/images/hero/hero-mobile-v3.webp" (1100×1430), "/images/hero/hero-desktop-v2.webp" (1500×844),
 // "/images/hero/hero-mobile-v2.webp" (310×400), "/images/hero/hero-desktop-v1.webp" (1672×478),
 // "/images/hero/table-spread-v2.webp" (2170×725), "/images/hero/table-spread.webp" (3200×893)
@@ -51,19 +63,19 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
           {...photo.props}
           alt=""
           aria-hidden
-          className="block aspect-[16/10] w-full animate-fade object-cover object-[24%_50%] md:absolute md:inset-0 md:-z-10 md:aspect-auto md:size-full md:object-[30%_60%]"
+          className="block aspect-[16/10] w-full animate-fade object-cover object-left md:absolute md:inset-0 md:-z-10 md:aspect-auto md:size-full md:object-[30%_60%]"
         />
 
-        {/* Phones: a soft cream wash over the wall, so the words stay crisp against the photo. */}
+        {/* A soft cream wash over the left of the photo, so the words stay crisp over the flowers and shelves. */}
         <span
           aria-hidden
-          className="absolute inset-y-0 left-0 w-[68%] bg-gradient-to-r from-[#f7f1e8]/90 via-[#f7f1e8]/65 to-transparent md:hidden"
+          className="absolute inset-y-0 left-0 w-[68%] bg-gradient-to-r from-[#f7f1e8]/90 via-[#f7f1e8]/65 to-transparent md:-z-10 md:w-[60%] md:from-[#f7f1e8]/90 md:via-[#f7f1e8]/70"
         />
 
         {/* Phones: the words on the wall, left of the shelves. Sized to the card (cqw) like the mock-up,
-            but never below a comfortable reading size (about 19px headline, 13px subtitle). */}
+            but never below a comfortable reading size (about 17px headline, 12px subtitle; the site font is wide). */}
         <div className="absolute inset-y-0 left-0 flex w-[52%] flex-col justify-center pl-[6%] pb-[2%] md:hidden">
-          <h1 className="animate-rise text-[max(1.2rem,5.9cqw)] font-bold leading-[1.1] tracking-[-0.01em] text-ink [animation-delay:150ms] [font-family:var(--font-playfair),Georgia,serif]">
+          <h1 className="animate-rise text-[max(1.05rem,5.1cqw)] font-bold leading-[1.12] tracking-[-0.01em] text-ink [animation-delay:150ms]">
             {phone.title.map((line) => (
               <span key={line} className="block">
                 {line}
@@ -71,7 +83,7 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
             ))}
           </h1>
           {/* <span aria-hidden className="mt-[max(0.6rem,3.2cqw)] block h-[2px] w-[max(1.75rem,8cqw)] animate-rise rounded-full bg-[#8dbda6] [animation-delay:260ms]" /> */}
-          <p className="mt-[max(0.5rem,2.6cqw)] animate-rise text-[max(0.82rem,3.4cqw)] font-medium leading-[1.4] text-ink/90 [animation-delay:320ms]">
+          <p className="mt-[max(0.5rem,2.6cqw)] animate-rise text-[max(0.75rem,3.05cqw)] font-medium leading-[1.4] text-ink/90 [animation-delay:320ms]">
             {phone.note}
             <br />
             {phone.noteEnd[0]} <strong className="font-bold text-ink">{phone.noteEnd[1]}</strong>
@@ -106,7 +118,7 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
       <div className="container-luxe hidden md:flex md:h-[clamp(26rem,calc(100vw*893/1760),100svh)] md:items-center md:pb-12 md:pt-[calc(var(--header-h)+1.5rem)]">
         <div className="md:max-w-[74%] xl:max-w-[90%]">
           {/* Same words as on phones: headline, description and button labels. */}
-          <h1 className="text-[clamp(2.4rem,0.9rem+3.1vw,4.25rem)] font-bold leading-[1.08] tracking-[-0.015em] text-ink [font-family:var(--font-playfair),Georgia,serif]">
+          <h1 className="text-[clamp(2.4rem,0.9rem+3.1vw,4.25rem)] font-bold leading-[1.08] tracking-[-0.015em] text-ink">
             {phone.title.map((line, i) => (
               <span key={line} className="block animate-rise" style={{ animationDelay: `${200 + i * 110}ms` }}>
                 {line}
