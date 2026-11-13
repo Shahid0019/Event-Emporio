@@ -18,7 +18,7 @@ export default function NotFound() {
           <h1 className="mt-5 text-display">
             Lost the <em className="text-brand">thread?</em>
           </h1>
-          <p className="mt-6 max-w-md text-[1.05rem] leading-relaxed text-muted">
+          <p className="mt-6 max-w-md text-base leading-relaxed text-muted">
             The page you&apos;re looking for has moved or no longer exists. Let&apos;s get you back to something beautiful.
           </p>
           <div className="mt-10 flex flex-wrap gap-4">

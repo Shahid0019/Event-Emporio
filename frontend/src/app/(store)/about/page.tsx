@@ -44,7 +44,7 @@ export default function AboutPage() {
               Elevating <em className="text-brand">traditions</em>
             </h1>
           </div>
-          <p className="text-[1.08rem] leading-relaxed text-muted lg:col-span-4 lg:col-start-9">
+          <p className="text-lg leading-relaxed text-muted lg:col-span-4 lg:col-start-9">
             {storeSettings.name} is a {storeSettings.location.city}-based studio for wedding essentials and décor — mehndi baskets, bridal
             hampers and disposables — with one quiet ambition: elevating traditions with a touch of class.
           </p>
@@ -66,7 +66,7 @@ export default function AboutPage() {
             <div key={p.title} data-reveal className="grid gap-4 border-t border-line py-8 sm:grid-cols-[4rem_1fr]">
               <span className="font-serif text-2xl italic text-accent-ink">0{i + 1}</span>
               <div>
-                <h3 className="font-serif text-[1.9rem] leading-tight">{p.title}</h3>
+                <h3 className="font-serif text-h3 leading-tight">{p.title}</h3>
                 <p className="mt-3 max-w-lg leading-relaxed text-muted">{p.body}</p>
               </div>
             </div>

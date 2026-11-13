@@ -53,10 +53,10 @@ function GiftRow({ line, guests, trami }: { line: GiftLine; guests: number; tram
       </span>
       <div className="min-w-0 flex-1">
         <p className="truncate font-medium">{product.name}</p>
-        <p className="truncate text-[0.78rem] text-muted">
+        <p className="truncate text-xs text-muted">
           {[variant.label, `${formatUnitPrice(variant.price)} each`, hint].filter(Boolean).join(" · ")}
         </p>
-        {line.short && <p className="text-[0.75rem] text-danger">Only {variant.stock} in stock</p>}
+        {line.short && <p className="text-xs text-danger">Only {variant.stock} in stock</p>}
         <QuantitySelector
           size="sm"
           className="mt-1.5"
@@ -114,7 +114,7 @@ export function GiveawaySheet() {
       bodyClassName="p-0"
       footer={
         <div className="flex items-center justify-between gap-3">
-          <p className="text-[0.85rem] text-muted">
+          <p className="text-sm text-muted">
             {gifts.length ? (
               <>
                 <span className="font-medium text-ink">{gifts.length}</span> in your kit ·{" "}
@@ -130,7 +130,7 @@ export function GiveawaySheet() {
     >
       <div className="sticky top-0 z-10 space-y-3 border-b border-line bg-canvas px-6 pb-4 pt-4">
         <fieldset>
-          <legend className="mb-2 text-[0.82rem] font-medium">How many of each?</legend>
+          <legend className="mb-2 text-sm font-medium">How many of each?</legend>
           <div className="grid grid-cols-3 gap-2">
             {(
               [
@@ -149,16 +149,16 @@ export function GiveawaySheet() {
                   onClick={() => setBasis(id)}
                   className="flex min-h-14 flex-col items-start justify-center rounded-control border border-line-strong bg-raised px-3 py-2 text-left transition-colors hover:border-ink aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink"
                 >
-                  <span className="text-[0.8rem] font-medium">{label}</span>
-                  {n !== null && <span className="text-[0.75rem] tabular-nums opacity-80">{n} pcs</span>}
-                  {n === null && basis !== "custom" && <span className="text-[0.75rem] opacity-80">Any number</span>}
+                  <span className="text-sm font-medium">{label}</span>
+                  {n !== null && <span className="text-xs tabular-nums opacity-80">{n} pcs</span>}
+                  {n === null && basis !== "custom" && <span className="text-xs opacity-80">Any number</span>}
                 </button>
               ))}
           </div>
           {basis === "custom" && (
             <div className="mt-2 flex items-center gap-3">
               <QuantitySelector size="sm" value={custom} onChange={setCustom} max={KIT_MAX_PER_ORDER} label="Giveaways of each" />
-              <span className="text-[0.8rem] text-muted">of each giveaway</span>
+              <span className="text-sm text-muted">of each giveaway</span>
             </div>
           )}
         </fieldset>
@@ -183,7 +183,7 @@ export function GiveawaySheet() {
                 type="button"
                 aria-pressed={category === c}
                 onClick={() => setCategory(c)}
-                className="h-9 shrink-0 rounded-control border border-line-strong px-3.5 text-[0.8rem] transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
+                className="h-9 shrink-0 rounded-control border border-line-strong px-3.5 text-sm transition-colors hover:border-ink aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-canvas"
               >
                 {c === "all" ? "All" : categoryLabel(c)}
               </button>
@@ -194,7 +194,7 @@ export function GiveawaySheet() {
 
       <div className="px-6 py-5">
         {shown.length === 0 ? (
-          <p className="py-10 text-center text-[0.9rem] text-muted">No products match — try another word or category.</p>
+          <p className="py-10 text-center text-md text-muted">No products match — try another word or category.</p>
         ) : (
           <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             {shown.map((p) => (
@@ -234,18 +234,18 @@ function GiftCard({ product, qty, lines }: { product: GiftProduct; qty: number; 
       <span className={cn("relative block aspect-[4/5] overflow-hidden rounded-card bg-surface", inKit && "ring-2 ring-brand")}>
         <Image src={product.image.src} alt={product.image.alt} fill sizes="(min-width: 640px) 13rem, 45vw" className="object-cover" />
         {inKit && (
-          <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-chip bg-brand px-2.5 py-1 text-[0.7rem] font-medium text-brand-ink">
+          <span className="absolute left-2 top-2 inline-flex items-center gap-1 rounded-chip bg-brand px-2.5 py-1 text-2xs font-medium text-brand-ink">
             <Check className="size-3" /> In kit · {inKit.gift.qty}
           </span>
         )}
       </span>
-      <p className="mt-2 line-clamp-2 text-[0.88rem] font-medium leading-snug">{product.name}</p>
+      <p className="mt-2 line-clamp-2 text-sm font-medium leading-snug">{product.name}</p>
       {product.variants.length > 1 && (
         <select
           aria-label={`Option for ${product.name}`}
           value={variant.id}
           onChange={(e) => setVariantId(e.target.value)}
-          className="mt-1.5 h-9 w-full rounded-control border border-line-strong bg-raised px-2 text-[0.8rem]"
+          className="mt-1.5 h-9 w-full rounded-control border border-line-strong bg-raised px-2 text-sm"
         >
           {product.variants.map((v) => (
             <option key={v.id} value={v.id} disabled={v.stock <= 0}>
@@ -255,18 +255,18 @@ function GiftCard({ product, qty, lines }: { product: GiftProduct; qty: number; 
           ))}
         </select>
       )}
-      <p className="mt-1 text-[0.8rem] tabular-nums text-muted">
+      <p className="mt-1 text-sm tabular-nums text-muted">
         {formatUnitPrice(variant.price)} each
         {variant.stock > 0 && !inKit && <span className="text-ink"> · {formatKitAmount(variant.price * amount)}</span>}
       </p>
       <div className="mt-auto pt-2">
         {variant.stock <= 0 ? (
-          <p className="py-2 text-[0.8rem] text-muted">Out of stock</p>
+          <p className="py-2 text-sm text-muted">Out of stock</p>
         ) : inKit ? (
           <button
             type="button"
             onClick={() => removeGift(product.id, variant.id)}
-            className="h-10 w-full rounded-control border border-line-strong text-[0.75rem] font-medium uppercase tracking-[0.08em] transition-colors hover:border-danger hover:text-danger"
+            className="h-10 w-full rounded-control border border-line-strong text-xs font-medium uppercase tracking-[0.08em] transition-colors hover:border-danger hover:text-danger"
           >
             Remove
           </button>
@@ -275,13 +275,13 @@ function GiftCard({ product, qty, lines }: { product: GiftProduct; qty: number; 
             type="button"
             onClick={add}
             aria-label={`Add ${amount} ${product.name}`}
-            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-control bg-brand text-[0.75rem] font-medium uppercase tracking-[0.08em] text-brand-ink transition-colors hover:bg-brand-deep"
+            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-control bg-brand text-xs font-medium uppercase tracking-[0.08em] text-brand-ink transition-colors hover:bg-brand-deep"
           >
             <Plus className="size-3.5" /> {otherInKit ? "Switch to this" : `Add ${amount}`}
           </button>
         )}
         {variant.stock > 0 && variant.stock < qty && !inKit && (
-          <p className="mt-1 text-[0.72rem] text-danger">Only {variant.stock} in stock</p>
+          <p className="mt-1 text-xs text-danger">Only {variant.stock} in stock</p>
         )}
       </div>
     </li>

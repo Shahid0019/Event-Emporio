@@ -63,8 +63,8 @@ async function CategoryContent({ params, searchParams }: Pick<PageProps<"/catego
         <div className="min-w-0 md:col-span-7">
           <Breadcrumbs items={[{ label: "Home", href: "/" }, { label: "Shop", href: "/shop" }, { label: category.name }]} />
           <p className="eyebrow mt-8 hidden text-accent-ink sm:block">Category</p>
-          <h1 className="mt-2 text-[2.2rem] leading-none sm:mt-4 sm:text-h1">{category.name}</h1>
-          <p className="mt-5 hidden max-w-xl text-[1.05rem] leading-relaxed text-muted sm:block">{category.description}</p>
+          <h1 className="mt-2 text-h1 leading-none sm:mt-4">{category.name}</h1>
+          <p className="mt-5 hidden max-w-xl text-base leading-relaxed text-muted sm:block">{category.description}</p>
           <SearchBar className="mt-4" />
           <Suspense fallback={null}>
             <CategoryChips active={category.slug} />

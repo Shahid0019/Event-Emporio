@@ -30,7 +30,7 @@ export function CartDrawer() {
           <Link
             href="/cart"
             onClick={close}
-            className="mr-1 text-[0.7rem] font-medium uppercase tracking-[0.14em] text-muted underline-offset-4 transition-colors hover:text-ink hover:underline"
+            className="mr-1 text-2xs font-medium uppercase tracking-[0.14em] text-muted underline-offset-4 transition-colors hover:text-ink hover:underline"
           >
             View bag
           </Link>
@@ -43,9 +43,9 @@ export function CartDrawer() {
             <TotalsTable totals={totals} shippingLabel="Shipping (estimate)" showTotal={false} />
             <div className="flex items-center justify-between gap-4 border-t border-line pt-4">
               <div className="min-w-0">
-                <p className="text-[0.7rem] font-medium uppercase tracking-[0.14em] text-muted">Total</p>
-                <p className="mt-1 font-serif text-[1.6rem] leading-none tabular-nums">{formatPrice(totals.total)}</p>
-                {storeSettings.pricesIncludeTax && <p className="mt-1 text-[0.7rem] text-muted">Incl. taxes</p>}
+                <p className="text-2xs font-medium uppercase tracking-[0.14em] text-muted">Total</p>
+                <p className="mt-1 font-serif text-2xl leading-none tabular-nums">{formatPrice(totals.total)}</p>
+                {storeSettings.pricesIncludeTax && <p className="mt-1 text-2xs text-muted">Incl. taxes</p>}
               </div>
               <Link href="/checkout" onClick={close} className={buttonVariants({ size: "md", className: "shrink-0" })}>
                 Checkout <ArrowRight />
@@ -71,7 +71,7 @@ export function CartDrawer() {
           {notice && (
             <p
               role="status"
-              className="mt-4 flex items-center gap-2.5 rounded-control bg-success/10 px-4 py-3 text-[0.85rem] font-medium text-success"
+              className="mt-4 flex items-center gap-2.5 rounded-control bg-success/10 px-4 py-3 text-sm font-medium text-success"
             >
               <CircleCheck aria-hidden className="size-4 shrink-0" />
               {notice}

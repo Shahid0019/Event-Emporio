@@ -45,17 +45,17 @@ export function Price({
   return (
     <p className={cn("flex flex-wrap items-baseline gap-x-2.5 gap-y-1", className)}>
       {from && <span className="text-[0.8em] text-muted">From</span>}
-      <span className={cn("font-medium text-ink", size === "lg" ? "text-2xl" : size === "sm" ? "text-sm" : "text-[0.95rem]")}>
+      <span className={cn("font-medium text-ink", size === "lg" ? "text-2xl" : size === "sm" ? "text-sm" : "text-md")}>
         <span className="sr-only">{pct ? "Sale price " : "Price "}</span>
         {formatPrice(price)}
       </span>
       {pct && compareAtPrice && (
         <>
-          <s className={cn("text-muted", size === "lg" ? "text-base" : "text-[0.85rem]")}>
+          <s className={cn("text-muted", size === "lg" ? "text-base" : "text-sm")}>
             <span className="sr-only">Original price </span>
             {formatPrice(compareAtPrice)}
           </s>
-          <span className="text-[0.78rem] font-medium text-brand">{pct}% off</span>
+          <span className="text-xs font-medium text-brand">{pct}% off</span>
         </>
       )}
     </p>
@@ -91,7 +91,7 @@ export function SectionHeading({
       <div className={cn("max-w-2xl", align === "center" && "mx-auto")}>
         {eyebrow && <p className="eyebrow mb-4 text-accent-ink">{eyebrow}</p>}
         <Tag className={Tag === "h1" ? "text-h1" : "text-h2"}>{title}</Tag>
-        {description && <p className="mt-5 max-w-xl text-[1.02rem] leading-relaxed text-muted">{description}</p>}
+        {description && <p className="mt-5 max-w-xl text-base leading-relaxed text-muted">{description}</p>}
       </div>
       {action && <div className="shrink-0">{action}</div>}
     </div>
@@ -112,13 +112,13 @@ export function Breadcrumbs({ items, className }: { items: Crumb[]; className?: 
       {parent && (
         <Link
           href={parent.href!}
-          className="-ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-control px-2 text-[0.9rem] font-medium text-ink active:bg-surface md:hidden"
+          className="-ml-2 inline-flex min-h-11 items-center gap-1.5 rounded-control px-2 text-md font-medium text-ink active:bg-surface md:hidden"
         >
           <ChevronLeft aria-hidden className="size-5" />
           {parent.label}
         </Link>
       )}
-      <ol className={cn("flex-wrap items-center gap-1.5 text-[0.78rem] text-muted", parent ? "hidden md:flex" : "flex")}>
+      <ol className={cn("flex-wrap items-center gap-1.5 text-xs text-muted", parent ? "hidden md:flex" : "flex")}>
         {items.map((item, i) => (
           <li key={`${item.label}-${i}`} className="flex items-center gap-1.5">
             {i > 0 && <ChevronRight aria-hidden className="size-3 text-line-strong" />}
@@ -203,7 +203,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-chip px-2.5 py-1 text-[0.66rem] font-medium uppercase tracking-[0.14em]",
+        "inline-flex items-center gap-1 rounded-chip px-2.5 py-1 text-2xs font-medium uppercase tracking-[0.14em]",
         tones[tone],
         className,
       )}
@@ -216,8 +216,8 @@ export function Badge({
 /* ------------------------------ Demo note ---------------------------- */
 export function DemoNote({ children, className }: { children: ReactNode; className?: string }) {
   return (
-    <p className={cn("text-[0.75rem] leading-relaxed text-muted", className)}>
-      <span className="mr-1.5 inline-block rounded-chip border border-line-strong px-2 py-px text-[0.6rem] font-medium uppercase tracking-[0.16em]">
+    <p className={cn("text-xs leading-relaxed text-muted", className)}>
+      <span className="mr-1.5 inline-block rounded-chip border border-line-strong px-2 py-px text-2xs font-medium uppercase tracking-[0.16em]">
         Demo
       </span>
       {children}

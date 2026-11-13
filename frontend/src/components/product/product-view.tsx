@@ -127,14 +127,14 @@ export function ProductView({ product, categoryName }: { product: Product; categ
                 {formatPrice(Math.min(...prices))} – {formatPrice(Math.max(...prices))}
               </p>
             )}
-            {storeSettings.pricesIncludeTax && <p className="mt-1 text-[0.78rem] text-muted">Inclusive of all taxes</p>}
+            {storeSettings.pricesIncludeTax && <p className="mt-1 text-xs text-muted">Inclusive of all taxes</p>}
           </div>
 
-          <p className="mt-6 text-[1.02rem] leading-relaxed text-muted">{product.shortDescription}</p>
+          <p className="mt-6 text-base leading-relaxed text-muted">{product.shortDescription}</p>
 
           {product.options.map((option) => (
             <fieldset key={option.name} className="mt-8">
-              <legend className="mb-3 flex w-full justify-between text-[0.8rem]">
+              <legend className="mb-3 flex w-full justify-between text-sm">
                 <span className="font-medium uppercase tracking-[0.14em]">{option.name}</span>
                 <span className="text-muted">{selected[option.name]}</span>
               </legend>
@@ -150,7 +150,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
                       aria-pressed={active}
                       onClick={() => choose(option.name, value)}
                       className={cn(
-                        "relative inline-flex h-11 min-w-[3.25rem] items-center gap-2 rounded-control border px-4 text-[0.85rem] transition-colors",
+                        "relative inline-flex h-11 min-w-[3.25rem] items-center gap-2 rounded-control border px-4 text-sm transition-colors",
                         thumb && "pl-1.5",
                         active ? "border-ink bg-ink text-canvas" : "border-line-strong bg-raised hover:border-ink",
                         !available && !active && "text-muted line-through decoration-muted/60",
@@ -170,14 +170,14 @@ export function ProductView({ product, categoryName }: { product: Product; categ
             </fieldset>
           ))}
 
-          <p className={cn("mt-6 flex items-center gap-2 text-[0.85rem]", stock > 0 ? "text-success" : "text-danger")}>
+          <p className={cn("mt-6 flex items-center gap-2 text-sm", stock > 0 ? "text-success" : "text-danger")}>
             <span aria-hidden className={cn("size-1.5 rounded-full", stock > 0 ? "bg-success" : "bg-danger")} />
             {stockLabel}
           </p>
 
           {product.customization?.giftMessage && stock > 0 && (
             <div className="mt-6">
-              <label htmlFor="gift-message" className="mb-2 flex items-center gap-2 text-[0.8rem] font-medium">
+              <label htmlFor="gift-message" className="mb-2 flex items-center gap-2 text-sm font-medium">
                 <Gift className="size-4" /> Gift message <span className="font-normal text-muted">(optional)</span>
               </label>
               <textarea
@@ -187,14 +187,14 @@ export function ProductView({ product, categoryName }: { product: Product; categ
                 onChange={(e) => setGiftMessage(e.target.value)}
                 rows={2}
                 placeholder="Write a note to include with this gift"
-                className="w-full resize-none rounded-control border border-line-strong bg-raised px-4 py-3 text-[0.92rem] placeholder:text-muted/70 focus:border-ink focus:outline-none"
+                className="w-full resize-none rounded-control border border-line-strong bg-raised px-4 py-3 text-md placeholder:text-muted/70 focus:border-ink focus:outline-none"
               />
-              <p className="mt-1 text-right text-[0.72rem] text-muted">{giftMessage.length}/200</p>
+              <p className="mt-1 text-right text-xs text-muted">{giftMessage.length}/200</p>
             </div>
           )}
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
-            <span className="text-[0.9rem] font-medium lg:hidden">Quantity</span>
+            <span className="text-md font-medium lg:hidden">Quantity</span>
             <QuantitySelector value={qty} onChange={setQuantity} max={maxQty} />
             <Button size="lg" className="min-w-[12rem] flex-1 max-lg:hidden" disabled={stock <= 0 || canAdd === 0} onClick={() => add()}>
               {stock <= 0 ? "Sold out" : canAdd === 0 ? "Max in your bag" : "Add to bag"}
@@ -210,7 +210,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
               className="size-14 border border-line-strong bg-raised"
             />
           </div>
-          <p aria-live="polite" className="mt-3 text-[0.82rem] leading-relaxed text-muted empty:hidden">
+          <p aria-live="polite" className="mt-3 text-sm leading-relaxed text-muted empty:hidden">
             {stock > 0 && qty >= maxQty && <LimitNote cap={cap} stock={stock} inBag={inBag} canAdd={canAdd} />}
           </p>
           {stock > 0 && (
@@ -219,7 +219,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
             </Button>
           )}
           {stock <= 0 && (
-            <p className="mt-4 text-[0.88rem] text-muted">
+            <p className="mt-4 text-sm text-muted">
               This option is currently unavailable.{" "}
               <Link href="/contact" className="underline underline-offset-4 hover:text-ink">
                 Ask us about restocking
@@ -229,7 +229,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
           )}
 
           {product.customization?.quoteOnRequest && (
-            <div className="mt-6 rounded-control border-l-2 border-accent bg-surface px-5 py-4 text-[0.88rem] leading-relaxed">
+            <div className="mt-6 rounded-control border-l-2 border-accent bg-surface px-5 py-4 text-sm leading-relaxed">
               Need personalisation or larger quantities?{" "}
               <Link href={`/custom-orders?product=${product.slug}`} className="font-medium underline underline-offset-4">
                 Request a quote
@@ -238,7 +238,7 @@ export function ProductView({ product, categoryName }: { product: Product; categ
             </div>
           )}
 
-          <ul className="mt-8 space-y-3 border-t border-line pt-6 text-[0.85rem] text-muted">
+          <ul className="mt-8 space-y-3 border-t border-line pt-6 text-sm text-muted">
             <li className="flex gap-3">
               <Package className="size-4 shrink-0 translate-y-0.5 text-ink" />
               {settings.shipping.freeShippingThreshold !== null
@@ -307,10 +307,10 @@ export function ProductView({ product, categoryName }: { product: Product; categ
       <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-6 pt-2.5 backdrop-blur lg:hidden">
         <div className="flex items-center gap-4">
           <div className="min-w-0 flex-1">
-            <p className="text-[0.75rem] text-muted">Total{qty > 1 ? ` · ${qty} × ${variant ? formatPrice(variant.price) : ""}` : ""}</p>
-            <p className="font-serif text-[1.5rem] leading-tight tabular-nums">{variant ? formatPrice(variant.price * qty) : "—"}</p>
+            <p className="text-xs text-muted">Total{qty > 1 ? ` · ${qty} × ${variant ? formatPrice(variant.price) : ""}` : ""}</p>
+            <p className="font-serif text-2xl leading-tight tabular-nums">{variant ? formatPrice(variant.price * qty) : "—"}</p>
           </div>
-          <Button size="lg" className="h-12 min-w-[10.5rem] normal-case tracking-normal text-[0.95rem]" disabled={stock <= 0 || canAdd === 0} onClick={() => add()}>
+          <Button size="lg" className="h-12 min-w-[10.5rem] normal-case tracking-normal text-md" disabled={stock <= 0 || canAdd === 0} onClick={() => add()}>
             <ShoppingBag aria-hidden />
             {stock <= 0 ? "Sold out" : canAdd === 0 ? "Max in your bag" : "Add to bag"}
           </Button>
@@ -522,7 +522,7 @@ function SwipeGallery({
           ))}
         </div>
         {images.length > 1 && (
-          <span className="pointer-events-none absolute left-3 top-3 rounded-chip bg-canvas/90 px-2.5 py-1 text-[0.78rem] font-medium tabular-nums">
+          <span className="pointer-events-none absolute left-3 top-3 rounded-chip bg-canvas/90 px-2.5 py-1 text-xs font-medium tabular-nums">
             {index + 1} / {images.length}
           </span>
         )}

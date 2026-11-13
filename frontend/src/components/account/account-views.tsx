@@ -54,7 +54,7 @@ function ListSkeleton() {
 
 function LoadError({ message, onRetry }: { message: string; onRetry: () => void }) {
   return (
-    <p role="alert" className="flex flex-wrap items-center gap-3 text-[0.9rem] text-danger">
+    <p role="alert" className="flex flex-wrap items-center gap-3 text-md text-danger">
       {message}
       <button type="button" onClick={onRetry} className="text-ink underline underline-offset-4">
         Try again
@@ -92,7 +92,7 @@ export function AccountOverview() {
           ) : orders[0] ? (
             <div className="mt-4">
               <p className="font-serif text-2xl">{orders[0].number}</p>
-              <p className="mt-1 text-[0.88rem] text-muted">
+              <p className="mt-1 text-sm text-muted">
                 {formatDate(orders[0].createdAt)} · {formatPrice(orders[0].totals.total)}
               </p>
               <Badge tone={statusTone(orders[0].status)} className="mt-3">
@@ -100,7 +100,7 @@ export function AccountOverview() {
               </Badge>
               <Link
                 href={`/account/orders/${orders[0].id}`}
-                className="mt-5 block text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline w-fit"
+                className="mt-5 block text-xs font-medium uppercase tracking-[0.16em] link-underline w-fit"
               >
                 View order
               </Link>
@@ -124,7 +124,7 @@ export function AccountOverview() {
           )}
           <Link
             href="/account/addresses"
-            className="mt-5 block w-fit text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline"
+            className="mt-5 block w-fit text-xs font-medium uppercase tracking-[0.16em] link-underline"
           >
             Manage addresses
           </Link>
@@ -165,15 +165,15 @@ export function OrderList() {
               >
                 <span>
                   <span className="block font-serif text-xl group-hover:text-brand">{o.number}</span>
-                  <span className="text-[0.82rem] text-muted">
+                  <span className="text-sm text-muted">
                     {formatDate(o.createdAt)} · {o.lines.reduce((n, l) => n + l.quantity, 0)} items
                   </span>
                 </span>
                 <Badge tone={statusTone(o.status)} className="justify-self-end sm:justify-self-auto">
                   {orderStatusLabel[o.status]}
                 </Badge>
-                <span className="text-[0.92rem]">{formatPrice(o.totals.total)}</span>
-                <span className="justify-self-end text-[0.72rem] uppercase tracking-[0.14em] text-muted group-hover:text-ink">View</span>
+                <span className="text-md">{formatPrice(o.totals.total)}</span>
+                <span className="justify-self-end text-xs uppercase tracking-[0.14em] text-muted group-hover:text-ink">View</span>
               </Link>
             </li>
           ))}
@@ -204,7 +204,7 @@ export function AccountOrder({ id }: { id: string }) {
     <>
       <PageTitle
         action={
-          <Link href="/account/orders" className="text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline">
+          <Link href="/account/orders" className="text-xs font-medium uppercase tracking-[0.16em] link-underline">
             All orders
           </Link>
         }
@@ -283,7 +283,7 @@ export function AddressBook() {
                 <br />
                 {a.phone}
               </address>
-              <div className="mt-5 flex flex-wrap gap-4 text-[0.78rem] uppercase tracking-[0.12em]">
+              <div className="mt-5 flex flex-wrap gap-4 text-xs uppercase tracking-[0.12em]">
                 <button type="button" onClick={() => setEditing(a)} className="inline-flex items-center gap-1.5 hover:text-brand">
                   <Pencil className="size-3.5" /> Edit
                 </button>
@@ -468,7 +468,7 @@ export function ProfileSettings({ google, phone }: { google: boolean; phone: boo
               />
             </Field>
           ) : (
-            <p className="text-[0.92rem] leading-relaxed text-muted">
+            <p className="text-md leading-relaxed text-muted">
               You sign in with {user?.signInWith?.google ? "Google" : "a code to your phone"}. Add a password to also sign in with your email.
             </p>
           )}
@@ -532,7 +532,7 @@ function SignInMethods({ google, phone }: { google: boolean; phone: boolean }) {
 
   const row = "flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-4";
   const status = (on: boolean, text: string) => (
-    <span className={cn("inline-flex items-center gap-1.5 text-[0.85rem]", on ? "text-success" : "text-muted")}>
+    <span className={cn("inline-flex items-center gap-1.5 text-sm", on ? "text-success" : "text-muted")}>
       {on && <CheckCircle2 className="size-4" />}
       {text}
     </span>
@@ -543,7 +543,7 @@ function SignInMethods({ google, phone }: { google: boolean; phone: boolean }) {
       <h2 id="sign-in-methods" className="font-serif text-2xl">
         Ways to sign in
       </h2>
-      <p className="mt-2 text-[0.92rem] text-muted">Use any of these to get into your account.</p>
+      <p className="mt-2 text-md text-muted">Use any of these to get into your account.</p>
       <ul className="mt-6 divide-y divide-line rounded-card border border-line bg-raised">
         {google && (
           <li className={row}>
@@ -612,7 +612,7 @@ function SignInMethods({ google, phone }: { google: boolean; phone: boolean }) {
                     toast.success("Mobile number verified", { description: "You can now sign in with a code to this number." });
                   }}
                 />
-                <button type="button" onClick={() => setAddingPhone(false)} className="mt-4 text-[0.88rem] text-muted underline underline-offset-4 hover:text-ink">
+                <button type="button" onClick={() => setAddingPhone(false)} className="mt-4 text-sm text-muted underline underline-offset-4 hover:text-ink">
                   Cancel
                 </button>
               </div>

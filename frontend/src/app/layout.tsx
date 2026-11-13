@@ -97,10 +97,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             unstyled: true,
             classNames: {
               toast:
-                "flex w-full items-start gap-3 rounded-card bg-ink px-5 py-4 text-[0.9rem] text-canvas shadow-[0_20px_50px_-15px_rgb(0_0_0/0.4)] sm:w-[22rem]",
+                "flex w-full items-start gap-3 rounded-card bg-ink px-5 py-4 text-md text-canvas shadow-[0_20px_50px_-15px_rgb(0_0_0/0.4)] sm:w-[22rem]",
               title: "font-medium",
-              description: "mt-0.5 text-canvas/70 text-[0.82rem]",
-              actionButton: "ml-auto shrink-0 text-[0.7rem] uppercase tracking-[0.14em] text-accent-soft underline underline-offset-4",
+              description: "mt-0.5 text-canvas/70 text-sm",
+              actionButton: "ml-auto shrink-0 text-2xs uppercase tracking-[0.14em] text-accent-soft underline underline-offset-4",
               error: "!bg-danger",
             },
           }}

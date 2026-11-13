@@ -25,7 +25,7 @@ export default function FaqPage() {
         <div className="space-y-14 lg:col-span-8">
           {faqs.map((group) => (
             <section key={group.group} aria-labelledby={`faq-${group.group}`}>
-              <h2 id={`faq-${group.group}`} className="mb-4 font-serif text-3xl">
+              <h2 id={`faq-${group.group}`} className="mb-4 font-serif text-h3">
                 {group.group}
               </h2>
               <Accordion items={group.items.map((item, i) => ({ id: `${group.group}-${i}`, title: item.q, content: <p>{item.a}</p> }))} />
@@ -35,8 +35,8 @@ export default function FaqPage() {
         <aside className="lg:col-span-3 lg:col-start-10">
           <div className="rounded-card bg-surface p-7">
             <h2 className="font-serif text-2xl">Still have a question?</h2>
-            <p className="mt-3 text-[0.92rem] text-muted">We&apos;re happy to help.</p>
-            <Link href="/contact" className="mt-6 inline-block text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline">
+            <p className="mt-3 text-md text-muted">We&apos;re happy to help.</p>
+            <Link href="/contact" className="mt-6 inline-block text-xs font-medium uppercase tracking-[0.16em] link-underline">
               Contact us
             </Link>
           </div>

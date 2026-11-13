@@ -48,7 +48,7 @@ export function WishlistView() {
 
   return (
     <div className="mt-12">
-      <p className="mb-8 text-[0.85rem] text-muted">
+      <p className="mb-8 text-sm text-muted">
         {items.length} saved {items.length === 1 ? "piece" : "pieces"}
       </p>
       {products ? (

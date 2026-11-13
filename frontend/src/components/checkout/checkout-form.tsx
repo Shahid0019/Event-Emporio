@@ -293,7 +293,7 @@ export function CheckoutForm() {
       <form onSubmit={onSubmit} noValidate className="space-y-12 lg:col-span-7" aria-label="Checkout">
         <Section step={1} title="Contact">
           {!user && (
-            <p className="mb-5 text-[0.88rem] text-muted">
+            <p className="mb-5 text-sm text-muted">
               Checking out as a guest.{" "}
               <Link href="/login?next=/checkout" className="text-ink underline underline-offset-4">
                 Sign in
@@ -424,15 +424,15 @@ export function CheckoutForm() {
                 >
                   <input type="radio" value={m.id} className="size-4 accent-[var(--brand)]" {...register("shippingMethod")} />
                   <span className="flex-1">
-                    <span className="block text-[0.95rem] font-medium">{m.label}</span>
-                    <span className="block text-[0.82rem] text-muted">{m.description}</span>
+                    <span className="block text-md font-medium">{m.label}</span>
+                    <span className="block text-sm text-muted">{m.description}</span>
                   </span>
-                  <span className="text-[0.9rem]">{formatPrice(shippingPrice(settings, m.id))}</span>
+                  <span className="text-md">{formatPrice(shippingPrice(settings, m.id))}</span>
                 </label>
               ))}
             </div>
             {settings.shipping.freeShippingThreshold !== null && (
-              <p className="mt-3 text-[0.8rem] text-muted">
+              <p className="mt-3 text-sm text-muted">
                 Free delivery on orders over {formatPrice(settings.shipping.freeShippingThreshold)} — applied automatically.
               </p>
             )}
@@ -469,8 +469,8 @@ export function CheckoutForm() {
                   >
                     <input type="radio" value={id} className="size-4 accent-[var(--brand)]" {...register("paymentMethod")} />
                     <span className="flex-1">
-                      <span className="block text-[0.95rem] font-medium">{title}</span>
-                      <span className="block text-[0.82rem] text-muted">{text}</span>
+                      <span className="block text-md font-medium">{title}</span>
+                      <span className="block text-sm text-muted">{text}</span>
                     </span>
                     <Icon aria-hidden className="size-4 shrink-0 text-muted" />
                   </label>
@@ -482,13 +482,13 @@ export function CheckoutForm() {
               <div className="flex items-start gap-4 rounded-control border border-line-strong bg-raised px-5 py-4">
                 <Lock className="mt-0.5 size-4 shrink-0" />
                 <div>
-                  <p className="text-[0.95rem] font-medium">Pay securely with Razorpay</p>
-                  <p className="mt-1 text-[0.82rem] text-muted">
+                  <p className="text-md font-medium">Pay securely with Razorpay</p>
+                  <p className="mt-1 text-sm text-muted">
                     UPI, cards, net banking and wallets. You&apos;ll complete payment in Razorpay&apos;s secure window.
                   </p>
                 </div>
               </div>
-              <p className="mt-3 text-[0.8rem] text-muted">Cash on delivery is not currently available.</p>
+              <p className="mt-3 text-sm text-muted">Cash on delivery is not currently available.</p>
             </>
           )}
         </Section>
@@ -498,14 +498,14 @@ export function CheckoutForm() {
             {!quote ? "Confirming your bag…" : "Review order"}
             {quote && <ArrowRight aria-hidden />}
           </Button>
-          <p className="text-center text-[0.78rem] leading-relaxed text-muted">You&apos;ll see the exact total before you pay.</p>
+          <p className="text-center text-xs leading-relaxed text-muted">You&apos;ll see the exact total before you pay.</p>
         </div>
       </form>
       )}
 
       <aside aria-label="Order summary" className="lg:col-span-5">
         <div className="space-y-6 rounded-card bg-surface p-6 sm:p-8 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
-          <h2 className="font-serif text-3xl">Order summary</h2>
+          <h2 className="font-serif text-h3">Order summary</h2>
           <ul className="space-y-4">
             {groupCart(lines).map((entry) => {
               if (entry.type === "kit") {
@@ -514,9 +514,9 @@ export function CheckoutForm() {
                     <KitMosaic lines={entry.lines} className="w-16" />
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-serif text-lg leading-tight">{entry.bundle.name}</span>
-                      <span className="text-[0.8rem] text-muted">{entry.bundle.summary}</span>
+                      <span className="text-sm text-muted">{entry.bundle.summary}</span>
                     </span>
-                    <span className="text-[0.9rem]">{formatPrice(entry.total)}</span>
+                    <span className="text-md">{formatPrice(entry.total)}</span>
                   </li>
                 );
               }
@@ -525,22 +525,22 @@ export function CheckoutForm() {
                 <li key={l.key} className="flex items-center gap-4">
                   <span className="relative aspect-[4/5] w-16 shrink-0 overflow-hidden rounded-chip bg-canvas">
                     <Image src={l.image.src} alt="" fill sizes="64px" className="object-cover" />
-                    <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-ink text-[0.65rem] text-canvas">
+                    <span className="absolute right-1 top-1 grid size-5 place-items-center rounded-full bg-ink text-2xs text-canvas">
                       {l.quantity}
                     </span>
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate font-serif text-lg leading-tight">{l.name}</span>
-                    {l.variantLabel && <span className="text-[0.8rem] text-muted">{l.variantLabel}</span>}
+                    {l.variantLabel && <span className="text-sm text-muted">{l.variantLabel}</span>}
                   </span>
-                  <span className="text-[0.9rem]">{formatPrice(l.unitPrice * l.quantity)}</span>
+                  <span className="text-md">{formatPrice(l.unitPrice * l.quantity)}</span>
                 </li>
               );
             })}
           </ul>
 
           {quote?.issues.map((issue) => (
-            <p key={issue.variantId} role="alert" className="flex gap-2 text-[0.82rem] text-danger">
+            <p key={issue.variantId} role="alert" className="flex gap-2 text-sm text-danger">
               <AlertCircle className="size-4 shrink-0" />
               {issue.message}
             </p>
@@ -555,7 +555,7 @@ export function CheckoutForm() {
           {quote ? (
             <TotalsTable totals={quote.totals} />
           ) : quoteError ? (
-            <p role="alert" className="text-[0.85rem] text-danger">
+            <p role="alert" className="text-sm text-danger">
               We couldn&apos;t confirm prices right now. Check your connection and refresh.
             </p>
           ) : (
@@ -565,7 +565,7 @@ export function CheckoutForm() {
               <Skeleton className="h-8 w-full" />
             </div>
           )}
-          <p className="text-[0.75rem] text-muted">Totals are calculated on our server from current prices and stock.</p>
+          <p className="text-xs text-muted">Totals are calculated on our server from current prices and stock.</p>
         </div>
       </aside>
 
@@ -576,10 +576,10 @@ export function CheckoutForm() {
         description={testPayment ? `Order ${testPayment.number} · ${formatPrice(testPayment.amount)}` : undefined}
         side="center"
       >
-        <p className="rounded-control border border-accent/50 bg-accent-soft/40 px-4 py-3 text-[0.85rem] leading-relaxed">
+        <p className="rounded-control border border-accent/50 bg-accent-soft/40 px-4 py-3 text-sm leading-relaxed">
           Razorpay keys aren&apos;t set on this computer, so this stands in for the payment window. Add{" "}
-          <code className="text-[0.8rem]">RAZORPAY_KEY_ID</code> and <code className="text-[0.8rem]">RAZORPAY_KEY_SECRET</code> to{" "}
-          <code className="text-[0.8rem]">.env.local</code> to use real Razorpay test mode. This never appears on the live site.
+          <code className="text-sm">RAZORPAY_KEY_ID</code> and <code className="text-sm">RAZORPAY_KEY_SECRET</code> to{" "}
+          <code className="text-sm">.env.local</code> to use real Razorpay test mode. This never appears on the live site.
         </p>
         <div className="mt-6 grid gap-3">
           <Button size="lg" loading={processing} onClick={() => completeTestPayment("success")}>
@@ -597,7 +597,7 @@ export function CheckoutForm() {
 /** Everything ships together; the date only helps planning (handbook: no promised slot). */
 function OneDelivery({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-start gap-3 rounded-control bg-surface px-4 py-3.5 text-[0.88rem]", className)}>
+    <div className={cn("flex items-start gap-3 rounded-control bg-surface px-4 py-3.5 text-sm", className)}>
       <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-accent-ink" />
       <p>
         <span className="font-medium">One delivery for your entire order.</span>{" "}
@@ -631,20 +631,20 @@ function ReviewOrder({
   const a = values.shipping;
   const card = "rounded-card border border-line bg-raised p-4 sm:p-5";
   const head = "flex items-center justify-between gap-3";
-  const edit = "inline-flex min-h-10 items-center gap-1 rounded-chip px-2 text-[0.85rem] font-medium text-brand hover:bg-surface";
+  const edit = "inline-flex min-h-10 items-center gap-1 rounded-chip px-2 text-sm font-medium text-brand hover:bg-surface";
 
   return (
     <section aria-labelledby="review-title" className="space-y-4 lg:col-span-7">
       <div>
-        <h2 id="review-title" className="font-serif text-[2rem] leading-tight">
+        <h2 id="review-title" className="font-serif text-h3 leading-tight">
           Review your order
         </h2>
-        <p className="mt-1 text-[0.9rem] text-muted">Almost done — please check your details before placing the order.</p>
+        <p className="mt-1 text-md text-muted">Almost done — please check your details before placing the order.</p>
       </div>
 
       <div className={card}>
         <div className={head}>
-          <h3 className="inline-flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal">
+          <h3 className="inline-flex items-center gap-2 font-sans text-base font-semibold tracking-normal">
             <ShoppingBag aria-hidden className="size-4 text-accent-ink" /> Your wedding supplies
           </h3>
           <Link href="/cart" className={edit}>
@@ -656,7 +656,7 @@ function ReviewOrder({
             <li key={e.key} className="flex items-center justify-between gap-3 py-2.5">
               <span className="min-w-0">
                 <span className="block truncate font-medium">{e.type === "kit" ? e.bundle.name : e.line.name}</span>
-                <span className="block truncate text-[0.8rem] text-muted">
+                <span className="block truncate text-sm text-muted">
                   {e.type === "kit" ? e.bundle.summary : `${e.line.variantLabel ? `${e.line.variantLabel} · ` : ""}Qty ${e.line.quantity}`}
                 </span>
               </span>
@@ -668,14 +668,14 @@ function ReviewOrder({
 
       <div className={card}>
         <div className={head}>
-          <h3 className="inline-flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal">
+          <h3 className="inline-flex items-center gap-2 font-sans text-base font-semibold tracking-normal">
             <MapPin aria-hidden className="size-4 text-accent-ink" /> Delivery details
           </h3>
           <button type="button" onClick={() => onEdit("fullName")} className={edit}>
             Edit <ChevronRight aria-hidden className="size-4" />
           </button>
         </div>
-        <address className="mt-2 text-[0.92rem] not-italic leading-relaxed">
+        <address className="mt-2 text-md not-italic leading-relaxed">
           <span className="font-medium">{a.fullName}</span> · {values.phone}
           <br />
           {a.line1}
@@ -683,19 +683,19 @@ function ReviewOrder({
           <br />
           {a.city}, {a.state} – {a.pincode}
         </address>
-        <p className="mt-1 text-[0.82rem] text-muted">{values.email}</p>
+        <p className="mt-1 text-sm text-muted">{values.email}</p>
       </div>
 
       <div className={card}>
         <div className={head}>
-          <h3 className="inline-flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal">
+          <h3 className="inline-flex items-center gap-2 font-sans text-base font-semibold tracking-normal">
             <CalendarDays aria-hidden className="size-4 text-accent-ink" /> First function date
           </h3>
           <button type="button" onClick={() => onEdit("firstFunctionDate")} className={edit}>
             Edit <ChevronRight aria-hidden className="size-4" />
           </button>
         </div>
-        <p className="mt-1 text-[0.95rem]">
+        <p className="mt-1 text-md">
           {values.firstFunctionDate ? formatEventDate(values.firstFunctionDate, "long") : <span className="text-muted">Not given — we&apos;ll ask when we call</span>}
         </p>
       </div>
@@ -703,11 +703,11 @@ function ReviewOrder({
       <OneDelivery />
 
       <div className={card}>
-        <h3 className="inline-flex items-center gap-2 font-sans text-[1rem] font-semibold tracking-normal">
+        <h3 className="inline-flex items-center gap-2 font-sans text-base font-semibold tracking-normal">
           <Lock aria-hidden className="size-4 text-accent-ink" /> Payment summary
         </h3>
         <div className="mt-3">{totals ? <TotalsTable totals={totals} /> : <Skeleton className="h-24 w-full" />}</div>
-        <p className="mt-3 text-[0.85rem] text-muted">
+        <p className="mt-3 text-sm text-muted">
           Paying by <span className="font-medium text-ink">{paymentMethod === "cod" ? "cash on delivery" : "UPI / card (Razorpay)"}</span> ·{" "}
           <button type="button" onClick={() => onEdit("paymentMethod")} className="text-brand underline underline-offset-4">
             change
@@ -720,7 +720,7 @@ function ReviewOrder({
           {paymentMethod === "cod" ? "Place order" : "Pay & place order"}
           {totals && ` · ${formatPrice(totals.total)}`}
         </Button>
-        <p className="text-center text-[0.78rem] leading-relaxed text-muted">
+        <p className="text-center text-xs leading-relaxed text-muted">
           By placing your order you agree to our{" "}
           <Link href="/terms" className="underline underline-offset-4">
             Terms
@@ -739,8 +739,8 @@ function ReviewOrder({
 function Section({ step, title, children }: { step: number; title: string; children: React.ReactNode }) {
   return (
     <section aria-labelledby={`step-${step}`}>
-      <h2 id={`step-${step}`} className="mb-6 flex items-baseline gap-4 border-b border-line pb-4 font-serif text-[1.9rem]">
-        <span className="font-sans text-[0.72rem] font-medium tracking-[0.18em] text-accent-ink">0{step}</span>
+      <h2 id={`step-${step}`} className="mb-6 flex items-baseline gap-4 border-b border-line pb-4 font-serif text-h3">
+        <span className="font-sans text-xs font-medium tracking-[0.18em] text-accent-ink">0{step}</span>
         {title}
       </h2>
       {children}

@@ -73,19 +73,19 @@ export function CatalogToolbar(props: FilterProps) {
 
   return (
     <div className="flex items-center justify-between gap-2 border-y border-line py-3 sm:gap-4">
-      <p className="shrink-0 whitespace-nowrap text-[0.85rem] text-muted" aria-live="polite">
+      <p className="shrink-0 whitespace-nowrap text-sm text-muted" aria-live="polite">
         {pending ? "Updating…" : `${total} ${total === 1 ? "product" : "products"}`}
       </p>
       <div className="flex min-w-0 items-center gap-2 sm:gap-3">
         <button
           type="button"
           onClick={() => setOpen(true)}
-          className="inline-flex h-11 items-center gap-2 rounded-control border border-line-strong px-4 text-[0.72rem] font-medium uppercase tracking-[0.14em] lg:hidden"
+          className="inline-flex h-11 items-center gap-2 rounded-control border border-line-strong px-4 text-xs font-medium uppercase tracking-[0.14em] lg:hidden"
         >
           <SlidersHorizontal className="size-4" />
           Filter{" "}
           {activeCount > 0 && (
-            <span className="grid size-5 place-items-center rounded-full bg-brand text-[0.62rem] text-brand-ink">{activeCount}</span>
+            <span className="grid size-5 place-items-center rounded-full bg-brand text-2xs text-brand-ink">{activeCount}</span>
           )}
         </button>
         <label htmlFor="sort" className="sr-only">
@@ -95,7 +95,7 @@ export function CatalogToolbar(props: FilterProps) {
           id="sort"
           value={params.sort}
           onChange={(e) => navigate({ sort: e.target.value === "featured" ? undefined : e.target.value })}
-          className="h-11 w-[8.5rem] min-w-0 border-line-strong text-[0.85rem] sm:w-auto sm:min-w-[11rem]"
+          className="h-11 w-[8.5rem] min-w-0 border-line-strong text-sm sm:w-auto sm:min-w-[11rem]"
         >
           {sortOptions.map((o) => (
             <option key={o.value} value={o.value}>
@@ -162,7 +162,7 @@ export function ActiveFilters({ params, lockedCategory }: { params: ListParams; 
           key={chip.key}
           type="button"
           onClick={() => navigate(chip.patch)}
-          className="inline-flex h-9 items-center gap-2 rounded-control bg-surface px-3.5 text-[0.8rem] capitalize transition-colors hover:bg-accent-soft"
+          className="inline-flex h-9 items-center gap-2 rounded-control bg-surface px-3.5 text-sm capitalize transition-colors hover:bg-accent-soft"
           aria-label={`Remove filter: ${chip.label}`}
         >
           {chip.label}
@@ -172,7 +172,7 @@ export function ActiveFilters({ params, lockedCategory }: { params: ListParams; 
       <button
         type="button"
         onClick={() => navigate({ category: undefined, min: undefined, max: undefined, stock: undefined, colour: undefined })}
-        className="ml-1 text-[0.75rem] uppercase tracking-[0.14em] text-muted underline underline-offset-4 hover:text-ink"
+        className="ml-1 text-xs uppercase tracking-[0.14em] text-muted underline underline-offset-4 hover:text-ink"
       >
         Clear all
       </button>
@@ -247,7 +247,7 @@ function FilterFields({
           <PriceInput id={`${idPrefix}-max`} label="Max ₹" value={max} onChange={setMax} />
           <button
             type="submit"
-            className="h-10 shrink-0 rounded-control border border-ink px-3.5 text-[0.68rem] font-medium uppercase tracking-[0.14em] hover:bg-ink hover:text-canvas"
+            className="h-10 shrink-0 rounded-control border border-ink px-3.5 text-2xs font-medium uppercase tracking-[0.14em] hover:bg-ink hover:text-canvas"
           >
             Go
           </button>
@@ -256,7 +256,7 @@ function FilterFields({
 
       <fieldset>
         <legend className="eyebrow mb-4 text-ink">Availability</legend>
-        <label className="flex cursor-pointer items-center gap-3 text-[0.9rem]">
+        <label className="flex cursor-pointer items-center gap-3 text-md">
           <input
             type="checkbox"
             checked={params.stock === "in"}
@@ -275,7 +275,7 @@ function FilterFields({
               const checked = params.colour?.includes(c.value) ?? false;
               return (
                 <li key={c.value}>
-                  <label className="flex cursor-pointer items-center gap-2.5 text-[0.88rem]">
+                  <label className="flex cursor-pointer items-center gap-2.5 text-sm">
                     <input
                       type="checkbox"
                       className="peer sr-only"
@@ -312,7 +312,7 @@ function FilterOption({ active, onClick, label, count }: { active: boolean; onCl
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "flex w-full items-center justify-between py-1.5 text-left text-[0.92rem] transition-colors hover:text-brand",
+        "flex w-full items-center justify-between py-1.5 text-left text-md transition-colors hover:text-brand",
         active ? "font-medium text-brand" : "text-ink",
       )}
     >
@@ -320,7 +320,7 @@ function FilterOption({ active, onClick, label, count }: { active: boolean; onCl
         <span aria-hidden className={cn("size-1.5 rounded-full transition-colors", active ? "bg-brand" : "bg-line-strong")} />
         {label}
       </span>
-      {count !== undefined && <span className="text-[0.8rem] text-muted">{count}</span>}
+      {count !== undefined && <span className="text-sm text-muted">{count}</span>}
     </button>
   );
 }
@@ -328,7 +328,7 @@ function FilterOption({ active, onClick, label, count }: { active: boolean; onCl
 function PriceInput({ id, label, value, onChange }: { id: string; label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div className="min-w-0 flex-1">
-      <label htmlFor={id} className="mb-1 block text-[0.72rem] text-muted">
+      <label htmlFor={id} className="mb-1 block text-xs text-muted">
         {label}
       </label>
       <input

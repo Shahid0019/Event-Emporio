@@ -203,8 +203,8 @@ function ChatLauncher({ state, onOpen }: { state: KitState; onOpen: () => void }
       </span>
 
       <span className="min-w-0 flex-1 md:flex-none md:rotate-180 md:[writing-mode:vertical-rl]">
-        <span className="block text-[0.95rem] font-medium md:text-[0.78rem] md:uppercase md:tracking-[0.16em]">Open chat</span>
-        <span className="block truncate text-[0.8rem] text-muted md:hidden">{status}</span>
+        <span className="block text-md font-medium md:text-xs md:uppercase md:tracking-[0.16em]">Open chat</span>
+        <span className="block truncate text-sm text-muted md:hidden">{status}</span>
       </span>
 
       <span aria-hidden className="hidden flex-col gap-1 md:flex">

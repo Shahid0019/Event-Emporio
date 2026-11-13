@@ -22,7 +22,7 @@ export function Initials({ user, className }: { user: Pick<SessionUser, "name" |
     <span
       aria-hidden
       className={cn(
-        "grid size-8 shrink-0 place-items-center rounded-full bg-brand text-[0.72rem] font-medium tracking-[0.04em] text-brand-ink",
+        "grid size-8 shrink-0 place-items-center rounded-full bg-brand text-xs font-medium tracking-[0.04em] text-brand-ink",
         className,
       )}
     >
@@ -76,10 +76,10 @@ export function AccountMenu({ className }: { className?: string }) {
           className="z-50 w-[15.5rem] origin-[var(--radix-dropdown-menu-content-transform-origin)] rounded-card border border-line bg-canvas p-1.5 shadow-[0_24px_60px_-24px_rgb(34_41_35/0.35)] data-[state=open]:animate-overlay-in"
         >
           <div className="flex items-center gap-3 px-3 pb-3 pt-2.5">
-            <Initials user={user} className="size-10 text-[0.82rem]" />
+            <Initials user={user} className="size-10 text-sm" />
             <div className="min-w-0">
-              <p className="truncate text-[0.92rem] font-medium">Hello, {firstName}</p>
-              <p className="truncate text-[0.78rem] text-muted">{user.email}</p>
+              <p className="truncate text-md font-medium">Hello, {firstName}</p>
+              <p className="truncate text-xs text-muted">{user.email}</p>
             </div>
           </div>
           <DropdownMenu.Separator className="mx-1.5 mb-1 h-px bg-line" />
@@ -88,7 +88,7 @@ export function AccountMenu({ className }: { className?: string }) {
               <Link
                 href={href}
                 aria-current={pathname === href ? "page" : undefined}
-                className="flex min-h-11 items-center gap-3 rounded-control px-3 text-[0.9rem] outline-none data-[highlighted]:bg-surface aria-[current=page]:font-medium"
+                className="flex min-h-11 items-center gap-3 rounded-control px-3 text-md outline-none data-[highlighted]:bg-surface aria-[current=page]:font-medium"
               >
                 <Icon className="size-[1.05rem] stroke-[1.5] text-muted" />
                 {label}
@@ -102,7 +102,7 @@ export function AccountMenu({ className }: { className?: string }) {
               toast("You've been signed out");
               if (pathname?.startsWith("/account")) router.push("/");
             }}
-            className="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-3 text-[0.9rem] outline-none data-[highlighted]:bg-surface"
+            className="flex min-h-11 cursor-pointer items-center gap-3 rounded-control px-3 text-md outline-none data-[highlighted]:bg-surface"
           >
             <LogOut className="size-[1.05rem] stroke-[1.5] text-muted" />
             Sign out

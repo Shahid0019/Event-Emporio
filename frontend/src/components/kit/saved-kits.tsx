@@ -42,10 +42,10 @@ export function SavedKitsList({ onOpened, className }: { onOpened?: () => void; 
             className="min-w-0 flex-1 text-left"
             aria-label={`Open saved kit: ${k.name}`}
           >
-            <span className="block truncate text-[0.9rem] font-medium">{k.name}</span>
+            <span className="block truncate text-md font-medium">{k.name}</span>
             {/* Tier and options tell apart kits for the same function and size. */}
-            <span className="block truncate text-[0.75rem] text-muted">{k.summary}</span>
-            <span className="block truncate text-[0.75rem] text-muted">
+            <span className="block truncate text-xs text-muted">{k.summary}</span>
+            <span className="block truncate text-xs text-muted">
               {formatKitAmount(currentTotal(k))} · saved {formatDate(k.savedAt)}
             </span>
           </button>
@@ -77,7 +77,7 @@ export function SavedKitsButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-control border border-line-strong px-3 text-[0.78rem] transition-colors hover:border-ink"
+        className="inline-flex min-h-9 items-center gap-1.5 rounded-control border border-line-strong px-3 text-xs transition-colors hover:border-ink"
       >
         <Bookmark aria-hidden className="size-3.5" /> Saved ({count})
       </button>

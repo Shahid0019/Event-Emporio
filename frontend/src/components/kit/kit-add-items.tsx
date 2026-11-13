@@ -109,7 +109,7 @@ export function AddItemsSheet({
                         <KitThumb itemId={item.id} className="w-11" />
                         <span className="min-w-0 flex-1">
                           <span className="block truncate font-medium">{item.name}</span>
-                          <span className="block truncate text-[0.8rem] text-muted">
+                          <span className="block truncate text-sm text-muted">
                             {taken.size
                               ? allIn
                                 ? "Every type is in your kit"
@@ -133,7 +133,7 @@ export function AddItemsSheet({
                                 disabled={inKit}
                                 onClick={() => add(item.id, i, `${item.name} · ${v.name}`)}
                                 aria-label={inKit ? `${item.name} ${v.name} is in your kit` : `Add ${item.name} ${v.name}`}
-                                className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-line-strong px-3.5 text-[0.85rem] transition-colors hover:border-ink disabled:cursor-default disabled:border-line disabled:bg-surface disabled:text-muted"
+                                className="inline-flex min-h-11 items-center gap-1.5 rounded-control border border-line-strong px-3.5 text-sm transition-colors hover:border-ink disabled:cursor-default disabled:border-line disabled:bg-surface disabled:text-muted"
                               >
                                 <KitThumb
                                   itemId={item.id}

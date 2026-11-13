@@ -69,7 +69,7 @@ export function Header({ menu }: { menu: MegaMenuData }) {
           href="/kit"
           className={cn(
             tile,
-            "hidden shrink-0 items-center bg-brand px-4 text-[0.9rem] xl:px-6 font-medium whitespace-nowrap text-brand-ink transition-colors hover:bg-brand-deep lg:flex",
+            "hidden shrink-0 items-center bg-brand px-4 text-md xl:px-6 font-medium whitespace-nowrap text-brand-ink transition-colors hover:bg-brand-deep lg:flex",
           )}
         >
           Plan My Function
@@ -95,7 +95,7 @@ function isActive(pathname: string | null, href: string) {
 }
 
 const navLink =
-  "inline-flex h-10 items-center gap-1 rounded-chip px-2.5 text-[0.86rem] font-medium xl:px-3.5 xl:text-[0.92rem] whitespace-nowrap text-ink transition-colors hover:bg-surface/80 hover:text-brand data-[active]:text-brand xl:px-4";
+  "inline-flex h-10 items-center gap-1 rounded-chip px-2.5 text-sm font-medium xl:px-3.5 xl:text-md whitespace-nowrap text-ink transition-colors hover:bg-surface/80 hover:text-brand data-[active]:text-brand xl:px-4";
 
 function DesktopNav({ menu, pathname }: { menu: MegaMenuData; pathname: string | null }) {
   return (
@@ -142,7 +142,7 @@ function MegaMenu({ menu }: { menu: MegaMenuData }) {
               <NavigationMenu.Link asChild>
                 <Link
                   href={`/category/${c.slug}`}
-                  className="group inline-flex items-center gap-3 py-1.5 font-serif text-[1.65rem] leading-tight text-ink transition-colors hover:text-brand"
+                  className="group inline-flex items-center gap-3 py-1.5 font-serif text-2xl leading-tight text-ink transition-colors hover:text-brand"
                 >
                   {c.name}
                   <ArrowRight className="size-4 -translate-x-2 opacity-0 transition-all duration-500 group-hover:translate-x-0 group-hover:opacity-100" />
@@ -157,21 +157,21 @@ function MegaMenu({ menu }: { menu: MegaMenuData }) {
         <ul className="space-y-3">
           <li>
             <NavigationMenu.Link asChild>
-              <Link href="/shop" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
+              <Link href="/shop" className="link-underline text-xs font-medium uppercase tracking-[0.16em]">
                 Shop all products
               </Link>
             </NavigationMenu.Link>
           </li>
           <li>
             <NavigationMenu.Link asChild>
-              <Link href="/kit" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
+              <Link href="/kit" className="link-underline text-xs font-medium uppercase tracking-[0.16em]">
                 Plan your function
               </Link>
             </NavigationMenu.Link>
           </li>
           <li>
             <NavigationMenu.Link asChild>
-              <Link href="/custom-orders" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
+              <Link href="/custom-orders" className="link-underline text-xs font-medium uppercase tracking-[0.16em]">
                 Custom & bulk orders
               </Link>
             </NavigationMenu.Link>
@@ -215,7 +215,7 @@ function CountBadge({ count }: { count: number }) {
   return (
     <span
       aria-hidden
-      className="absolute right-1 top-1 grid h-[1.05rem] min-w-[1.05rem] place-items-center rounded-full bg-brand px-1 text-[0.6rem] font-medium leading-none text-brand-ink"
+      className="absolute right-1 top-1 grid h-[1.05rem] min-w-[1.05rem] place-items-center rounded-full bg-brand px-1 text-2xs font-medium leading-none text-brand-ink"
     >
       {count > 99 ? "99+" : count}
     </span>

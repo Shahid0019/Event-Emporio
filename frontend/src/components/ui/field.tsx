@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const control =
-  "w-full rounded-control border border-line-strong bg-raised px-4 text-[0.95rem] text-ink placeholder:text-muted/70 transition-colors duration-200 hover:border-muted focus:border-ink focus:outline-none focus-visible:outline-none focus:ring-1 focus:ring-ink aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger disabled:cursor-not-allowed disabled:bg-surface disabled:opacity-70";
+  "w-full rounded-control border border-line-strong bg-raised px-4 text-md text-ink placeholder:text-muted/70 transition-colors duration-200 hover:border-muted focus:border-ink focus:outline-none focus-visible:outline-none focus:ring-1 focus:ring-ink aria-[invalid=true]:border-danger aria-[invalid=true]:ring-danger disabled:cursor-not-allowed disabled:bg-surface disabled:opacity-70";
 
 export function Input({ className, ...props }: ComponentProps<"input">) {
   return <input className={cn(control, "h-12", className)} {...props} />;
@@ -25,7 +25,7 @@ export function Select({ className, children, ...props }: ComponentProps<"select
 }
 
 export function Label({ className, ...props }: ComponentProps<"label">) {
-  return <label className={cn("mb-2 block text-[0.8rem] font-medium tracking-wide text-ink", className)} {...props} />;
+  return <label className={cn("mb-2 block text-sm font-medium tracking-wide text-ink", className)} {...props} />;
 }
 
 interface FieldProps {
@@ -48,11 +48,11 @@ export function Field({ label, htmlFor, error, hint, optional, className, childr
       </Label>
       {children}
       {error ? (
-        <p id={`${htmlFor}-error`} role="alert" className="mt-1.5 text-[0.8rem] text-danger">
+        <p id={`${htmlFor}-error`} role="alert" className="mt-1.5 text-sm text-danger">
           {error}
         </p>
       ) : hint ? (
-        <p id={`${htmlFor}-hint`} className="mt-1.5 text-[0.8rem] text-muted">
+        <p id={`${htmlFor}-hint`} className="mt-1.5 text-sm text-muted">
           {hint}
         </p>
       ) : null}
@@ -71,7 +71,7 @@ export function fieldAria(id: string, error?: string, hasHint?: boolean) {
 
 export function Checkbox({ className, label, ...props }: ComponentProps<"input"> & { label: ReactNode }) {
   return (
-    <label className={cn("group relative flex cursor-pointer items-start gap-3 text-[0.9rem] leading-snug", className)}>
+    <label className={cn("group relative flex cursor-pointer items-start gap-3 text-md leading-snug", className)}>
       <input
         type="checkbox"
         className="peer mt-0.5 size-[1.05rem] shrink-0 cursor-pointer appearance-none rounded-[5px] border border-line-strong bg-raised transition-colors checked:border-brand checked:bg-brand focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"

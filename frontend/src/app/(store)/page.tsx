@@ -93,7 +93,7 @@ export default async function HomePage() {
             title={<span id="bestsellers-title">Bestsellers</span>}
             description="The pieces our customers return to season after season, celebration after celebration."
             action={
-              <Link href="/shop?sort=popular" className="link-underline text-[0.72rem] font-medium uppercase tracking-[0.16em]">
+              <Link href="/shop?sort=popular" className="link-underline text-xs font-medium uppercase tracking-[0.16em]">
                 Shop bestsellers
               </Link>
             }

@@ -45,7 +45,7 @@ function SearchForm({ defaultValue = "" }: { defaultValue?: string }) {
         defaultValue={defaultValue}
         key={defaultValue}
         placeholder="What are you looking for?"
-        className="h-16 w-full border-b border-line-strong bg-transparent pl-10 font-serif text-[1.8rem] placeholder:text-muted/60 focus:border-ink focus:outline-none sm:text-[2.6rem]"
+        className="h-16 w-full border-b border-line-strong bg-transparent pl-10 font-serif text-3xl placeholder:text-muted/60 focus:border-ink focus:outline-none sm:text-4xl"
       />
     </Form>
   );

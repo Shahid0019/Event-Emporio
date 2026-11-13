@@ -52,18 +52,18 @@ export function ProductCard({
 
         <div className="pointer-events-none absolute left-3 top-3 flex flex-col items-start gap-1.5">
           {!product.inStock ? (
-            <span className="rounded-chip bg-ink px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-canvas">
+            <span className="rounded-chip bg-ink px-2.5 py-1 text-2xs font-medium uppercase tracking-[0.16em] text-canvas">
               Sold out
             </span>
           ) : (
             <>
               {product.isNewArrival && (
-                <span className="rounded-chip bg-canvas px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-ink">
+                <span className="rounded-chip bg-canvas px-2.5 py-1 text-2xs font-medium uppercase tracking-[0.16em] text-ink">
                   New
                 </span>
               )}
               {pct && (
-                <span className="rounded-chip bg-brand px-2.5 py-1 text-[0.62rem] font-medium uppercase tracking-[0.16em] text-brand-ink">
+                <span className="rounded-chip bg-brand px-2.5 py-1 text-2xs font-medium uppercase tracking-[0.16em] text-brand-ink">
                   −{pct}%
                 </span>
               )}
@@ -79,14 +79,14 @@ export function ProductCard({
               <button
                 type="button"
                 onClick={() => quickAdd(product)}
-                className="h-11 w-full rounded-control bg-canvas/95 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur transition-colors hover:bg-ink hover:text-canvas"
+                className="h-11 w-full rounded-control bg-canvas/95 text-2xs font-medium uppercase tracking-[0.16em] text-ink backdrop-blur transition-colors hover:bg-ink hover:text-canvas"
               >
                 Add to bag
               </button>
             ) : (
               <Link
                 href={href}
-                className="grid h-11 w-full place-items-center rounded-control bg-canvas/95 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-ink backdrop-blur transition-colors hover:bg-ink hover:text-canvas"
+                className="grid h-11 w-full place-items-center rounded-control bg-canvas/95 text-2xs font-medium uppercase tracking-[0.16em] text-ink backdrop-blur transition-colors hover:bg-ink hover:text-canvas"
               >
                 Choose options
               </Link>
@@ -96,8 +96,8 @@ export function ProductCard({
       </div>
 
       <div className="flex flex-1 flex-col pt-4">
-        <p className="text-[0.66rem] font-medium uppercase tracking-[0.18em] text-muted">{product.categoryName}</p>
-        <h3 className="mt-1.5 font-serif text-[1.2rem] leading-snug sm:text-[1.3rem]">
+        <p className="text-2xs font-medium uppercase tracking-[0.18em] text-muted">{product.categoryName}</p>
+        <h3 className="mt-1.5 font-serif text-lg leading-snug sm:text-xl">
           <Link
             href={href}
             className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-none [&:focus-visible]:after:outline-2 [&:focus-visible]:after:outline-brand"
@@ -106,7 +106,7 @@ export function ProductCard({
           </Link>
         </h3>
         <Price price={product.price} compareAtPrice={product.compareAtPrice} from={product.hasPriceRange} className="mt-1.5" />
-        {product.lowStock && <p className="mt-1 text-[0.75rem] text-accent-ink">Low stock</p>}
+        {product.lowStock && <p className="mt-1 text-xs text-accent-ink">Low stock</p>}
         {/* Touch screens have no hover, so the add button sits under the price, as in a shopping app. */}
         {product.inStock && (
           // Pinned to the card's foot so buttons line up across a row whatever the name length.
@@ -130,7 +130,7 @@ export function ProductCard({
 
 // Above the card's full-size link (z-10) so the tap adds instead of opening the product.
 const touchAdd =
-  "relative z-10 inline-flex h-11 w-full items-center justify-center gap-2 rounded-control bg-brand text-[0.85rem] font-medium text-brand-ink transition-transform active:scale-[0.97]";
+  "relative z-10 inline-flex h-11 w-full items-center justify-center gap-2 rounded-control bg-brand text-sm font-medium text-brand-ink transition-transform active:scale-[0.97]";
 
 function quickAdd(product: ProductSummary) {
   if (!product.quickAddVariant) return;

@@ -48,7 +48,7 @@ const stageIcon: Partial<Record<OrderStatus, LucideIcon>> = {
 export function OrderTimeline({ order, layout = "vertical" }: { order: Order; layout?: "vertical" | "steps" }) {
   if (order.status === "cancelled" || order.status === "refunded") {
     return (
-      <p className="rounded-control border-l-2 border-danger bg-danger/5 px-4 py-3 text-[0.9rem]">
+      <p className="rounded-control border-l-2 border-danger bg-danger/5 px-4 py-3 text-md">
         This order was {order.status}. {order.paymentStatus === "refunded" && "Your refund has been issued to the original payment method."}
       </p>
     );
@@ -100,7 +100,7 @@ export function OrderTimeline({ order, layout = "vertical" }: { order: Order; la
                 <Icon className="size-[1.1rem]" />
               </span>
               <span
-                className={cn("mt-2 px-0.5 text-[0.7rem] font-medium leading-tight sm:text-[0.8rem]", s.done ? "text-ink" : "text-muted")}
+                className={cn("mt-2 px-0.5 text-2xs font-medium leading-tight sm:text-sm", s.done ? "text-ink" : "text-muted")}
               >
                 {s.short}
               </span>
@@ -134,9 +134,9 @@ export function OrderTimeline({ order, layout = "vertical" }: { order: Order; la
               <Icon className="size-[1.1rem]" />
             </span>
             <span className="min-w-0 pt-1.5">
-              <span className={cn("block font-serif text-[1.1rem] leading-tight", s.done ? "text-ink" : "text-muted")}>{s.label}</span>
-              {i === current && s.note && <span className="mt-0.5 block text-[0.82rem] text-muted">{s.note}</span>}
-              {s.done && s.at && <span className="mt-0.5 block text-[0.75rem] text-muted">{formatDateTime(s.at)}</span>}
+              <span className={cn("block font-serif text-lg leading-tight", s.done ? "text-ink" : "text-muted")}>{s.label}</span>
+              {i === current && s.note && <span className="mt-0.5 block text-sm text-muted">{s.note}</span>}
+              {s.done && s.at && <span className="mt-0.5 block text-xs text-muted">{formatDateTime(s.at)}</span>}
             </span>
           </li>
         );
@@ -152,13 +152,13 @@ export function OrderDetail({ order }: { order: Order }) {
       <div className="flex flex-wrap items-center gap-3">
         <Badge tone={statusTone(order.status)}>{orderStatusLabel[order.status]}</Badge>
         <Badge tone={order.paymentStatus === "paid" ? "success" : cashDue(order) ? "accent" : "muted"}>{paymentLabel(order)}</Badge>
-        <span className="text-[0.85rem] text-muted">Placed {formatDateTime(order.createdAt)}</span>
+        <span className="text-sm text-muted">Placed {formatDateTime(order.createdAt)}</span>
       </div>
 
       <OrderTimeline order={order} />
 
       {order.tracking && (
-        <p className="text-[0.9rem]">
+        <p className="text-md">
           Shipped with {order.tracking.carrier} · Tracking number <span className="font-medium">{order.tracking.number}</span>
           {order.tracking.url && (
             <>
@@ -183,18 +183,18 @@ export function OrderDetail({ order }: { order: Order }) {
                 <Link href={`/products/${l.slug}`} className="font-serif text-xl leading-tight hover:text-brand">
                   {l.name}
                 </Link>
-                {l.variantLabel && <p className="text-[0.82rem] text-muted">{l.variantLabel}</p>}
-                {l.giftMessage && <p className="mt-1 text-[0.82rem] italic text-muted">Gift note: “{l.giftMessage}”</p>}
-                <p className="mt-1 text-[0.82rem] text-muted">
+                {l.variantLabel && <p className="text-sm text-muted">{l.variantLabel}</p>}
+                {l.giftMessage && <p className="mt-1 text-sm italic text-muted">Gift note: “{l.giftMessage}”</p>}
+                <p className="mt-1 text-sm text-muted">
                   {l.quantity} × {formatPrice(l.unitPrice)}
                 </p>
               </div>
-              <p className="text-[0.92rem]">{formatPrice(l.unitPrice * l.quantity)}</p>
+              <p className="text-md">{formatPrice(l.unitPrice * l.quantity)}</p>
             </li>
           ))}
         </ul>
 
-        <div className="space-y-8 text-[0.9rem]">
+        <div className="space-y-8 text-md">
           <dl className="space-y-2.5">
             <Row label="Subtotal" value={formatPrice(order.totals.subtotal)} />
             {order.totals.discount > 0 && (
@@ -229,9 +229,9 @@ export function OrderDetail({ order }: { order: Order }) {
             <p className="text-muted">
               {order.paymentMethod === "razorpay" ? "Razorpay" : "Cash on delivery"}
               {cashDue(order) && (
-                <span className="block text-[0.85rem]">Pay {formatPrice(order.totals.total)} when it&apos;s delivered</span>
+                <span className="block text-sm">Pay {formatPrice(order.totals.total)} when it&apos;s delivered</span>
               )}
-              {order.paymentReference && <span className="block break-all text-[0.78rem]">Ref. {order.paymentReference}</span>}
+              {order.paymentReference && <span className="block break-all text-xs">Ref. {order.paymentReference}</span>}
             </p>
           </div>
         </div>

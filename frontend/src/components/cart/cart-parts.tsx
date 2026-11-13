@@ -30,11 +30,11 @@ export function CartLineItem({ line, onNavigate, compact }: { line: CartLine; on
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <Link href={`/products/${line.slug}`} onClick={onNavigate} className="font-serif text-[1.2rem] leading-tight hover:text-brand">
+            <Link href={`/products/${line.slug}`} onClick={onNavigate} className="font-serif text-xl leading-tight hover:text-brand">
               {line.name}
             </Link>
-            {line.variantLabel && <p className="mt-1 text-[0.8rem] text-muted">{line.variantLabel}</p>}
-            {line.giftMessage && <p className="mt-1 line-clamp-2 text-[0.8rem] italic text-muted">Gift note: “{line.giftMessage}”</p>}
+            {line.variantLabel && <p className="mt-1 text-sm text-muted">{line.variantLabel}</p>}
+            {line.giftMessage && <p className="mt-1 line-clamp-2 text-sm italic text-muted">Gift note: “{line.giftMessage}”</p>}
           </div>
           <button
             type="button"
@@ -57,12 +57,12 @@ export function CartLineItem({ line, onNavigate, compact }: { line: CartLine; on
             label={`Quantity for ${line.name}`}
           />
           <div className="text-right">
-            <p className="text-[0.95rem] font-medium">{formatPrice(line.unitPrice * line.quantity)}</p>
-            {line.quantity > 1 && <p className="text-[0.75rem] text-muted">{formatPrice(line.unitPrice)} each</p>}
+            <p className="text-md font-medium">{formatPrice(line.unitPrice * line.quantity)}</p>
+            {line.quantity > 1 && <p className="text-xs text-muted">{formatPrice(line.unitPrice)} each</p>}
           </div>
         </div>
         {line.quantity >= max && (
-          <p className="mt-2 text-[0.75rem] text-muted">
+          <p className="mt-2 text-xs text-muted">
             {max === line.maxQuantity ? `Only ${max} available.` : `Maximum ${max} per order — contact us for bulk quantities.`}
           </p>
         )}
@@ -115,14 +115,14 @@ export function CouponForm({
             {code}
           </p>
           {coupon && !coupon.ok ? (
-            <p className="mt-1 text-[0.8rem] text-danger">{coupon.reason}</p>
+            <p className="mt-1 text-sm text-danger">{coupon.reason}</p>
           ) : (
-            applied?.saving !== undefined && <p className="mt-0.5 text-[0.8rem] text-success">You save {formatPrice(applied.saving)}</p>
+            applied?.saving !== undefined && <p className="mt-0.5 text-sm text-success">You save {formatPrice(applied.saving)}</p>
           )}
         </div>
         <button
           type="button"
-          className="shrink-0 text-[0.72rem] uppercase tracking-[0.14em] text-muted underline underline-offset-4 hover:text-ink"
+          className="shrink-0 text-xs uppercase tracking-[0.14em] text-muted underline underline-offset-4 hover:text-ink"
           onClick={() => couponStore.set(null)}
         >
           Remove
@@ -153,7 +153,7 @@ export function CouponForm({
               <button
                 type="button"
                 onClick={() => apply(o.code)}
-                className="inline-flex h-8 items-center gap-1.5 rounded-control border border-dashed border-brand/60 bg-brand/5 px-3 text-[0.75rem] text-brand transition-colors hover:border-brand hover:bg-brand/10"
+                className="inline-flex h-8 items-center gap-1.5 rounded-control border border-dashed border-brand/60 bg-brand/5 px-3 text-xs text-brand transition-colors hover:border-brand hover:bg-brand/10"
               >
                 <Tag className="size-3" />
                 <span className="font-medium">{o.code}</span>
@@ -167,7 +167,7 @@ export function CouponForm({
               onClick={() => setOpen((v) => !v)}
               aria-expanded={open}
               aria-controls={listId}
-              className="inline-flex h-8 items-center gap-1 rounded-control border border-line-strong px-3 text-[0.75rem] text-muted transition-colors hover:border-ink hover:text-ink"
+              className="inline-flex h-8 items-center gap-1 rounded-control border border-line-strong px-3 text-xs text-muted transition-colors hover:border-ink hover:text-ink"
             >
               {chips.length ? "All offers" : `${offers.length} offer${offers.length > 1 ? "s" : ""} available`}
               <ChevronDown className={cn("size-3.5 transition-transform", open && "rotate-180")} />
@@ -209,7 +209,7 @@ export function CouponForm({
           className="overflow-hidden rounded-control border border-line bg-raised shadow-[0_12px_30px_-18px_rgb(34_41_35/0.35)]"
         >
           <div className="flex items-center justify-between border-b border-line px-4 py-2.5">
-            <p className="text-[0.7rem] font-medium uppercase tracking-[0.16em] text-muted">
+            <p className="text-2xs font-medium uppercase tracking-[0.16em] text-muted">
               {query ? `Matching “${query}”` : "Available offers"}
             </p>
             <button
@@ -222,7 +222,7 @@ export function CouponForm({
             </button>
           </div>
           {shown.length === 0 ? (
-            <p className="px-4 py-4 text-[0.82rem] text-muted">
+            <p className="px-4 py-4 text-sm text-muted">
               {query ? <>No listed offer matches — press Apply to try “{query}”.</> : "No offers right now. Have a code? Type it above."}
             </p>
           ) : (
@@ -233,19 +233,19 @@ export function CouponForm({
                     <p className="flex flex-wrap items-center gap-2">
                       <span
                         className={cn(
-                          "rounded-chip border border-dashed px-2 py-0.5 text-[0.72rem] font-medium tracking-[0.08em]",
+                          "rounded-chip border border-dashed px-2 py-0.5 text-xs font-medium tracking-[0.08em]",
                           o.applies ? "border-brand/60 text-brand" : "border-line-strong text-muted",
                         )}
                       >
                         {o.code}
                       </span>
-                      <span className="text-[0.88rem] font-medium">{o.headline}</span>
+                      <span className="text-sm font-medium">{o.headline}</span>
                     </p>
-                    <p className="mt-1 text-[0.75rem] leading-relaxed text-muted">{o.details}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-muted">{o.details}</p>
                     {o.applies ? (
-                      <p className="mt-1 text-[0.78rem] font-medium text-success">Save {formatPrice(o.saving ?? 0)} on this bag</p>
+                      <p className="mt-1 text-xs font-medium text-success">Save {formatPrice(o.saving ?? 0)} on this bag</p>
                     ) : (
-                      o.reason && <p className="mt-1 text-[0.75rem] text-muted">{o.reason}</p>
+                      o.reason && <p className="mt-1 text-xs text-muted">{o.reason}</p>
                     )}
                   </div>
                   <Button
@@ -281,7 +281,7 @@ export function TotalsTable({
   const threshold = useStoreSettings().shipping.freeShippingThreshold;
   const toFree = threshold !== null ? threshold - (totals.subtotal - totals.discount) : 0;
   return (
-    <div className="space-y-3 text-[0.92rem]">
+    <div className="space-y-3 text-md">
       <dl className="space-y-3">
         <div className="flex justify-between">
           <dt className="text-muted">Subtotal</dt>
@@ -299,15 +299,15 @@ export function TotalsTable({
         </div>
       </dl>
       {threshold !== null && toFree > 0 && totals.subtotal > 0 && (
-        <p className="text-[0.78rem] text-muted">Add {formatPrice(toFree)} more for free shipping.</p>
+        <p className="text-xs text-muted">Add {formatPrice(toFree)} more for free shipping.</p>
       )}
       {showTotal && (
         <>
           <dl className="flex items-baseline justify-between border-t border-line pt-4">
             <dt className="font-medium">Total</dt>
-            <dd className="font-serif text-[1.75rem] leading-none">{formatPrice(totals.total)}</dd>
+            <dd className="font-serif text-3xl leading-none">{formatPrice(totals.total)}</dd>
           </dl>
-          {storeSettings.pricesIncludeTax && <p className="text-[0.75rem] text-muted">Prices include applicable taxes.</p>}
+          {storeSettings.pricesIncludeTax && <p className="text-xs text-muted">Prices include applicable taxes.</p>}
         </>
       )}
     </div>
@@ -364,11 +364,11 @@ export function CartKitItem({
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[0.62rem] font-medium uppercase tracking-[0.18em] text-accent-ink">Kit · {lines.length} items</p>
-              <Link href={editHref} onClick={onNavigate} className="mt-0.5 block font-serif text-[1.2rem] leading-tight hover:text-brand">
+              <p className="text-2xs font-medium uppercase tracking-[0.18em] text-accent-ink">Kit · {lines.length} items</p>
+              <Link href={editHref} onClick={onNavigate} className="mt-0.5 block font-serif text-xl leading-tight hover:text-brand">
                 {bundle.name}
               </Link>
-              <p className="mt-1 text-[0.8rem] text-muted">{bundle.summary}</p>
+              <p className="mt-1 text-sm text-muted">{bundle.summary}</p>
             </div>
             <button
               type="button"
@@ -388,20 +388,20 @@ export function CartKitItem({
             <Link
               href={editHref}
               onClick={onNavigate}
-              className="inline-flex h-9 items-center gap-2 rounded-control border border-line-strong px-4 text-[0.72rem] font-medium uppercase tracking-[0.1em] hover:border-ink"
+              className="inline-flex h-9 items-center gap-2 rounded-control border border-line-strong px-4 text-xs font-medium uppercase tracking-[0.1em] hover:border-ink"
             >
               <Pencil className="size-3.5" /> Edit list
             </Link>
-            <p className="text-[0.95rem] font-medium tabular-nums">{formatPrice(total)}</p>
+            <p className="text-md font-medium tabular-nums">{formatPrice(total)}</p>
           </div>
         </div>
       </div>
       <details className="group mt-3">
-        <summary className="cursor-pointer list-none text-[0.8rem] text-muted hover:text-ink [&::-webkit-details-marker]:hidden">
+        <summary className="cursor-pointer list-none text-sm text-muted hover:text-ink [&::-webkit-details-marker]:hidden">
           <span className="group-open:hidden">View {lines.length} items</span>
           <span className="hidden group-open:inline">Hide items</span>
         </summary>
-        <ul className="mt-2 space-y-1.5 rounded-control bg-surface/60 p-3 text-[0.8rem]">
+        <ul className="mt-2 space-y-1.5 rounded-control bg-surface/60 p-3 text-sm">
           {lines.map((l) => (
             <li key={l.key} className="flex justify-between gap-3">
               <span className="min-w-0">

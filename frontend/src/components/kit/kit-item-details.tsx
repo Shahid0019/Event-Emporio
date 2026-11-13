@@ -92,7 +92,7 @@ export function KitItemDetails({
               sizes="(min-width: 640px) 240px, 90vw"
               className={cn("animate-overlay-in object-cover", image.src.endsWith(".svg") && "scale-[1.12]")}
             />
-            <span className="absolute left-2 top-2 rounded-chip bg-canvas/90 px-2.5 py-1 text-[0.72rem] font-medium">
+            <span className="absolute left-2 top-2 rounded-chip bg-canvas/90 px-2.5 py-1 text-xs font-medium">
               {item.variants[shown]?.name}
             </span>
             {photos.length > 1 && (
@@ -113,7 +113,7 @@ export function KitItemDetails({
                 >
                   <ChevronRight aria-hidden className="size-4" />
                 </button>
-                <span className="absolute bottom-2 right-2 rounded-chip bg-ink/75 px-2 py-0.5 text-[0.7rem] tabular-nums text-canvas">
+                <span className="absolute bottom-2 right-2 rounded-chip bg-ink/75 px-2 py-0.5 text-2xs tabular-nums text-canvas">
                   {current + 1} / {photos.length}
                 </span>
               </>
@@ -138,21 +138,21 @@ export function KitItemDetails({
         </div>
 
         <div className="min-w-0 space-y-5">
-          {description && <p className="text-[0.95rem] leading-relaxed text-muted">{description}</p>}
+          {description && <p className="text-md leading-relaxed text-muted">{description}</p>}
 
-          <dl className="grid grid-cols-2 gap-3 text-[0.85rem]">
+          <dl className="grid grid-cols-2 gap-3 text-sm">
             <div className="rounded-control bg-surface px-3 py-2.5">
               <dt className="text-muted">Your kit takes</dt>
               <dd className="mt-0.5 font-medium tabular-nums">
                 {suggested ? `Up to ${suggested}` : "—"} pcs
-                <span className="block text-[0.75rem] font-normal text-muted">{quantityHint(trami, item.perTrami, extra, guests)}</span>
+                <span className="block text-xs font-normal text-muted">{quantityHint(trami, item.perTrami, extra, guests)}</span>
               </dd>
             </div>
             <div className="rounded-control bg-surface px-3 py-2.5">
               <dt className="text-muted">In your kit</dt>
               <dd className="mt-0.5 font-medium tabular-nums">
                 {inKit.size ? `${totalQty} pcs` : "Not added"}
-                {inKit.size > 0 && <span className="block text-[0.75rem] font-normal text-muted">{formatKitAmount(totalPrice)}</span>}
+                {inKit.size > 0 && <span className="block text-xs font-normal text-muted">{formatKitAmount(totalPrice)}</span>}
               </dd>
             </div>
           </dl>
@@ -173,19 +173,19 @@ export function KitItemDetails({
                       <span className="relative aspect-[4/5] w-8 shrink-0 overflow-hidden rounded-chip bg-surface">
                         <Image src={imageFor(i).src} alt="" fill sizes="32px" className="object-cover" />
                       </span>
-                      <span className="min-w-0 flex-1 text-[0.9rem]">
+                      <span className="min-w-0 flex-1 text-md">
                         {v.name}
                         {kitOptionPhotos(itemId, i).length > 1 && (
-                          <span className="block text-[0.72rem] text-muted">{kitOptionPhotos(itemId, i).length} photos</span>
+                          <span className="block text-xs text-muted">{kitOptionPhotos(itemId, i).length} photos</span>
                         )}
                       </span>
                       {line && (
-                        <span className="inline-flex items-center gap-1 rounded-chip bg-success/10 px-2 py-0.5 text-[0.72rem] font-medium tabular-nums text-success">
+                        <span className="inline-flex items-center gap-1 rounded-chip bg-success/10 px-2 py-0.5 text-xs font-medium tabular-nums text-success">
                           <Check aria-hidden className="size-3" />
                           {line.qty} in kit
                         </span>
                       )}
-                      <span className="w-16 text-right text-[0.85rem] tabular-nums text-muted">{formatUnitPrice(v.price)}</span>
+                      <span className="w-16 text-right text-sm tabular-nums text-muted">{formatUnitPrice(v.price)}</span>
                     </button>
                   </li>
                 );

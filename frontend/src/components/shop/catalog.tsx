@@ -109,8 +109,8 @@ export function CatalogHeader({
     <header className="pb-5 pt-2 sm:pb-14 sm:pt-12">
       {children}
       {eyebrow && <p className="eyebrow mt-8 hidden text-accent-ink sm:block">{eyebrow}</p>}
-      <h1 className="mt-2 text-[2.2rem] leading-none sm:mt-4 sm:text-h1">{title}</h1>
-      {description && <p className="mt-5 hidden max-w-2xl text-[1.05rem] leading-relaxed text-muted sm:block">{description}</p>}
+      <h1 className="mt-2 text-h1 leading-none sm:mt-4">{title}</h1>
+      {description && <p className="mt-5 hidden max-w-2xl text-base leading-relaxed text-muted sm:block">{description}</p>}
       <SearchBar className="mt-4" />
     </header>
   );

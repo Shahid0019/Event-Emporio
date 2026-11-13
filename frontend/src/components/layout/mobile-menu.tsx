@@ -25,7 +25,7 @@ export function MobileMenu({ menu, instagram }: { menu: MegaMenuData; instagram:
           <Link
             href="/kit"
             onClick={close}
-            className="flex min-h-12 items-center justify-between rounded-control bg-brand px-5 text-[0.78rem] font-medium uppercase tracking-[0.12em] text-brand-ink"
+            className="flex min-h-12 items-center justify-between rounded-control bg-brand px-5 text-xs font-medium uppercase tracking-[0.12em] text-brand-ink"
           >
             Plan My Function
             <ArrowUpRight className="size-4" />
@@ -37,7 +37,7 @@ export function MobileMenu({ menu, instagram }: { menu: MegaMenuData; instagram:
               <Link
                 href={item.href}
                 onClick={close}
-                className="flex items-center justify-between py-4 font-serif text-[1.65rem] leading-none"
+                className="flex items-center justify-between py-4 font-serif text-2xl leading-none"
               >
                 {item.label}
               </Link>
@@ -50,7 +50,7 @@ export function MobileMenu({ menu, instagram }: { menu: MegaMenuData; instagram:
           <ul className="grid grid-cols-1 gap-y-3 min-[400px]:grid-cols-2 min-[400px]:gap-x-4">
             {menu.categories.map((c) => (
               <li key={c.slug}>
-                <Link href={`/category/${c.slug}`} onClick={close} className="text-[0.95rem] text-ink">
+                <Link href={`/category/${c.slug}`} onClick={close} className="text-md text-ink">
                   {c.name}
                 </Link>
               </li>
@@ -61,10 +61,10 @@ export function MobileMenu({ menu, instagram }: { menu: MegaMenuData; instagram:
         <div className="mx-3 mb-3 mt-auto space-y-1 rounded-card bg-surface px-5 py-5">
           {user ? (
             <Link href="/account" onClick={close} className="mb-2 flex items-center gap-3 border-b border-line pb-4">
-              <Initials user={user} className="size-10 text-[0.82rem]" />
+              <Initials user={user} className="size-10 text-sm" />
               <span className="min-w-0">
-                <span className="block truncate text-[0.95rem] font-medium">Hello, {user.name.trim().split(/\s+/)[0] || user.email}</span>
-                <span className="block truncate text-[0.78rem] text-muted">My account · orders · addresses</span>
+                <span className="block truncate text-md font-medium">Hello, {user.name.trim().split(/\s+/)[0] || user.email}</span>
+                <span className="block truncate text-xs text-muted">My account · orders · addresses</span>
               </span>
             </Link>
           ) : (
@@ -77,7 +77,7 @@ export function MobileMenu({ menu, instagram }: { menu: MegaMenuData; instagram:
             label={user ? "My orders" : "Track an order"}
             onClick={close}
           />
-          <a href={instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 py-2.5 text-[0.95rem]">
+          <a href={instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 py-2.5 text-md">
             <ArrowUpRight className="size-[1.1rem] stroke-[1.5]" />
             Instagram
           </a>
@@ -90,7 +90,7 @@ export function MobileMenu({ menu, instagram }: { menu: MegaMenuData; instagram:
                 toast("You've been signed out");
                 if (pathname?.startsWith("/account")) router.push("/");
               }}
-              className="flex w-full items-center gap-3 py-2.5 text-left text-[0.95rem] text-muted"
+              className="flex w-full items-center gap-3 py-2.5 text-left text-md text-muted"
             >
               <LogOut className="size-[1.1rem] stroke-[1.5]" />
               Sign out
@@ -107,7 +107,7 @@ function MenuRow({ href, icon, label, onClick }: { href: string; icon: React.Rea
     <Link
       href={href}
       onClick={onClick}
-      className="flex items-center gap-3 py-2.5 text-[0.95rem] [&_svg]:size-[1.1rem] [&_svg]:stroke-[1.5]"
+      className="flex items-center gap-3 py-2.5 text-md [&_svg]:size-[1.1rem] [&_svg]:stroke-[1.5]"
     >
       {icon}
       {label}

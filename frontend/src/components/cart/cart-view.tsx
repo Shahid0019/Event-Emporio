@@ -67,10 +67,10 @@ export function CartView() {
       <section aria-label="Items in your bag" className="space-y-10 lg:col-span-7 xl:col-span-8">
         <section aria-labelledby="bag-functions">
           <div className="flex items-baseline justify-between gap-3 border-b border-line pb-3">
-            <h2 id="bag-functions" className="font-serif text-[1.6rem]">
+            <h2 id="bag-functions" className="font-serif text-2xl">
               Your functions
             </h2>
-            <span className="text-[0.85rem] text-muted">
+            <span className="text-sm text-muted">
               {cartCount(lines)} {cartCount(lines) === 1 ? "item" : "items"}
             </span>
           </div>
@@ -81,7 +81,7 @@ export function CartView() {
                   {/* Timeline: a numbered dot per function, joined by a line. */}
                   <span
                     aria-hidden
-                    className="absolute left-0 top-6 grid size-7 place-items-center rounded-full bg-brand text-[0.8rem] font-semibold text-brand-ink"
+                    className="absolute left-0 top-6 grid size-7 place-items-center rounded-full bg-brand text-sm font-semibold text-brand-ink"
                   >
                     {i + 1}
                   </span>
@@ -93,7 +93,7 @@ export function CartView() {
               ))}
             </ol>
           ) : (
-            <p className="mt-4 text-[0.9rem] text-muted">Plan a function and its shopping list joins this bag.</p>
+            <p className="mt-4 text-md text-muted">Plan a function and its shopping list joins this bag.</p>
           )}
           <button
             type="button"
@@ -105,14 +105,14 @@ export function CartView() {
             </span>
             <span>
               <span className="block font-medium">{kits.length ? "Plan another function" : "Plan My Function"}</span>
-              <span className="block text-[0.8rem] text-muted">Mehndi raat, Wazwan, Walima or your own — all in one delivery</span>
+              <span className="block text-sm text-muted">Mehndi raat, Wazwan, Walima or your own — all in one delivery</span>
             </span>
           </button>
         </section>
 
         {items.length > 0 && (
           <section aria-labelledby="bag-items">
-            <h2 id="bag-items" className="border-b border-line pb-3 font-serif text-[1.6rem]">
+            <h2 id="bag-items" className="border-b border-line pb-3 font-serif text-2xl">
               Other items
             </h2>
             <ul className="divide-y divide-line border-b border-line">
@@ -123,17 +123,17 @@ export function CartView() {
           </section>
         )}
 
-        <Link href="/shop" className="inline-block text-[0.72rem] font-medium uppercase tracking-[0.16em] link-underline">
+        <Link href="/shop" className="inline-block text-xs font-medium uppercase tracking-[0.16em] link-underline">
           Continue shopping
         </Link>
       </section>
 
       <aside aria-label="Order summary" className="lg:col-span-5 xl:col-span-4">
         <div className="space-y-6 rounded-card bg-surface p-5 sm:p-8 lg:sticky lg:top-[calc(var(--header-h)+1.5rem)]">
-          <h2 className="font-serif text-3xl">Bag total</h2>
+          <h2 className="font-serif text-h3">Bag total</h2>
           <CouponForm coupon={coupon} code={code} offers={offers} />
           <TotalsTable totals={totals} shippingLabel="Delivery (estimate)" />
-          <div className="flex items-start gap-3 rounded-control bg-raised px-4 py-3 text-[0.85rem]">
+          <div className="flex items-start gap-3 rounded-control bg-raised px-4 py-3 text-sm">
             <Truck aria-hidden className="mt-0.5 size-5 shrink-0 text-accent-ink" />
             <p>
               <span className="font-medium">One delivery for everything.</span>{" "}
@@ -143,7 +143,7 @@ export function CartView() {
           <Link href="/checkout" className={buttonVariants({ size: "lg", className: "w-full" })}>
             Continue to checkout
           </Link>
-          <p className="text-center text-[0.75rem] leading-relaxed text-muted">
+          <p className="text-center text-xs leading-relaxed text-muted">
             Prices and stock are confirmed again before payment. Guest checkout available.
           </p>
         </div>

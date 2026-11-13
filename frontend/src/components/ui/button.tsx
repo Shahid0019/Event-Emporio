@@ -17,9 +17,9 @@ const variants = {
 } as const;
 
 const sizes = {
-  sm: "h-9 px-4 text-[0.68rem]",
-  md: "h-12 px-7 text-[0.72rem]",
-  lg: "h-14 px-9 text-[0.75rem]",
+  sm: "h-9 px-4 text-2xs",
+  md: "h-12 px-7 text-xs",
+  lg: "h-14 px-9 text-xs",
   icon: "size-11 p-0 tracking-normal",
 } as const;
 

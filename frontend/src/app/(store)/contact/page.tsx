@@ -106,9 +106,9 @@ export default async function ContactPage() {
                 >
                   {c.icon}
                 </span>
-                <span className="mt-5 text-[0.7rem] font-medium uppercase tracking-[0.16em] opacity-75">{c.label}</span>
-                <span className="mt-1 truncate text-[1.05rem] font-medium">{c.value}</span>
-                <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-[0.72rem] font-medium uppercase tracking-[0.14em]">
+                <span className="mt-5 text-2xs font-medium uppercase tracking-[0.16em] opacity-75">{c.label}</span>
+                <span className="mt-1 truncate text-base font-medium">{c.value}</span>
+                <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-xs font-medium uppercase tracking-[0.14em]">
                   {c.action}
                   {c.external ? (
                     <ArrowUpRight className="size-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
@@ -124,10 +124,10 @@ export default async function ContactPage() {
 
       <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
         <section aria-labelledby="message-title" className="rounded-card border border-line bg-raised p-6 sm:p-10 lg:col-span-8">
-          <h2 id="message-title" className="font-serif text-[2rem] leading-tight">
+          <h2 id="message-title" className="font-serif text-h3 leading-tight">
             Send us a message
           </h2>
-          <p className="mt-2 text-[0.95rem] text-muted">We read every message and reply to the email you give us.</p>
+          <p className="mt-2 text-md text-muted">We read every message and reply to the email you give us.</p>
           <div className="mt-8">
             <ContactForm />
           </div>
@@ -160,8 +160,8 @@ export default async function ContactPage() {
                   <Link href={href} className="group flex items-center gap-3 py-4">
                     <Icon className="size-5 shrink-0 stroke-[1.5] text-muted group-hover:text-brand" />
                     <span className="min-w-0 flex-1">
-                      <span className="block text-[0.95rem] group-hover:text-brand">{label}</span>
-                      <span className="block text-[0.8rem] text-muted">{hint}</span>
+                      <span className="block text-md group-hover:text-brand">{label}</span>
+                      <span className="block text-sm text-muted">{hint}</span>
                     </span>
                     <ArrowRight className="size-4 shrink-0 text-muted transition-transform group-hover:translate-x-0.5 group-hover:text-brand" />
                   </Link>

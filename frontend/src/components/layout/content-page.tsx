@@ -21,7 +21,7 @@ export function ContentPage({
       <header className="max-w-3xl pb-12 pt-10">
         {eyebrow && <p className="eyebrow text-accent-ink">{eyebrow}</p>}
         <h1 className="mt-4 text-h1">{title}</h1>
-        {intro && <div className="mt-6 text-[1.08rem] leading-relaxed text-muted">{intro}</div>}
+        {intro && <div className="mt-6 text-lg leading-relaxed text-muted">{intro}</div>}
         {draft && (
           <DemoNote className="mt-8 max-w-xl">
             Draft policy for development. Every detail marked “to be confirmed” must be finalised by Khandr (and reviewed for
@@ -37,7 +37,7 @@ export function ContentPage({
 /** Long-form typography for policy text. */
 export function Prose({ children }: { children: React.ReactNode }) {
   return (
-    <div className="max-w-3xl space-y-5 text-[1rem] leading-[1.8] text-muted [&_h2]:mt-12 [&_h2]:font-serif [&_h2]:text-[1.9rem] [&_h2]:leading-tight [&_h2]:text-ink [&_li]:pl-1 [&_strong]:font-medium [&_strong]:text-ink [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5">
+    <div className="max-w-3xl space-y-5 text-base leading-[1.8] text-muted [&_h2]:mt-12 [&_h2]:font-serif [&_h2]:text-h3 [&_h2]:leading-tight [&_h2]:text-ink [&_li]:pl-1 [&_strong]:font-medium [&_strong]:text-ink [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5">
       {children}
     </div>
   );

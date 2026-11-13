@@ -51,7 +51,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
       <aside className="min-w-0">
         <p className="eyebrow text-accent-ink">My account</p>
         <p className="mt-3 font-serif text-3xl leading-tight">{user.name}</p>
-        <p className="mt-1 truncate text-[0.85rem] text-muted">{user.email}</p>
+        <p className="mt-1 truncate text-sm text-muted">{user.email}</p>
         <Suspense fallback={<AccountNav pathname={null} />}>
           <AccountNavWithPath />
         </Suspense>
@@ -62,7 +62,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
             toast("You've been signed out");
             router.push("/");
           }}
-          className="mt-6 text-[0.72rem] font-medium uppercase tracking-[0.16em] text-muted underline underline-offset-4 hover:text-ink"
+          className="mt-6 text-xs font-medium uppercase tracking-[0.16em] text-muted underline underline-offset-4 hover:text-ink"
         >
           Sign out
         </button>
@@ -88,7 +88,7 @@ function AccountNav({ pathname }: { pathname: string | null }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "block whitespace-nowrap rounded-control border px-4 py-2.5 text-[0.88rem] transition-colors lg:rounded-none lg:border-0 lg:border-b lg:border-line lg:px-0 lg:py-3.5",
+                  "block whitespace-nowrap rounded-control border px-4 py-2.5 text-sm transition-colors lg:rounded-none lg:border-0 lg:border-b lg:border-line lg:px-0 lg:py-3.5",
                   active
                     ? "border-ink bg-ink text-canvas lg:bg-transparent lg:font-medium lg:text-brand"
                     : "border-line-strong hover:text-brand",
