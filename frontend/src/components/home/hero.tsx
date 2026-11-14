@@ -75,7 +75,7 @@ export function Hero({ hero }: { hero: HeroContent; quickLinks: { slug: string; 
         {/* Phones: the words on the wall, left of the shelves. The headline uses the section-heading size
             (text-h2, 24px on phones) so every heading on the page matches; the 6:5 photo leaves the wall wide enough for it. */}
         <div className="absolute inset-y-0 left-0 flex w-[66%] flex-col justify-center pl-[6%] pb-[2%] md:hidden">
-          <h1 className="animate-rise text-h2 font-bold max-[380px]:text-xl leading-[1.12] tracking-[-0.01em] text-ink [animation-delay:150ms]">
+          <h1 className="animate-rise text-3xl font-bold max-[390px]:text-xl leading-[1.12] tracking-[-0.01em] text-ink [animation-delay:150ms]">
             {phone.title.map((line) => (
               <span key={line} className="block">
                 {line}

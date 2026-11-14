@@ -75,8 +75,8 @@ export function CategoryGrid({ categories }: { categories: Category[] }) {
           ))}
         </Reveal>
 
-        <div className="mt-8 text-center lg:mt-12">
-          <Link href="/shop" className="link-underline text-xs font-medium uppercase tracking-[0.16em]">
+        <div className="mt-8  lg:mt-12">
+          <Link href="/shop" className="link-underline text-xs font-medium uppercase ">
             View all products
           </Link>
         </div>
