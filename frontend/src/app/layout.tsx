@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { Toaster } from "sonner";
+import { storeSettings } from "@/lib/data/settings";
+import { defaultDescription, defaultShareImage, defaultTitle, siteName } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -61,21 +63,45 @@ const dmSans = localFont({
   fallback: ["system-ui", "sans-serif"],
 });
 
+/*
+ * Site-wide defaults. Public pages override these through `pageMetadata` (src/lib/seo.ts); no canonical
+ * link or og:url here, or pages without their own would point search engines at the home page.
+ */
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "khandr.com — Wedding Essentials, Mehndi Baskets & Bridal Hampers",
-    template: "%s | khandr.com",
+    default: defaultTitle,
+    template: `%s | ${siteName}`,
   },
-  description:
-    "Wedding essentials & décor from Srinagar — mehndi baskets, bridal hampers, luxury gifting and decorative disposables. Elevating traditions with a touch of class.",
-  applicationName: "khandr.com",
+  description: defaultDescription,
+  applicationName: siteName,
+  keywords: [
+    "wedding essentials",
+    "mehndi baskets",
+    "bridal hampers",
+    "Kashmiri wedding",
+    "wedding disposables",
+    "luxury gift hampers",
+    "Srinagar",
+  ],
+  authors: [{ name: storeSettings.name, url: siteUrl }],
+  creator: storeSettings.name,
+  publisher: storeSettings.name,
+  category: "shopping",
   openGraph: {
     type: "website",
-    siteName: "khandr.com",
+    siteName,
     locale: "en_IN",
+    title: defaultTitle,
+    description: defaultDescription,
+    images: [defaultShareImage],
   },
-  twitter: { card: "summary_large_image" },
+  twitter: {
+    card: "summary_large_image",
+    title: defaultTitle,
+    description: defaultDescription,
+    images: [{ url: defaultShareImage.url, alt: defaultShareImage.alt }],
+  },
 };
 
 export const viewport: Viewport = {
@@ -86,7 +112,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en-IN" className={`${playfair.variable} ${vintageGlamour.variable} ${pinyon.variable} ${dmSans.variable} ${cinea.variable} antialiased`}>
+    <html
+      lang="en-IN"
+      className={`${playfair.variable} ${vintageGlamour.variable} ${pinyon.variable} ${dmSans.variable} ${cinea.variable} antialiased`}
+    >
       <body className="min-h-dvh bg-canvas text-ink">
         {children}
         <Toaster

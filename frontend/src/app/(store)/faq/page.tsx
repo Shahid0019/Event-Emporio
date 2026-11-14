@@ -3,12 +3,13 @@ import Link from "next/link";
 import { ContentPage } from "@/components/layout/content-page";
 import { Accordion } from "@/components/ui/accordion";
 import { faqs } from "@/lib/data/content";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "FAQ",
   description: "Answers about orders, custom requests, delivery and payments at khandr.com.",
-  alternates: { canonical: "/faq" },
-};
+  path: "/faq",
+});
 
 export default function FaqPage() {
   const faqLd = {

@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
 import { ContentPage, Prose, Tbc } from "@/components/layout/content-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Terms & Conditions", alternates: { canonical: "/terms" } };
+export const metadata: Metadata = pageMetadata({
+  title: "Terms & Conditions",
+  description: "The terms and conditions for buying from Khandr at khandr.com.",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (
     <ContentPage eyebrow="Policies" title="Terms & Conditions" draft>
       <Prose>
         <p>
-          These terms govern purchases from Khandr at khandr.com (<Tbc>registered business name, GSTIN and address</Tbc>). By placing an order you
-          agree to them.
+          These terms govern purchases from Khandr at khandr.com (<Tbc>registered business name, GSTIN and address</Tbc>). By placing an
+          order you agree to them.
         </p>
         <h2>Products & pricing</h2>
         <p>

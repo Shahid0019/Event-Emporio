@@ -5,12 +5,13 @@ import { ContactForm } from "@/components/forms/enquiry-forms";
 import { ContentPage } from "@/components/layout/content-page";
 import { storeSettings } from "@/lib/data/settings";
 import { loadSettings } from "@/lib/db/queries";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Contact Us",
   description: "Get in touch with Khandr about products, orders or custom requests.",
-  alternates: { canonical: "/contact" },
-};
+  path: "/contact",
+});
 
 /** Instagram's camera glyph (lucide no longer ships brand icons). */
 function InstagramIcon({ className }: { className?: string }) {

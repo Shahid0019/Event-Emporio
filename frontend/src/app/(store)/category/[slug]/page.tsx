@@ -8,6 +8,7 @@ import { CategoryChips } from "@/components/shop/category-chips";
 import { Breadcrumbs } from "@/components/ui/primitives";
 import { getCategories } from "@/lib/catalog";
 import { categoryBySlug } from "@/lib/data/categories";
+import { pageMetadata } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 
 export async function generateStaticParams() {
@@ -18,12 +19,14 @@ export async function generateMetadata({ params }: PageProps<"/category/[slug]">
   const { slug } = await params;
   const category = categoryBySlug(slug);
   if (!category) notFound();
-  return {
+  const { src, width, height, alt } = category.image;
+  return pageMetadata({
     title: category.seoTitle ?? category.name,
+    shareTitle: category.name,
     description: category.seoDescription ?? category.description,
-    alternates: { canonical: `/category/${category.slug}` },
-    openGraph: { images: [{ url: category.image.src, alt: category.image.alt }] },
-  };
+    path: `/category/${category.slug}`,
+    images: [{ url: src, width, height, alt }],
+  });
 }
 
 export default function CategoryPage({ params, searchParams }: PageProps<"/category/[slug]">) {

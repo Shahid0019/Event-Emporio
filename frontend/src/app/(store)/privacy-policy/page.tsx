@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { ContentPage, Prose, Tbc } from "@/components/layout/content-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Privacy Policy", alternates: { canonical: "/privacy-policy" } };
+export const metadata: Metadata = pageMetadata({
+  title: "Privacy Policy",
+  description: "How Khandr (khandr.com) collects, uses and protects your personal data.",
+  path: "/privacy-policy",
+});
 
 export default function PrivacyPolicyPage() {
   return (
@@ -36,8 +41,7 @@ export default function PrivacyPolicyPage() {
         <p>We share data only with service providers needed to run the store (payments, delivery, email) and never sell it.</p>
         <h2>Retention & your rights</h2>
         <p>
-          You can ask to access, correct or delete your data at any time. Retention periods:{" "}
-          <Tbc>retention schedule</Tbc>.
+          You can ask to access, correct or delete your data at any time. Retention periods: <Tbc>retention schedule</Tbc>.
         </p>
       </Prose>
     </ContentPage>

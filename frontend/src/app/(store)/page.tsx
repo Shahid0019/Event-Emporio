@@ -12,11 +12,10 @@ import { getBestsellers, getCategories, inShop } from "@/lib/catalog";
 import { homepage } from "@/lib/data/content";
 import { loadCatalog, loadContent, loadLatestReviews, primeKitCatalog } from "@/lib/db/queries";
 import { storeSettings } from "@/lib/data/settings";
+import { absoluteUrl, defaultShareImage, pageMetadata } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 
-export const metadata = {
-  alternates: { canonical: "/" },
-};
+export const metadata = pageMetadata({ path: "/" });
 
 export default async function HomePage() {
   const [categories, bestsellers, content, kitCatalog, latestReviews, catalog] = await Promise.all([
@@ -61,6 +60,8 @@ export default async function HomePage() {
     "@type": "Store",
     name: storeSettings.name,
     url: siteUrl,
+    logo: absoluteUrl("/brand/khandr-logo.svg"),
+    image: absoluteUrl(defaultShareImage.url),
     description: storeSettings.shortBio,
     sameAs: [storeSettings.social.instagram],
     address: {

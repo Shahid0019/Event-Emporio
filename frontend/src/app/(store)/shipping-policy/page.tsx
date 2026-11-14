@@ -4,8 +4,13 @@ import { storeSettings } from "@/lib/data/settings";
 import { loadSettings } from "@/lib/db/queries";
 import { SHIPPING_METHODS, shippingPrice } from "@/lib/settings";
 import { formatPrice } from "@/lib/utils";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Shipping Policy", alternates: { canonical: "/shipping-policy" } };
+export const metadata: Metadata = pageMetadata({
+  title: "Shipping Policy",
+  description: "Where Khandr delivers, delivery times and shipping charges for orders from khandr.com.",
+  path: "/shipping-policy",
+});
 
 export default async function ShippingPolicyPage() {
   const settings = await loadSettings();

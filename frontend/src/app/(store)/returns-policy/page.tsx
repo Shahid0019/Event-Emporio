@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
 import { ContentPage, Prose, Tbc } from "@/components/layout/content-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = { title: "Returns & Refunds", alternates: { canonical: "/returns-policy" } };
+export const metadata: Metadata = pageMetadata({
+  title: "Returns & Refunds",
+  description: "Returns, exchanges and refunds for orders placed on khandr.com.",
+  path: "/returns-policy",
+});
 
 export default function ReturnsPolicyPage() {
   return (

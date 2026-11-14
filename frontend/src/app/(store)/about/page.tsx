@@ -6,13 +6,13 @@ import { buttonVariants } from "@/components/ui/button";
 import { Breadcrumbs } from "@/components/ui/primitives";
 import { demoImage } from "@/lib/data/images";
 import { storeSettings } from "@/lib/data/settings";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About Us",
-  description:
-    "Khandr is a Srinagar-based studio for wedding essentials and décor — mehndi baskets, bridal hampers and disposables.",
-  alternates: { canonical: "/about" },
-};
+  description: "Khandr is a Srinagar-based studio for wedding essentials and décor — mehndi baskets, bridal hampers and disposables.",
+  path: "/about",
+});
 
 const hero = demoImage("mehndi-hands", "Hands decorated with intricate henna patterns");
 const detail = demoImage("brass-pitcher", "Engraved brass pitcher with dried flowers");

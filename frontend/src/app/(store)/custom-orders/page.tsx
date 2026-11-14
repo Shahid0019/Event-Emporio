@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { CustomOrderForm } from "@/components/forms/enquiry-forms";
 import { ContentPage } from "@/components/layout/content-page";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Custom & Bulk Orders",
   description: "Request personalised hampers, favours and bulk quantities for weddings, mehndi, corporate and festive occasions.",
-  alternates: { canonical: "/custom-orders" },
-};
+  path: "/custom-orders",
+});
 
 const steps = [
   { title: "Share your brief", body: "Occasion, date, quantities and the feel you're after." },

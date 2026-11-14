@@ -3,12 +3,13 @@ import { Suspense } from "react";
 import { CatalogHeader, CatalogResults, CatalogSkeleton } from "@/components/shop/catalog";
 import { CategoryChips } from "@/components/shop/category-chips";
 import { Breadcrumbs } from "@/components/ui/primitives";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Shop All",
   description: "Shop mehndi baskets, bridal hampers, luxury gift hampers, customised gifts and decorative disposables from khandr.com.",
-  alternates: { canonical: "/shop" },
-};
+  path: "/shop",
+});
 
 export default function ShopPage({ searchParams }: PageProps<"/shop">) {
   return (

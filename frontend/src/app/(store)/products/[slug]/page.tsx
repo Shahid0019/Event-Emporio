@@ -9,6 +9,7 @@ import { RecentlyViewed } from "@/components/product/recently-viewed";
 import { Breadcrumbs, Skeleton } from "@/components/ui/primitives";
 import { categoryName, getProductBySlug, getProductSlugs, getRelatedProducts, priceRange, totalStock } from "@/lib/catalog";
 import { loadContent, loadProductReviews } from "@/lib/db/queries";
+import { absoluteUrl, pageMetadata } from "@/lib/seo";
 import { siteUrl } from "@/lib/site";
 
 export async function generateStaticParams() {
@@ -20,17 +21,13 @@ export async function generateMetadata({ params }: PageProps<"/products/[slug]">
   const product = await getProductBySlug(slug);
   if (!product) notFound();
   if (product.kit) redirect("/kit");
-  return {
+  return pageMetadata({
     title: product.seoTitle ?? product.name,
+    shareTitle: product.name,
     description: product.seoDescription ?? product.shortDescription,
-    alternates: { canonical: `/products/${product.slug}` },
-    openGraph: {
-      type: "website",
-      title: product.name,
-      description: product.shortDescription,
-      images: product.images.map((i) => ({ url: i.src, width: i.width, height: i.height, alt: i.alt })),
-    },
-  };
+    path: `/products/${product.slug}`,
+    images: product.images.map((i) => ({ url: i.src, width: i.width, height: i.height, alt: i.alt })),
+  });
 }
 
 export default function ProductPage({ params }: PageProps<"/products/[slug]">) {
@@ -95,7 +92,7 @@ async function ProductContent({ params }: { params: PageProps<"/products/[slug]"
     name: product.name,
     description: product.shortDescription,
     sku: product.sku,
-    image: product.images.map((i) => `${siteUrl}${i.src}`),
+    image: product.images.map((i) => absoluteUrl(i.src)),
     brand: { "@type": "Brand", name: "Khandr" },
     category: catName,
     ...(customerReviews.length > 0 && {
