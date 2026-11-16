@@ -98,7 +98,7 @@ export function SavedKitsButton({ className, hideWhenEmpty = false }: { classNam
         open={open}
         onOpenChange={setOpen}
         title="Saved kits"
-        description={`Save up to ${SAVED_KITS_MAX} kits on this device. Opening one replaces the kit on screen.`}
+        description={`Up to ${SAVED_KITS_MAX}, on this device.`}
       >
         {count > 0 ? (
           <SavedKitsList onOpened={() => setOpen(false)} />
@@ -106,9 +106,7 @@ export function SavedKitsButton({ className, hideWhenEmpty = false }: { classNam
           <div className="rounded-card border border-dashed border-line-strong px-5 py-8 text-center">
             <Bookmark aria-hidden className="mx-auto size-6 text-accent-ink" />
             <p className="mt-3 font-medium">No saved kits yet</p>
-            <p className="mx-auto mt-1 max-w-xs text-sm text-muted">
-              Tap <span className="font-medium text-ink">Save</span> under your kit to keep it here while you plan another function.
-            </p>
+            <p className="mt-1 text-sm text-muted">Tap Save under your kit.</p>
           </div>
         )}
       </Sheet>
@@ -122,8 +120,7 @@ export function resetKit() {
   const chatHidden = kitChatHiddenStore.get();
   startOver();
   if (!before.occasion) return;
-  toast("Kit reset — start a new one", {
-    description: "Want it back?",
+  toast("Kit reset", {
     action: {
       label: "Undo",
       onClick: () => {

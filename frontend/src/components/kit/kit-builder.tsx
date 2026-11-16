@@ -186,7 +186,7 @@ function ChatKitBuilder() {
 function ChatLauncher({ state, onOpen }: { state: KitState; onOpen: () => void }) {
   const done = state.furthest >= 5;
   const answered = Math.min(state.furthest, 5);
-  const status = done ? "Change your answers" : `Question ${state.furthest + 1} of 5`;
+  const status = done ? "Kit ready" : `Question ${state.furthest + 1} of 5`;
   return (
     <button
       id="kit-chat-open"
@@ -194,8 +194,8 @@ function ChatLauncher({ state, onOpen }: { state: KitState; onOpen: () => void }
       onClick={onOpen}
       aria-expanded={false}
       aria-controls="kit-chat"
-      aria-label={`Open chat. ${done ? "Kit ready, change your answers" : status}`}
-      title={done ? "Open the chat to change your function, size or budget" : "Open the chat to finish your kit"}
+      aria-label={`Open chat. ${status}`}
+      title="Open chat"
       className={cn(
         "group flex min-h-16 w-full items-center gap-3 rounded-card border border-line bg-raised px-4 py-2.5 text-left transition-colors [view-transition-name:kit-chat] hover:border-ink hover:bg-surface/60",
         "md:flex-col md:justify-start md:gap-4 md:px-0 md:py-4",
@@ -217,10 +217,10 @@ function ChatLauncher({ state, onOpen }: { state: KitState; onOpen: () => void }
 
       <span aria-hidden className="h-px w-8 shrink-0 bg-line max-md:hidden" />
 
-      {/* Reads bottom-to-top on the rail: the title, then what's waiting inside. */}
-      <span className="min-w-0 flex-1 md:flex md:flex-none md:rotate-180 md:gap-1.5 md:[writing-mode:vertical-rl]">
+      {/* The rail shows just "Open chat" (read bottom-to-top); progress sits below as 3/5 or ✓. */}
+      <span className="min-w-0 flex-1 md:flex-none md:rotate-180 md:[writing-mode:vertical-rl]">
         <span className="block text-md font-medium md:text-xs md:uppercase md:tracking-[0.16em]">Open chat</span>
-        <span className="block truncate text-sm text-muted md:text-xs">{status}</span>
+        <span className="block truncate text-sm text-muted md:hidden">{status}</span>
       </span>
 
       <span aria-hidden className="mt-auto hidden flex-col items-center gap-1 md:flex">

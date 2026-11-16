@@ -280,7 +280,7 @@ function ShoppingList({ onEdit }: { onEdit: () => void }) {
                 resetKit();
                 window.scrollTo({ top: 0 });
               }}
-              title="Clear this kit and plan a new one"
+              title="Reset kit"
               className="inline-flex h-10 items-center gap-1.5 rounded-control border border-line-strong px-3 text-sm font-medium text-ink active:bg-surface"
             >
               <RotateCcw aria-hidden className="size-4" />
@@ -336,9 +336,8 @@ function ShoppingList({ onEdit }: { onEdit: () => void }) {
       <section aria-labelledby="kit-list-title" className="overflow-hidden rounded-card border border-line bg-raised">
         <div className="px-5 pt-5">
           <h2 id="kit-list-title" className="font-serif text-2xl leading-tight">
-            Recommended for your {name}
+            Recommended items
           </h2>
-          <p className="mt-1 text-sm text-muted">Change types and quantities, remove what you don&rsquo;t need, or add more.</p>
         </div>
         <KitPanel showHeader={false} bar />
       </section>

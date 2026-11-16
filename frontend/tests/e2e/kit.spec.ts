@@ -224,7 +224,7 @@ test("mobile: plan a function on one screen, then change the shopping list", asy
   await page.getByRole("button", { name: /Create my shopping list/i }).click();
 
   // Handbook screen 05: the list, with the size and budget on top.
-  await expect(page.getByRole("heading", { name: "Recommended for your Wazwan" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Recommended items" })).toBeVisible();
   await expect(page.getByText("200 Guests · 50 Tramies")).toBeVisible();
   await expect(page).toHaveURL(/occasion=wazwan&trami=50&tier=standard/);
   const list = await kitPanel(page, true);
@@ -245,7 +245,7 @@ test("mobile: plan a function on one screen, then change the shopping list", asy
   await page.getByRole("button", { name: "Reset", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Select function" })).toBeVisible();
   await page.getByRole("button", { name: "Undo" }).click();
-  await expect(page.getByRole("heading", { name: "Recommended for your Wazwan" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Recommended items" })).toBeVisible();
 
   // Save & start again keeps the list under Saved kits, one tap away from the new plan.
   await expect(page.getByRole("button", { name: /^Saved kits/ })).toBeVisible();
@@ -253,7 +253,7 @@ test("mobile: plan a function on one screen, then change the shopping list", asy
   await expect(page.getByRole("heading", { name: "Select function" })).toBeVisible();
   await page.getByRole("button", { name: /^Saved kits\s*1$/ }).click();
   await page.getByRole("dialog", { name: "Saved kits" }).getByRole("button", { name: /^Open saved kit: Wazwan/ }).click();
-  await expect(page.getByRole("heading", { name: "Recommended for your Wazwan" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Recommended items" })).toBeVisible();
 });
 
 test("the chat can be minimised and reopened, and the choice survives a refresh", async ({ page, isMobile }) => {

@@ -565,13 +565,9 @@ function KitFooter({
     if (!kit) return;
     const original = isSaved ? undefined : savedFrom;
     const id = isSaved && savedFrom ? savedFrom.id : saveKitForLater(kit, lines);
-    const name = savedKitsStore.get().find((k) => k.id === id)?.name ?? "Your kit";
     startOver();
     window.scrollTo({ top: 0 });
-    toast.success(isSaved ? "Already in Saved kits" : "Kit saved", {
-      description: original
-        ? `Saved as a new kit; “${original.name}” is kept as it was. Starting a new kit.`
-        : `${name} is in Saved kits. Starting a new kit.`,
+    toast.success(isSaved ? "Already saved" : original ? "Saved as a copy" : "Kit saved", {
       action: original
         ? {
             label: "Replace original",
@@ -581,13 +577,13 @@ function KitFooter({
               deleteSavedKit(id);
               saveKitForLater(kit, lines, original.id);
               kitStore.set((s) => ({ ...s, savedId: onScreen }));
-              toast.success("Saved kit updated");
+              toast.success("Original replaced");
             },
           }
         : {
             label: "Open it",
             onClick: () => {
-              if (!openSavedKit(id)) toast.error("This saved kit couldn't be opened.");
+              if (!openSavedKit(id)) toast.error("Couldn't open this kit");
             },
           },
     });
@@ -601,9 +597,6 @@ function KitFooter({
     openCartWithNotice(inBag ? "Kit updated in your bag" : "Kit added to your bag");
   };
 
-  const saveHint = isSaved
-    ? "Already in Saved kits — clears the screen for a new kit"
-    : "Keeps this kit in Saved kits and clears the screen for a new one";
   const saveIcon = isSaved ? <BookmarkCheck aria-hidden /> : <Bookmark aria-hidden />;
 
   if (bar)
@@ -629,7 +622,6 @@ function KitFooter({
               variant="outline"
               className="h-11 shrink-0 bg-raised px-3.5 text-sm normal-case tracking-normal"
               disabled={!kit || count === 0}
-              title={saveHint}
               onClick={saveAndStartOver}
             >
               {saveIcon}
@@ -672,7 +664,6 @@ function KitFooter({
             variant="outline"
             className="h-12 min-w-0 px-4 @[36rem]:px-5"
             disabled={!kit || count === 0}
-            title={saveHint}
             onClick={saveAndStartOver}
           >
             {saveIcon}
