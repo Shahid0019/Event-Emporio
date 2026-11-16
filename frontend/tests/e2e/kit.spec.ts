@@ -238,8 +238,22 @@ test("mobile: plan a function on one screen, then change the shopping list", asy
   await page.getByRole("button", { name: "Edit", exact: true }).click();
   await expect(page.getByRole("textbox", { name: "Tramies" })).toHaveValue("50");
   await page.getByRole("button", { name: "Keep my current list" }).click();
-  // Phones: the total and "Add to bag" sit in a fixed bar above the tab bar.
+  // Phones: the total, Save and "Add to bag" sit in a fixed bar above the tab bar.
   await expect(list.getByRole("button", { name: "Add to bag" })).toBeVisible();
+
+  // Reset clears the list for a new function; Undo brings it back.
+  await page.getByRole("button", { name: "Reset", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Select function" })).toBeVisible();
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.getByRole("heading", { name: "Recommended for your Wazwan" })).toBeVisible();
+
+  // Save & start again keeps the list under Saved kits, one tap away from the new plan.
+  await expect(page.getByRole("button", { name: /^Saved kits/ })).toBeVisible();
+  await list.getByRole("button", { name: "Save & start again" }).click();
+  await expect(page.getByRole("heading", { name: "Select function" })).toBeVisible();
+  await page.getByRole("button", { name: /^Saved kits\s*1$/ }).click();
+  await page.getByRole("dialog", { name: "Saved kits" }).getByRole("button", { name: /^Open saved kit: Wazwan/ }).click();
+  await expect(page.getByRole("heading", { name: "Recommended for your Wazwan" })).toBeVisible();
 });
 
 test("the chat can be minimised and reopened, and the choice survives a refresh", async ({ page, isMobile }) => {
@@ -268,37 +282,50 @@ test("the chat can be minimised and reopened, and the choice survives a refresh"
   await expect(page.getByRole("button", { name: "Minimise chat" })).toBeFocused();
 });
 
-test("saved kits come back on the next visit", async ({ page }) => {
+test("Save & start over keeps the kit in Saved kits and clears the screen for the next one", async ({ page, isMobile }) => {
+  test.skip(isMobile, "Phones save from the shopping list; covered by the mobile test");
   await page.goto("/kit");
   await page.evaluate(() => {
     localStorage.removeItem("ee.kit.saved.v1");
     localStorage.removeItem("ee.kit.v1");
   });
   await page.goto("/kit?occasion=walima&trami=60&tier=premium&prefs=extra");
-  // With the chat minimised the kit sits in the page, on phones too.
   await page.getByRole("button", { name: "Minimise chat" }).click();
   const panel = page.locator('section[aria-labelledby="kit-title"]');
-  await panel.getByRole("button", { name: "Save kit for later" }).click();
-  await expect(panel.getByRole("button", { name: "Kit saved" })).toBeVisible();
 
-  // A changed kit is saved alongside the first, not over it.
+  // Saved kits is always in the kit header; while empty it explains how to save.
+  await panel.getByRole("button", { name: /^Saved kits/ }).click();
+  const dialog = page.getByRole("dialog", { name: "Saved kits" });
+  await expect(dialog.getByText("No saved kits yet")).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  // Saving clears the screen for a new kit; the toast opens the saved one again.
+  await panel.getByRole("button", { name: "Save & start over" }).click();
+  await expect(page.getByRole("list", { name: "Saved kits" })).toBeVisible();
+  await page.getByRole("button", { name: "Open it" }).click();
+  await expect(panel.getByText("Walima · 60 trami")).toBeVisible();
+
+  // A changed kit is saved alongside the first, not over it (or can replace it from the toast).
   await panel.getByRole("button", { name: /^Cake plate / }).click();
   await panel.getByRole("button", { name: "Remove Cake plate" }).click();
-  await panel.getByRole("button", { name: "Save kit for later" }).click();
-  await expect(panel.getByRole("button", { name: "Saved (2)" })).toBeVisible();
-  await expect(panel.getByRole("button", { name: "Kit saved" })).toBeVisible();
+  await panel.getByRole("button", { name: "Save & start over" }).click();
+  await expect(page.getByRole("button", { name: "Replace original" })).toBeVisible();
 
-  // Start a fresh kit: the saved ones are offered right in the chat, newest first.
-  await openChat(page);
-  await page.getByRole("button", { name: /Start over/ }).click();
-  await expect(page.getByRole("list", { name: "Saved kits" })).toBeVisible();
+  // The fresh chat offers the saved kits, newest first.
+  await expect(page.getByRole("list", { name: "Saved kits" }).getByRole("listitem")).toHaveCount(2);
   await page.getByRole("button", { name: "Open saved kit: Walima kit · 60 trami" }).last().click();
   await expect(panel.getByText("Walima · 60 trami")).toBeVisible();
   await expect(panel.getByRole("button", { name: /^Cake plate / })).toBeVisible();
 
+  // Start over in the chat can be undone.
+  await openChat(page);
+  await page.getByRole("button", { name: /Start over/ }).click();
+  await expect(page.getByRole("list", { name: "How it works" })).toBeVisible();
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(panel.getByText("Walima · 60 trami")).toBeVisible();
+
   // Also reachable from the kit header, and deletable.
-  await panel.getByRole("button", { name: "Saved (2)" }).click();
-  const dialog = page.getByRole("dialog", { name: "Saved kits" });
+  await panel.getByRole("button", { name: /^Saved kits\s*2$/ }).click();
   const deleteButtons = dialog.getByRole("button", { name: "Delete saved kit: Walima kit · 60 trami" });
   await deleteButtons.first().click();
   await deleteButtons.first().click();

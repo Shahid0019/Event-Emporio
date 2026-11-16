@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { flushSync } from "react-dom";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, MessageSquareText, PanelLeftOpen } from "lucide-react";
 import { Sheet } from "@/components/ui/sheet";
 import { formatKitAmount } from "@/lib/kit/format";
 import { applyKitParams, kitChatHiddenStore, kitStore, queryOf, setChatHidden, type KitState } from "@/lib/kit/store";
@@ -72,7 +72,8 @@ export function KitBuilder() {
   if (isPhone === null) return <div className="min-h-[70vh]" aria-busy />;
   if (isPhone)
     return (
-      <div className="container-luxe pb-[calc(var(--bottom-nav-h)+7rem)] pt-3">
+      // Room to scroll the last items clear of the two-row kit bar and the tab bar.
+      <div className="container-luxe pb-[calc(var(--bottom-nav-h)+10rem)] pt-3">
         <MobilePlanner />
         <GiveawaySheet />
       </div>
@@ -177,10 +178,15 @@ function ChatKitBuilder() {
   );
 }
 
-/** The minimised chat: a one-line bar on phones, a slim rail beside the kit on larger screens. */
+/**
+ * The minimised chat: a one-line bar on phones, a slim rail beside the kit on larger screens.
+ * The rail says what it holds (the questions behind the kit) and shows the same panel icon as
+ * the chat's minimise button, so it reads as "this opens back out".
+ */
 function ChatLauncher({ state, onOpen }: { state: KitState; onOpen: () => void }) {
   const done = state.furthest >= 5;
-  const status = done ? "Kit ready · change your answers" : `Question ${state.furthest + 1} of 5`;
+  const answered = Math.min(state.furthest, 5);
+  const status = done ? "Change your answers" : `Question ${state.furthest + 1} of 5`;
   return (
     <button
       id="kit-chat-open"
@@ -188,29 +194,42 @@ function ChatLauncher({ state, onOpen }: { state: KitState; onOpen: () => void }
       onClick={onOpen}
       aria-expanded={false}
       aria-controls="kit-chat"
-      aria-label={`Open chat. ${status}`}
+      aria-label={`Open chat. ${done ? "Kit ready, change your answers" : status}`}
+      title={done ? "Open the chat to change your function, size or budget" : "Open the chat to finish your kit"}
       className={cn(
-        "group flex min-h-16 w-full items-center gap-3 rounded-card border border-line bg-raised px-4 py-2.5 text-left transition-colors [view-transition-name:kit-chat] hover:border-ink",
-        "md:flex-col md:justify-start md:gap-5 md:px-0 md:py-5",
+        "group flex min-h-16 w-full items-center gap-3 rounded-card border border-line bg-raised px-4 py-2.5 text-left transition-colors [view-transition-name:kit-chat] hover:border-ink hover:bg-surface/60",
+        "md:flex-col md:justify-start md:gap-4 md:px-0 md:py-4",
         columnHeight,
       )}
     >
+      {/* Mirrors the chat's "Minimise chat" icon: the rail opens back into the chat. */}
       <span
         aria-hidden
-        className="relative grid size-10 shrink-0 place-items-center rounded-full bg-brand font-serif text-base text-brand-ink"
+        className="hidden size-10 shrink-0 place-items-center rounded-control border border-line-strong text-ink transition-colors group-hover:border-ink group-hover:bg-raised md:grid"
       >
-        E{!done && <span className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-raised bg-accent" />}
+        <PanelLeftOpen className="size-5" strokeWidth={1.75} />
       </span>
 
-      <span className="min-w-0 flex-1 md:flex-none md:rotate-180 md:[writing-mode:vertical-rl]">
+      <span aria-hidden className="relative grid size-10 shrink-0 place-items-center rounded-full bg-brand text-brand-ink">
+        <MessageSquareText className="size-[1.15rem]" strokeWidth={1.75} />
+        {!done && <span className="absolute -right-0.5 -top-0.5 size-3 rounded-full border-2 border-raised bg-accent" />}
+      </span>
+
+      <span aria-hidden className="h-px w-8 shrink-0 bg-line max-md:hidden" />
+
+      {/* Reads bottom-to-top on the rail: the title, then what's waiting inside. */}
+      <span className="min-w-0 flex-1 md:flex md:flex-none md:rotate-180 md:gap-1.5 md:[writing-mode:vertical-rl]">
         <span className="block text-md font-medium md:text-xs md:uppercase md:tracking-[0.16em]">Open chat</span>
-        <span className="block truncate text-sm text-muted md:hidden">{status}</span>
+        <span className="block truncate text-sm text-muted md:text-xs">{status}</span>
       </span>
 
-      <span aria-hidden className="hidden flex-col gap-1 md:flex">
+      <span aria-hidden className="mt-auto hidden flex-col items-center gap-1 md:flex">
         {[0, 1, 2, 3, 4].map((i) => (
-          <span key={i} className={cn("h-5 w-1 rounded-full", i < state.furthest ? "bg-brand" : "bg-surface")} />
+          <span key={i} className={cn("h-4 w-1 rounded-full", i < answered ? "bg-brand" : "bg-surface")} />
         ))}
+        <span className={cn("mt-1.5 text-2xs font-medium tabular-nums", done ? "text-success" : "text-muted")}>
+          {done ? "✓" : `${answered}/5`}
+        </span>
       </span>
 
       <ChevronDown aria-hidden className="size-5 shrink-0 text-muted transition-transform group-hover:translate-y-0.5 md:hidden" />

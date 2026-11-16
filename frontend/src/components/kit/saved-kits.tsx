@@ -7,7 +7,7 @@ import { Sheet } from "@/components/ui/sheet";
 import { kitFunctionById } from "@/lib/kit/catalog";
 import { decodeSharedKit } from "@/lib/kit/shared";
 import { deleteSavedKit, openSavedKit, SAVED_KITS_MAX, savedKitsStore, type SavedKit } from "@/lib/kit/saved";
-import { kitStore } from "@/lib/kit/store";
+import { kitChatHiddenStore, kitStore, startOver } from "@/lib/kit/store";
 import { buildKit, kitTotal } from "@/lib/kit/buildKit";
 import { giftLines, giftsTotal } from "@/lib/kit/gifts";
 import { formatKitAmount } from "@/lib/kit/format";
@@ -67,19 +67,32 @@ export function SavedKitsList({ onOpened, className }: { onOpened?: () => void; 
   );
 }
 
-/** "Saved (2)" in the kit header; opens the list in a sheet. */
-export function SavedKitsButton() {
+/**
+ * "Saved kits" with a count; opens the list in a sheet. Always shown (unless `hideWhenEmpty`) so
+ * shoppers know where "Save & start over" puts their kit, with a short explanation while it's empty.
+ */
+export function SavedKitsButton({ className, hideWhenEmpty = false }: { className?: string; hideWhenEmpty?: boolean }) {
   const count = savedKitsStore.useStore((list) => list.length);
   const [open, setOpen] = useState(false);
-  if (!count) return null;
+  if (!count && hideWhenEmpty) return null;
   return (
     <>
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex min-h-9 items-center gap-1.5 rounded-control border border-line-strong px-3 text-xs transition-colors hover:border-ink"
+        aria-haspopup="dialog"
+        className={cn(
+          "inline-flex min-h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-control border border-line-strong px-3 text-sm transition-colors hover:border-ink",
+          className,
+        )}
       >
-        <Bookmark aria-hidden className="size-3.5" /> Saved ({count})
+        <Bookmark aria-hidden className="size-3.5" />
+        Saved kits
+        {count > 0 && (
+          <span className="grid h-5 min-w-5 place-items-center rounded-full bg-brand px-1.5 text-2xs font-medium tabular-nums text-brand-ink">
+            {count}
+          </span>
+        )}
       </button>
       <Sheet
         open={open}
@@ -87,8 +100,36 @@ export function SavedKitsButton() {
         title="Saved kits"
         description={`Save up to ${SAVED_KITS_MAX} kits on this device. Opening one replaces the kit on screen.`}
       >
-        <SavedKitsList onOpened={() => setOpen(false)} />
+        {count > 0 ? (
+          <SavedKitsList onOpened={() => setOpen(false)} />
+        ) : (
+          <div className="rounded-card border border-dashed border-line-strong px-5 py-8 text-center">
+            <Bookmark aria-hidden className="mx-auto size-6 text-accent-ink" />
+            <p className="mt-3 font-medium">No saved kits yet</p>
+            <p className="mx-auto mt-1 max-w-xs text-sm text-muted">
+              Tap <span className="font-medium text-ink">Save</span> under your kit to keep it here while you plan another function.
+            </p>
+          </div>
+        )}
       </Sheet>
     </>
   );
+}
+
+/** Clears the kit to plan a new one; the toast's Undo brings the old kit (and chat layout) back. */
+export function resetKit() {
+  const before = kitStore.get();
+  const chatHidden = kitChatHiddenStore.get();
+  startOver();
+  if (!before.occasion) return;
+  toast("Kit reset — start a new one", {
+    description: "Want it back?",
+    action: {
+      label: "Undo",
+      onClick: () => {
+        kitStore.set(before);
+        kitChatHiddenStore.set(chatHidden);
+      },
+    },
+  });
 }

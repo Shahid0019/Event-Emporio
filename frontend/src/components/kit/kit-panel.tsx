@@ -8,7 +8,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { QuantitySelector } from "@/components/ui/quantity-selector";
 import { swapSuggestions, type KitLine } from "@/lib/kit/buildKit";
 import { saveKitToCart } from "@/lib/kit/cart";
-import { deleteSavedKit, isSavedAs, savedKitsStore, saveKitForLater } from "@/lib/kit/saved";
+import { deleteSavedKit, isSavedAs, openSavedKit, savedKitsStore, saveKitForLater } from "@/lib/kit/saved";
 import { getKitCatalog, kitHasOptionPhotos, kitItemById } from "@/lib/kit/catalog";
 import { CUSTOM_FUNCTION, functionDates, kitCategories } from "@/lib/kit/config";
 import { formatEventDate, formatKitAmount, formatUnitPrice, quantityHint } from "@/lib/kit/format";
@@ -27,6 +27,7 @@ import {
   setQty,
   setVariant,
   sharedKitOf,
+  startOver,
   kitStore,
   type KitState,
 } from "@/lib/kit/store";
@@ -556,28 +557,39 @@ function KitFooter({
   // so shoppers can keep several versions side by side; replacing the original is one tap away.
   const isSaved = !!kit && isSavedAs(kit, savedFrom);
 
-  const saveForLater = () => {
+  /**
+   * Saves the kit to Saved kits and clears the screen for the next function. The toast says where it
+   * went and opens it again in one tap; a changed copy of a saved kit can replace the original instead.
+   */
+  const saveAndStartOver = () => {
     if (!kit) return;
-    if (isSaved) {
-      toast("This kit is already saved", { description: "Find it under Saved kits — it stays on this device." });
-      return;
-    }
-    const id = saveKitForLater(kit, lines);
-    const original = savedFrom;
-    toast.success("Kit saved for later", {
+    const original = isSaved ? undefined : savedFrom;
+    const id = isSaved && savedFrom ? savedFrom.id : saveKitForLater(kit, lines);
+    const name = savedKitsStore.get().find((k) => k.id === id)?.name ?? "Your kit";
+    startOver();
+    window.scrollTo({ top: 0 });
+    toast.success(isSaved ? "Already in Saved kits" : "Kit saved", {
       description: original
-        ? `Saved as a new kit. “${original.name}” is kept as it was.`
-        : "Find it under Saved kits — it stays on this device.",
-      ...(original && {
-        action: {
-          label: "Replace it instead",
-          onClick: () => {
-            deleteSavedKit(id);
-            saveKitForLater(kit, lines, original.id);
-            toast.success("Saved kit updated");
+        ? `Saved as a new kit; “${original.name}” is kept as it was. Starting a new kit.`
+        : `${name} is in Saved kits. Starting a new kit.`,
+      action: original
+        ? {
+            label: "Replace original",
+            onClick: () => {
+              // Replacing must not tie the new kit on screen to the saved one.
+              const onScreen = kitStore.get().savedId;
+              deleteSavedKit(id);
+              saveKitForLater(kit, lines, original.id);
+              kitStore.set((s) => ({ ...s, savedId: onScreen }));
+              toast.success("Saved kit updated");
+            },
+          }
+        : {
+            label: "Open it",
+            onClick: () => {
+              if (!openSavedKit(id)) toast.error("This saved kit couldn't be opened.");
+            },
           },
-        },
-      }),
     });
   };
 
@@ -589,42 +601,50 @@ function KitFooter({
     openCartWithNotice(inBag ? "Kit updated in your bag" : "Kit added to your bag");
   };
 
-  const saveButton = (
-    <Button
-      variant="outline"
-      size="icon"
-      className="size-12 shrink-0"
-      disabled={!kit || count === 0}
-      aria-label={isSaved ? "Kit saved" : "Save kit for later"}
-      title={isSaved ? "Kit saved" : "Save kit for later"}
-      onClick={saveForLater}
-    >
-      {isSaved ? <BookmarkCheck /> : <Bookmark />}
-    </Button>
-  );
+  const saveHint = isSaved
+    ? "Already in Saved kits — clears the screen for a new kit"
+    : "Keeps this kit in Saved kits and clears the screen for a new one";
+  const saveIcon = isSaved ? <BookmarkCheck aria-hidden /> : <Bookmark aria-hidden />;
 
   if (bar)
     return (
       // Fixed above the tab bar; bottom padding clears the tab bar's raised Plan button.
-      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-6 pt-2.5 shadow-[0_-12px_30px_-24px_rgb(34_41_35/0.5)] backdrop-blur">
-        <div className="mx-auto flex max-w-xl items-center gap-2.5">
-          <div className="min-w-0 flex-1">
-            <p className="font-serif text-2xl leading-none tabular-nums">{formatKitAmount(total)}</p>
-            <p className="mt-1 text-xs leading-tight text-muted">
-              {count} {count === 1 ? "item" : "items"}
-              {budget !== null && (
-                // Its own line on narrow phones rather than being cut off.
-                <span className={cn("block", within ? "text-success" : "text-danger")}>{within ? "Within budget" : "Over budget"}</span>
-              )}
-            </p>
+      // Two rows so every label stays readable on the narrowest phones: total and Save, then a full-width Add to bag.
+      <div className="fixed inset-x-0 bottom-[var(--bottom-nav-h)] z-30 border-t border-line bg-raised/95 px-4 pb-6 pt-3 shadow-[0_-12px_30px_-24px_rgb(34_41_35/0.5)] backdrop-blur">
+        <div className="mx-auto max-w-xl space-y-2.5">
+          <div className="flex items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="font-serif text-2xl leading-none tabular-nums">{formatKitAmount(total)}</p>
+              <p className="mt-1 text-xs leading-tight text-muted">
+                {count} {count === 1 ? "item" : "items"}
+                {budget !== null && (
+                  // Its own line on narrow phones rather than being cut off.
+                  <span className={cn("block whitespace-nowrap", within ? "text-success" : "text-danger")}>
+                    {within ? "Within budget" : "Over budget"}
+                  </span>
+                )}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              className="h-11 shrink-0 bg-raised px-3.5 text-sm normal-case tracking-normal"
+              disabled={!kit || count === 0}
+              title={saveHint}
+              onClick={saveAndStartOver}
+            >
+              {saveIcon}
+              Save &amp; start again
+            </Button>
           </div>
-          {saveButton}
           {state.inCart && inBag ? (
-            <Link href="/cart" className={buttonVariants({ className: "h-12 shrink-0 bg-success px-4 normal-case tracking-normal hover:bg-success/90" })}>
-              ✓ View bag
+            <Link
+              href="/cart"
+              className={buttonVariants({ className: "h-12 w-full bg-success normal-case tracking-normal text-md hover:bg-success/90" })}
+            >
+              ✓ Kit in bag · View bag
             </Link>
           ) : (
-            <Button className="h-12 shrink-0 px-4 normal-case tracking-normal text-md" disabled={count === 0} onClick={putInBag}>
+            <Button className="h-12 w-full normal-case tracking-normal text-md" disabled={count === 0} onClick={putInBag}>
               <ShoppingBag />
               {inBag ? "Update bag" : "Add to bag"}
             </Button>
@@ -638,8 +658,8 @@ function KitFooter({
 
   return (
     <div className="@container sticky bottom-[var(--bottom-nav-h)] z-10 md:bottom-0 border-t border-line bg-raised/95 px-5 py-4 backdrop-blur sm:px-6">
-      {/* Price on the left, actions on the right; stacked when the panel is narrow. */}
-      <div className="flex flex-col gap-3 @[25rem]:flex-row @[25rem]:items-center @[25rem]:justify-between @[25rem]:gap-5">
+      {/* Price on the left, actions on the right; on a narrow panel the price sits above two equal buttons. */}
+      <div className="flex flex-col gap-3 @[36rem]:flex-row @[36rem]:items-center @[36rem]:justify-between @[36rem]:gap-5">
         <div className="min-w-0">
           <p className="text-2xl font-medium leading-none tabular-nums">{formatKitAmount(total)}</p>
           <p className="mt-1.5 text-sm tabular-nums text-muted">
@@ -647,17 +667,23 @@ function KitFooter({
           </p>
         </div>
 
-        <div className="flex shrink-0 items-center gap-2">
-          {saveButton}
+        <div className="grid grid-cols-2 gap-2 @[36rem]:flex @[36rem]:shrink-0 @[36rem]:items-center">
+          <Button
+            variant="outline"
+            className="h-12 min-w-0 px-4 @[36rem]:px-5"
+            disabled={!kit || count === 0}
+            title={saveHint}
+            onClick={saveAndStartOver}
+          >
+            {saveIcon}
+            Save &amp; start over
+          </Button>
           {state.inCart && inBag ? (
-            <Link
-              href="/cart"
-              className={buttonVariants({ className: "h-12 min-w-0 flex-1 bg-success px-6 hover:bg-success/90 @[25rem]:flex-none" })}
-            >
-              ✓ Kit in bag · View bag
+            <Link href="/cart" className={buttonVariants({ className: "h-12 min-w-0 bg-success px-4 hover:bg-success/90 @[36rem]:px-6" })}>
+              ✓ In bag · View bag
             </Link>
           ) : (
-            <Button className="h-12 min-w-0 flex-1 px-6 @[25rem]:flex-none" disabled={count === 0} onClick={putInBag}>
+            <Button className="h-12 min-w-0 px-4 @[36rem]:px-6" disabled={count === 0} onClick={putInBag}>
               <ShoppingBag />
               {inBag ? "Update kit in bag" : "Add kit to bag"}
             </Button>

@@ -39,7 +39,6 @@ import {
   reopenStep,
   setTrami,
   skipRetiredStep,
-  startOver,
   type KitState,
   type KitStep,
 } from "@/lib/kit/store";
@@ -48,7 +47,7 @@ import { useStoreSettings } from "@/components/providers/store-data";
 import { siteUrl } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { KitThumb } from "./kit-thumb";
-import { SavedKitsList } from "./saved-kits";
+import { resetKit, SavedKitsList } from "./saved-kits";
 import { savedKitsStore } from "@/lib/kit/saved";
 import { useKit } from "./use-kit";
 
@@ -363,12 +362,12 @@ function StepControls({ step }: { step: KitStep }) {
             </Button>
           )}
           <a href={href} target="_blank" rel="noopener noreferrer" className={buttonVariants({ className: "w-full px-3" })}>
-            {/* "Share on" drops on the narrowest phones so the label never spills out of the button. */}
+            {/* "Share on" drops on the narrowest phones and the narrow tablet chat so the label never spills out of the button. */}
             <span>
-              <span className="max-[389px]:sr-only">Share on </span>WhatsApp
+              <span className="max-[389px]:sr-only md:max-lg:sr-only">Share on </span>WhatsApp
             </span>
           </a>
-          <Button variant="outline" className="w-full px-3" onClick={startOver}>
+          <Button variant="outline" className="w-full px-3" onClick={resetKit}>
             <RotateCcw aria-hidden />
             Start over
           </Button>

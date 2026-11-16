@@ -7,18 +7,17 @@ import { useNumberField } from "@/components/ui/quantity-selector";
 import { useStoreSettings } from "@/components/providers/store-data";
 import { activeKitFunctions, getKitCatalog } from "@/lib/kit/catalog";
 import { CUSTOM_FUNCTION, FUNCTION_TITLE_MAX, GUESTS_PER_TRAMI, TRAMI, tiers, type Occasion } from "@/lib/kit/config";
-import { createShoppingList, guestsOf, MAX_GUESTS, openGiftSheet, queryOf, setTier, startOver } from "@/lib/kit/store";
+import { createShoppingList, guestsOf, MAX_GUESTS, openGiftSheet, queryOf, setTier } from "@/lib/kit/store";
 import { cleanTitle, kitQueryString, kitTitle, shareText } from "@/lib/kit/url";
 import { siteUrl } from "@/lib/site";
 import { cn } from "@/lib/utils";
 import { KitPanel } from "./kit-panel";
-import { SavedKitsButton } from "./saved-kits";
+import { resetKit, SavedKitsButton } from "./saved-kits";
 import { KitThumb } from "./kit-thumb";
 import { useKit } from "./use-kit";
 
 const chipBtn =
   "inline-flex h-9 items-center gap-1.5 rounded-control border border-line-strong px-3 text-sm transition-colors aria-pressed:border-brand aria-pressed:bg-brand aria-pressed:text-brand-ink";
-
 
 /**
  * Phones follow the handbook's mobile flow: one Plan My Function screen
@@ -33,7 +32,9 @@ export function MobilePlanner() {
   // Keyed by the saved function: a link such as /kit?occasion=wazwan can set it just after the form appears
   // (arriving from the home page), and the form should then start from that choice.
   if (!planned || editing)
-    return <PlanForm key={state.occasion ?? "none"} onDone={() => setEditing(false)} onCancel={planned ? () => setEditing(false) : undefined} />;
+    return (
+      <PlanForm key={state.occasion ?? "none"} onDone={() => setEditing(false)} onCancel={planned ? () => setEditing(false) : undefined} />
+    );
   return <ShoppingList onEdit={() => setEditing(true)} />;
 }
 
@@ -84,9 +85,13 @@ function PlanForm({ onDone, onCancel }: { onDone: () => void; onCancel?: () => v
       <h1 className="sr-only">Plan your function</h1>
 
       <section aria-labelledby="plan-event">
-        <h2 id="plan-event" className="font-sans text-base font-semibold tracking-normal">
-          Select function
-        </h2>
+        {/* After "Save & start again", the saved kit is one tap away from the new plan. */}
+        <div className="flex items-center justify-between gap-3">
+          <h2 id="plan-event" className="font-sans text-base font-semibold tracking-normal">
+            Select function
+          </h2>
+          <SavedKitsButton hideWhenEmpty />
+        </div>
         <div role="radiogroup" aria-labelledby="plan-event" className="mt-3 grid grid-cols-2 gap-2.5">
           {functions.map((f) => {
             const on = !own && occasion === f.id;
@@ -247,7 +252,8 @@ function ShoppingList({ onEdit }: { onEdit: () => void }) {
   const phone = settings.contact.whatsapp.replace(/\D/g, "");
   const share = `https://wa.me/${phone}?text=${encodeURIComponent(shareText(query, lines, url, gifts))}`;
 
-  const iconBtn = "grid size-10 place-items-center rounded-control border border-line-strong text-ink active:bg-surface [&_svg]:size-[1.1rem]";
+  const iconBtn =
+    "grid size-10 place-items-center rounded-control border border-line-strong text-ink active:bg-surface [&_svg]:size-[1.1rem]";
 
   return (
     <div className="space-y-4">
@@ -258,11 +264,27 @@ function ShoppingList({ onEdit }: { onEdit: () => void }) {
             <h1 className="mt-1 font-serif text-3xl leading-tight">{name}</h1>
           </div>
           <div className="flex shrink-0 gap-1.5">
-            <a href={share} target="_blank" rel="noopener noreferrer" aria-label="Share on WhatsApp" title="Share on WhatsApp" className={iconBtn}>
+            <a
+              href={share}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Share on WhatsApp"
+              title="Share on WhatsApp"
+              className={iconBtn}
+            >
               <Share2 aria-hidden />
             </a>
-            <button type="button" onClick={startOver} aria-label="Start over" title="Start over" className={iconBtn}>
-              <RotateCcw aria-hidden />
+            <button
+              type="button"
+              onClick={() => {
+                resetKit();
+                window.scrollTo({ top: 0 });
+              }}
+              title="Clear this kit and plan a new one"
+              className="inline-flex h-10 items-center gap-1.5 rounded-control border border-line-strong px-3 text-sm font-medium text-ink active:bg-surface"
+            >
+              <RotateCcw aria-hidden className="size-4" />
+              Reset
             </button>
           </div>
         </div>
@@ -307,9 +329,7 @@ function ShoppingList({ onEdit }: { onEdit: () => void }) {
               {state.gifts?.length ? `Giveaways (${state.gifts.length})` : "Giveaways"}
             </button>
           )}
-        </div>
-        <div className="mt-2.5 empty:hidden">
-          <SavedKitsButton />
+          <SavedKitsButton className="h-9 min-h-0 text-sm" />
         </div>
       </div>
 
