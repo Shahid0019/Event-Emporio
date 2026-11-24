@@ -6,7 +6,7 @@ import { DropdownMenu } from "radix-ui";
 import { Heart, LogOut, MapPin, Package, User, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { sessionStore, signOut, type SessionUser } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import { cn, contactLine } from "@/lib/utils";
 
 /** "Asha Bhat" → "AB", "Zara" → "Z"; falls back to the email's first letter. */
 export function initialsOf(user: Pick<SessionUser, "name" | "email">): string {
@@ -79,7 +79,7 @@ export function AccountMenu({ className }: { className?: string }) {
             <Initials user={user} className="size-10 text-sm" />
             <div className="min-w-0">
               <p className="truncate text-md font-medium">Hello, {firstName}</p>
-              <p className="truncate text-xs text-muted">{user.email}</p>
+              <p className="truncate text-xs text-muted">{contactLine(user)}</p>
             </div>
           </div>
           <DropdownMenu.Separator className="mx-1.5 mb-1 h-px bg-line" />

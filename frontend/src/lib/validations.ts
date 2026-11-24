@@ -7,6 +7,8 @@ import { z } from "zod";
 
 const name = z.string().trim().min(2, "Please enter your full name").max(80, "That name is too long");
 const email = z.string().trim().toLowerCase().email("Please enter a valid email address").max(120);
+/** Accounts made with a phone code can skip the email. */
+const optionalEmail = z.union([z.literal(""), email]).optional();
 const phone = z
   .string()
   .trim()
@@ -72,7 +74,7 @@ export const resetPasswordSchema = z
   .object({ password, confirmPassword: z.string() })
   .refine((d) => d.password === d.confirmPassword, { path: ["confirmPassword"], message: "Passwords don't match" });
 
-export const profileSchema = z.object({ name, email, phone: phone.optional().or(z.literal("")) });
+export const profileSchema = z.object({ name, email: optionalEmail, phone: phone.optional().or(z.literal("")) });
 
 /** `currentPassword` is left empty when the account has no password yet (made with Google or a phone code). */
 export const changePasswordSchema = z
@@ -81,8 +83,8 @@ export const changePasswordSchema = z
 
 /* Phone sign-in: a 6-digit code by SMS, then (for a new number) name and email. */
 export const phoneSchema = z.object({ phone });
-export const phoneCodeSchema = z.object({ phone, code: z.string().trim().regex(/^d{6}$/, "Enter the 6-digit code") });
-export const phoneProfileSchema = z.object({ ticket: z.string().min(1), name, email });
+export const phoneCodeSchema = z.object({ phone, code: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit code") });
+export const phoneProfileSchema = z.object({ ticket: z.string().min(1), name, email: optionalEmail });
 
 export const contactSchema = z.object({
   name,

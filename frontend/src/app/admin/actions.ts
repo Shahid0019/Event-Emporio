@@ -6,7 +6,8 @@ import type { AdminChanges } from "@/lib/admin-data";
 import { ADMIN_COOKIE, verifyAdminToken } from "@/lib/admin-auth";
 import { applyAdminChanges } from "@/lib/server/admin-data";
 import { getDb } from "@/lib/db/client";
-import { sendEmail } from "@/lib/server/email";
+import { queueEmail } from "@/lib/server/email";
+import { refundEmail } from "@/lib/server/email-templates";
 import { findOrderDoc } from "@/lib/server/orders";
 import { razorpayConfigured, refundRazorpayPayment } from "@/lib/server/razorpay";
 import { formatPrice } from "@/lib/utils";
@@ -70,15 +71,6 @@ export async function refundOrder(orderId: string): Promise<SaveResponse & { man
     by: adminEmail,
     summary: `refunded order ${order.number}`,
   });
-  void sendEmail(
-    order.customer.email,
-    `Refund for order ${order.number}`,
-    `Hi ${order.customer.name},
-
-We've refunded ${formatPrice(order.totals.total)} for order ${order.number}. It can take 5–7 working days to reach your account.
-
-Team Khandr
-khandr.com`,
-  );
+  queueEmail(order.customer.email, refundEmail(order));
   return { ok: true, manual: !viaRazorpay };
 }

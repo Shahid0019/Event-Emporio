@@ -5,8 +5,8 @@ import { buildQuote, quoteRequestSchema } from "../quote";
 import { SHIPPING_METHODS } from "../settings";
 import type { Order, OrderKind, OrderLine, Product } from "../types";
 import { checkoutSchema } from "../validations";
-import { sendEmail } from "./email";
-import { formatPrice } from "../utils";
+import { queueEmail } from "./email";
+import { orderConfirmedEmail } from "./email-templates";
 
 /**
  * Orders (server only). An order is created as "pending" with the server's
@@ -181,11 +181,7 @@ export async function markOrderPaid(orderId: string, paymentReference: string): 
   await takeStock(doc);
 
   const order = publicOrder(doc);
-  void sendEmail(
-    order.customer.email,
-    `Order ${order.number} confirmed — khandr.com`,
-    `Thank you, ${order.customer.name}!\n\nWe've received your payment of ${formatPrice(order.totals.total)} for order ${order.number}.\nWe'll let you know when it ships.\n\nTeam Khandr\nkhandr.com`,
-  );
+  queueEmail(order.customer.email, orderConfirmedEmail(order));
   return order;
 }
 
@@ -239,17 +235,7 @@ export async function confirmCodOrder(orderId: string): Promise<Order | null> {
   if (!doc) return null;
   await takeStock(doc);
   const order = publicOrder(doc);
-  void sendEmail(
-    order.customer.email,
-    `Order ${order.number} confirmed — khandr.com`,
-    `Thank you, ${order.customer.name}!
-
-We've received your order ${order.number}. Please keep ${formatPrice(order.totals.total)} ready in cash for when it's delivered.
-We'll let you know when it ships.
-
-Team Khandr
-khandr.com`,
-  );
+  queueEmail(order.customer.email, orderConfirmedEmail(order));
   return order;
 }
 

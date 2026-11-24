@@ -82,14 +82,12 @@ export function PhoneVerify({
   autoFocus?: boolean;
 }) {
   const [phone, setPhone] = useState<string | null>(null);
-  const [devCode, setDevCode] = useState<string>();
   const numberForm = useForm<z.input<typeof phoneSchema>, unknown, z.output<typeof phoneSchema>>({ resolver: zodResolver(phoneSchema) });
 
   async function send(number: string): Promise<string | null> {
-    const res = await sendJson<{ devCode?: string }>("/api/account/phone/send", { phone: number });
+    const res = await sendJson("/api/account/phone/send", { phone: number });
     if (!res.ok) return res.error;
     setPhone(number);
-    setDevCode(res.data.devCode);
     return null;
   }
 
@@ -97,7 +95,6 @@ export function PhoneVerify({
     return (
       <CodeStep
         phone={phone}
-        devCode={devCode}
         onResend={() => send(phone)}
         onChangeNumber={() => setPhone(null)}
         verify={async (code) => {
@@ -147,13 +144,11 @@ export function PhoneVerify({
 
 function CodeStep({
   phone,
-  devCode,
   onResend,
   onChangeNumber,
   verify,
 }: {
   phone: string;
-  devCode?: string;
   onResend: () => Promise<string | null>;
   onChangeNumber: () => void;
   verify: (code: string) => Promise<string | null>;
@@ -231,11 +226,6 @@ function CodeStep({
         />
       </Field>
 
-      {devCode && (
-        <p className="rounded-control border border-dashed border-line-strong px-4 py-3 text-sm text-muted">
-          Test mode — SMS isn&apos;t set up yet, so here&apos;s your code: <span className="font-medium tracking-[0.2em] text-ink">{devCode}</span>
-        </p>
-      )}
 
       <Button type="submit" size="lg" className="w-full" loading={busy}>
         Verify &amp; continue
@@ -331,13 +321,13 @@ function NewPhoneAccount({
     >
       <div className="rounded-card bg-accent-soft/60 px-4 py-3.5 text-md">
         <p className="font-medium text-ink">{showPhone(phone)} is verified</p>
-        <p className="mt-0.5 text-muted">You&apos;re new here — just two details to finish your account.</p>
+        <p className="mt-0.5 text-muted">You&apos;re new here — add your details to finish.</p>
       </div>
       <Field label="Full name" htmlFor="pn-name" error={e.name?.message}>
         <Input autoComplete="name" autoFocus {...fieldAria("pn-name", e.name?.message)} {...form.register("name")} />
       </Field>
-      <Field label="Email" htmlFor="pn-email" error={e.email?.message} hint={e.email ? undefined : "For order updates and receipts."}>
-        <Input type="email" autoComplete="email" {...fieldAria("pn-email", e.email?.message, true)} {...form.register("email")} />
+      <Field label="Email" htmlFor="pn-email" optional error={e.email?.message} hint={e.email ? undefined : "For order updates and receipts."}>
+        <Input type="email" autoComplete="email" {...fieldAria("pn-email", e.email?.message)} {...form.register("email")} />
       </Field>
       <Button type="submit" size="lg" className="w-full" loading={form.formState.isSubmitting}>
         Create my account

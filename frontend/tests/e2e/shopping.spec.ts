@@ -114,22 +114,24 @@ test.describe("purchase journey", () => {
   });
 
   test("a new customer signs in with a mobile number and a code, then again with the same number", async ({ page }) => {
-    // The e2e server has no SMS service, so it shows the code on screen (test mode).
+    // The e2e server has no SMS service; it hands the code back to the test (never shown on screen).
     const number = `9${String(Date.now()).slice(-9)}`;
     const enterCode = async () => {
       await page.getByLabel("Mobile number").fill(number);
+      const sent = page.waitForResponse((r) => r.url().endsWith("/api/account/phone/send"));
       await page.getByRole("button", { name: "Send code" }).click();
-      const note = page.getByText("Test mode");
-      await expect(note).toBeVisible();
-      const code = (await note.textContent())!.match(/\d{6}/)![0];
-      await page.getByLabel("6-digit code").fill(code);
+      const { devCode } = (await (await sent).json()) as { devCode?: string };
+      expect(devCode).toMatch(/^\d{6}$/);
+      await expect(page.getByText("Test mode")).toHaveCount(0);
+      await page.getByLabel("6-digit code").fill(devCode!);
     };
     await page.goto("/login?next=/account");
     await enterCode();
+    // Email is optional for a phone account.
     await page.getByLabel("Full name").fill("Phone Customer");
-    await page.getByRole("main").getByLabel("Email", { exact: true }).fill(`${number}@example.com`);
     await page.getByRole("button", { name: "Create my account" }).click();
     await expect(page).toHaveURL((url) => url.pathname === "/account");
+    await expect(page.getByText(`+91 ${number.slice(0, 5)} ${number.slice(5)}`).first()).toBeVisible();
 
     await page.context().clearCookies();
     await page.goto("/login?next=/account/profile");

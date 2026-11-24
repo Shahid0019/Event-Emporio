@@ -15,5 +15,6 @@ export async function POST(request: NextRequest) {
     return fail(429, `Too many codes requested. Try again in ${Math.max(1, Math.ceil(perPhone.retryAfterSeconds / 60))} minutes.`);
   const sent = await sendPhoneCode(phone);
   if (!sent.ok) return fail(502, sent.error);
-  return ok({ sent: true, ...(sent.devCode && { devCode: sent.devCode }) });
+  // Without SMS the code is printed in the server terminal; only the e2e tests get it back here.
+  return ok({ sent: true, ...(sent.devCode && process.env.E2E === "1" && { devCode: sent.devCode }) });
 }

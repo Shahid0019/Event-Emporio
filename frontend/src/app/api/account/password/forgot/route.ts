@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import { createPasswordReset } from "@/lib/server/accounts";
 import { sendEmail } from "@/lib/server/email";
+import { passwordResetEmail } from "@/lib/server/email-templates";
 import { fail, ok, readBody } from "@/lib/server/http";
 import { clientKey, rateLimit } from "@/lib/server/rate-limit";
 import { siteUrl } from "@/lib/site";
@@ -15,11 +16,7 @@ export async function POST(request: NextRequest) {
   if (reset) {
     const origin = request.nextUrl.origin || siteUrl;
     const link = `${origin}/reset-password?token=${encodeURIComponent(reset.token)}`;
-    await sendEmail(
-      reset.account.email,
-      "Reset your khandr.com password",
-      `Hi ${reset.account.name},\n\nUse this link within the next hour to choose a new password:\n${link}\n\nIf you didn't ask for this, you can ignore this email.`,
-    );
+    await sendEmail(reset.account.email, passwordResetEmail(reset.account.name, link));
   }
   return ok({ ok: true });
 }

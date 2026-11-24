@@ -51,7 +51,20 @@ export const databaseConfigured = () => Boolean(process.env.MONGODB_URI);
 
 const isDuplicateKeyOnly = (err: unknown) => err instanceof MongoBulkWriteError && [err.writeErrors].flat().every((e) => e.code === 11000);
 
+/**
+ * One account per email, but accounts made with a phone code may have none. Databases made
+ * before that have a plain unique index (which treats every missing email as the same value),
+ * so it's swapped for one that only covers accounts with an email.
+ */
+async function prepareAccountEmailIndex(db: Db) {
+  const accounts = db.collection("accounts");
+  const old = (await accounts.indexes().catch(() => [])).find((i) => i.name === "email_1" && !i.partialFilterExpression);
+  if (old) await accounts.dropIndex("email_1");
+  await accounts.createIndex({ email: 1 }, { name: "email_1", unique: true, partialFilterExpression: { email: { $type: "string" } } });
+}
+
 async function prepare(db: Db) {
+  await prepareAccountEmailIndex(db);
   await Promise.all([
     db.collection("products").createIndex({ slug: 1 }, { unique: true }),
     db.collection("products").createIndex({ status: 1, categorySlug: 1 }),
@@ -60,7 +73,6 @@ async function prepare(db: Db) {
     db.collection("orders").createIndex({ createdAt: -1 }),
     db.collection("orders").createIndex({ "customer.email": 1 }),
     db.collection("orders").createIndex({ razorpayOrderId: 1 }, { sparse: true }),
-    db.collection("accounts").createIndex({ email: 1 }, { unique: true }),
     db.collection("accounts").createIndex({ loginPhone: 1 }, { unique: true, partialFilterExpression: { loginPhone: { $type: "string" } } }),
     db.collection("accounts").createIndex({ googleId: 1 }, { unique: true, partialFilterExpression: { googleId: { $type: "string" } } }),
     db.collection("phoneCodes").createIndex({ expiresAt: 1 }, { expireAfterSeconds: 0 }),

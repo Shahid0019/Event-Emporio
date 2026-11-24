@@ -404,6 +404,8 @@ export function ProfileSettings({ google, phone }: { google: boolean; phone: boo
   const we = password.formState.errors;
   // Google and phone accounts start without a password; they can set one here.
   const hasPassword = user?.signInWith?.password ?? true;
+  // Signs in with a phone code only, so the email is just for contact.
+  const phoneOnly = Boolean(user?.signInWith?.phone) && !hasPassword && !user?.signInWith?.google;
 
   return (
     <>
@@ -426,7 +428,13 @@ export function ProfileSettings({ google, phone }: { google: boolean; phone: boo
           <Field label="Full name" htmlFor="p-name" error={pe.name?.message}>
             <Input autoComplete="name" {...fieldAria("p-name", pe.name?.message)} {...profile.register("name")} />
           </Field>
-          <Field label="Email" htmlFor="p-email" error={pe.email?.message} hint="You'll use this email to sign in.">
+          <Field
+            label="Email"
+            htmlFor="p-email"
+            optional={phoneOnly}
+            error={pe.email?.message}
+            hint={phoneOnly ? "For order updates and receipts." : "You'll use this email to sign in."}
+          >
             <Input type="email" autoComplete="email" {...fieldAria("p-email", pe.email?.message, true)} {...profile.register("email")} />
           </Field>
           <Field label="Mobile number" htmlFor="p-phone" optional error={pe.phone?.message}>
@@ -625,7 +633,7 @@ function SignInMethods({ google, phone }: { google: boolean; phone: boolean }) {
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-medium">Email &amp; password</p>
-            {status(methods?.password ?? true, (methods?.password ?? true) ? user?.email ?? "Set" : "No password yet — set one above")}
+            {status(methods?.password ?? true, (methods?.password ?? true) ? user?.email || "Set" : "No password yet — set one above")}
           </div>
         </li>
       </ul>

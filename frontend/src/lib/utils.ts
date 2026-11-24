@@ -44,6 +44,13 @@ const dateTimeFmt = new Intl.DateTimeFormat("en-IN", {
   minute: "2-digit",
 });
 
+/** The line under a customer's name: their email, or their mobile number when they have no email. */
+export function contactLine(user: { email: string; phone?: string }): string {
+  if (user.email) return user.email;
+  const d = (user.phone ?? "").replace(/D/g, "").slice(-10);
+  return d.length === 10 ? `+91 ${d.slice(0, 5)} ${d.slice(5)}` : "";
+}
+
 export function formatDate(iso: string): string {
   return dateFmt.format(new Date(iso));
 }

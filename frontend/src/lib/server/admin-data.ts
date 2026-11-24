@@ -16,7 +16,8 @@ import { defaultStoreSettings, type StoreSettings } from "../settings";
 import type { Order, Product } from "../types";
 import { canTransition } from "../order-status";
 import { newId } from "../utils";
-import { sendEmail } from "./email";
+import { queueEmail } from "./email";
+import { orderStatusEmail } from "./email-templates";
 import type { OrderDoc } from "./orders";
 
 /* --------------------------------- Load --------------------------------- */
@@ -94,7 +95,7 @@ function summariseCustomers(
 ): CustomerSummary[] {
   const map = new Map<string, CustomerSummary>();
   for (const a of accounts) {
-    map.set(a.email, {
+    map.set(a.email || a.id, {
       id: a.id,
       name: a.name,
       email: a.email,
@@ -385,7 +386,17 @@ export async function applyAdminChanges(changes: AdminChanges, adminEmail: strin
               ...(Object.keys(unset).length && { $unset: unset }),
             },
           );
-          if (before.status !== fields.status) void notifyStatus(before, fields.status, fields.tracking ?? undefined);
+          // The saved order (new status, history and tracking), so the email's progress and dates are current.
+          const saved = { ...before, ...(rest as Partial<Order>), tracking: tracking ?? undefined } as Order;
+          if (before.status !== fields.status) notifyStatus(saved, fields.status, tracking);
+          else if (
+            fields.status === "shipped" &&
+            tracking &&
+            (tracking.number !== before.tracking?.number || tracking.carrier !== before.tracking?.carrier)
+          ) {
+            // Tracking added (or corrected) after the order was marked shipped.
+            notifyStatus(saved, "shipped", tracking, { trackingUpdate: true });
+          }
         });
       }
       if (upserts.length) summary.push(`updated ${upserts.length} order${upserts.length > 1 ? "s" : ""}`);
@@ -460,27 +471,12 @@ export async function applyAdminChanges(changes: AdminChanges, adminEmail: strin
 }
 
 /** Tells the customer when their order moves on (if email is set up). */
-async function notifyStatus(order: Order, status: string, tracking?: { carrier: string; number: string }) {
-  const messages: Record<string, string> = {
-    shipped: `Good news — order ${order.number} is on its way.${
-      tracking
-        ? `
-Courier: ${tracking.carrier}
-Tracking number: ${tracking.number}`
-        : ""
-    }`,
-    delivered: `Order ${order.number} has been delivered. We hope everything is perfect for your celebration!`,
-    cancelled: `Order ${order.number} has been cancelled. If you paid, your refund will follow shortly.`,
-  };
-  if (!messages[status]) return;
-  await sendEmail(
-    order.customer.email,
-    `Order ${order.number}: ${status}`,
-    `Hi ${order.customer.name},
-
-${messages[status]}
-
-Team Khandr
-khandr.com`,
-  );
+function notifyStatus(
+  order: Order,
+  status: Order["status"],
+  tracking?: { carrier: string; number: string; url?: string | null } | null,
+  opts?: { trackingUpdate?: boolean },
+) {
+  const message = orderStatusEmail(order, status, tracking, opts);
+  if (message) queueEmail(order.customer.email, message);
 }

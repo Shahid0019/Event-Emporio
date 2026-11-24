@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { buttonVariants } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/primitives";
 import { sessionStore, signOut } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import { cn, contactLine } from "@/lib/utils";
 
 const nav = [
   { href: "/account", label: "Overview" },
@@ -51,7 +51,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
       <aside className="min-w-0">
         <p className="eyebrow text-accent-ink">My account</p>
         <p className="mt-3 font-serif text-3xl leading-tight">{user.name}</p>
-        <p className="mt-1 truncate text-sm text-muted">{user.email}</p>
+        <p className="mt-1 truncate text-sm text-muted">{contactLine(user)}</p>
         <Suspense fallback={<AccountNav pathname={null} />}>
           <AccountNavWithPath />
         </Suspense>

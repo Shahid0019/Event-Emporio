@@ -3,6 +3,8 @@ import { promisify } from "node:util";
 import { getDb, plain } from "../db/client";
 import type { Address } from "../types";
 import { newId } from "../utils";
+import { queueEmail } from "./email";
+import { welcomeEmail } from "./email-templates";
 
 const scrypt = promisify(scryptCb) as (password: string, salt: Buffer, keylen: number) => Promise<Buffer>;
 
@@ -18,8 +20,10 @@ export interface Account {
   signInWith: { password: boolean; google: boolean; phone?: string };
 }
 
-interface AccountDoc extends Omit<Account, "signInWith"> {
+interface AccountDoc extends Omit<Account, "signInWith" | "email"> {
   _id: string;
+  /** Missing only for accounts made with a phone code where the customer skipped it. */
+  email?: string;
   /** Missing for accounts made with Google or a phone code, until a password is set. */
   passwordHash?: string;
   /** Google's account id ("sub"), once the customer has used Google. */
@@ -52,6 +56,7 @@ const toAccount = (doc: AccountDoc | null): Account | null => {
   const { passwordHash, googleId, loginPhone, ...rest } = plain<AccountDoc>(doc)!;
   return {
     ...rest,
+    email: rest.email ?? "",
     addresses: rest.addresses ?? [],
     signInWith: { password: Boolean(passwordHash), google: Boolean(googleId), ...(loginPhone && { phone: loginPhone }) },
   };
@@ -90,6 +95,7 @@ export async function registerAccount(input: {
   } catch {
     return { ok: false, error: "An account with this email already exists. Try signing in." };
   }
+  queueEmail(email, welcomeEmail({ name: doc.name, email }, "password"));
   return { ok: true, account: toAccount(doc)! };
 }
 
@@ -110,20 +116,30 @@ export async function accountByLoginPhone(phone: string): Promise<Account | null
 }
 
 /** A new account for a number the customer has just verified. */
-export async function registerPhoneAccount(input: { name: string; email: string; phone: string }): Promise<RegisterResult> {
+export async function registerPhoneAccount(input: { name: string; email?: string; phone: string }): Promise<RegisterResult> {
   const phone = normalisePhone(input.phone);
-  const email = normaliseEmail(input.email);
+  const email = input.email ? normaliseEmail(input.email) : "";
   const col = await accounts();
   const existing = await col.findOne({ loginPhone: phone });
   if (existing) return { ok: true, account: toAccount(existing)! };
-  if (await col.findOne({ email })) return { ok: false, error: emailTaken };
+  if (email && (await col.findOne({ email }))) return { ok: false, error: emailTaken };
   const id = newId("cus");
-  const doc: AccountDoc = { _id: id, id, name: input.name.trim(), email, phone, loginPhone: phone, addresses: [], createdAt: new Date().toISOString() };
+  const doc: AccountDoc = {
+    _id: id,
+    id,
+    name: input.name.trim(),
+    ...(email && { email }),
+    phone,
+    loginPhone: phone,
+    addresses: [],
+    createdAt: new Date().toISOString(),
+  };
   try {
     await col.insertOne(doc);
   } catch {
     return { ok: false, error: emailTaken };
   }
+  if (email) queueEmail(email, welcomeEmail({ name: doc.name, email }, "phone"));
   return { ok: true, account: toAccount(doc)! };
 }
 
@@ -178,6 +194,7 @@ export async function signInWithGoogle(profile: GoogleProfile): Promise<Register
   } catch {
     return { ok: false, error: emailTaken };
   }
+  queueEmail(email, welcomeEmail({ name: doc.name, email }, "google"));
   return { ok: true, account: toAccount(doc)! };
 }
 
@@ -191,15 +208,23 @@ export async function linkGoogle(id: string, sub: string): Promise<RegisterResul
   return account ? { ok: true, account } : { ok: false, error: "Account not found." };
 }
 
-export async function updateProfile(id: string, input: { name: string; email: string; phone?: string }): Promise<RegisterResult> {
-  const email = normaliseEmail(input.email);
+export async function updateProfile(id: string, input: { name: string; email?: string; phone?: string }): Promise<RegisterResult> {
+  const email = input.email ? normaliseEmail(input.email) : "";
   const col = await accounts();
-  const clash = await col.findOne({ email, _id: { $ne: id } });
-  if (clash) return { ok: false, error: "Another account already uses this email." };
+  if (email && (await col.findOne({ email, _id: { $ne: id } }))) return { ok: false, error: "Another account already uses this email." };
+  if (!email) {
+    // Only an account that signs in with its phone alone can do without an email.
+    const doc = await col.findOne({ _id: id });
+    if (!doc?.loginPhone || doc.passwordHash || doc.googleId) return { ok: false, error: "Your email is how you sign in, so it can't be left empty." };
+  }
   const phone = input.phone?.trim();
+  const unset = { ...(!phone && { phone: "" as const }), ...(!email && { email: "" as const }) };
   await col.updateOne(
     { _id: id },
-    phone ? { $set: { name: input.name.trim(), email, phone } } : { $set: { name: input.name.trim(), email }, $unset: { phone: "" } },
+    {
+      $set: { name: input.name.trim(), ...(email && { email }), ...(phone && { phone }) },
+      ...(Object.keys(unset).length && { $unset: unset }),
+    },
   );
   const account = await getAccount(id);
   return account ? { ok: true, account } : { ok: false, error: "Account not found." };
@@ -244,6 +269,8 @@ export async function resetPassword(token: string, password: string): Promise<bo
 export async function changePassword(id: string, current: string, next: string): Promise<boolean> {
   const col = await accounts();
   const doc = await col.findOne({ _id: id });
+  // A password signs in together with the email, so an account without one can't use it.
+  if (!doc?.email) return false;
   if (!doc || (doc.passwordHash && !(await verifyPassword(current, doc.passwordHash)))) return false;
   await col.updateOne({ _id: id }, { $set: { passwordHash: await hashPassword(next) } });
   return true;

@@ -1,4 +1,4 @@
-import { createHash, randomInt } from "node:crypto";
+import { createHash, randomInt, timingSafeEqual } from "node:crypto";
 import { getDb } from "../db/client";
 import { createSignedToken, readSignedToken } from "../signed-token";
 import { normalisePhone } from "./accounts";
@@ -8,7 +8,7 @@ import { sessionSecret } from "./customer-session";
  * One-time sign-in codes by SMS, sent and checked by Twilio Verify (TWILIO_ACCOUNT_SID,
  * TWILIO_AUTH_TOKEN, TWILIO_VERIFY_SERVICE_SID). Verify sends from sender ids already
  * registered for Indian SMS rules (DLT), so no template setup is needed here.
- * Without Twilio, development and tests make the code here and show it on screen instead;
+ * Without Twilio, development and tests make the code here and print it in the server terminal;
  * in production phone sign-in stays hidden until Twilio is set up.
  */
 const twilio = () => {
@@ -17,6 +17,19 @@ const twilio = () => {
 };
 
 export const phoneSignInAvailable = () => Boolean(twilio()) || process.env.NODE_ENV !== "production";
+
+/**
+ * A demo number with a fixed code (DEMO_PHONE_NUMBER + DEMO_PHONE_CODE), for showing the site
+ * or app-store review: no SMS is sent and the code never changes. Off unless both are set.
+ * Anyone who knows the pair can sign in to the demo account, so keep real data out of it.
+ */
+export function demoPhone(): { phone: string; code: string } | null {
+  const number = process.env.DEMO_PHONE_NUMBER?.trim();
+  const code = process.env.DEMO_PHONE_CODE?.trim();
+  if (!number || !code || !/^\d{6}$/.test(code) || !/^(\+91)?[6-9]\d{9}$/.test(number.replace(/[\s-]/g, ""))) return null;
+  return { phone: normalisePhone(number), code };
+}
+export const isDemoPhone = (phoneInput: string) => demoPhone()?.phone === normalisePhone(phoneInput);
 
 export const CODE_MINUTES = 10;
 const MAX_TRIES = 5;
@@ -42,6 +55,9 @@ export type SendResult = { ok: true; devCode?: string } | { ok: false; error: st
 
 export async function sendPhoneCode(phoneInput: string): Promise<SendResult> {
   const phone = normalisePhone(phoneInput);
+  const demo = demoPhone();
+  // The demo number gets no SMS; its code is the fixed one.
+  if (demo?.phone === phone) return { ok: true };
   if (twilio()) {
     try {
       const res = await twilioVerify("Verifications", { To: phone, Channel: "sms" });
@@ -66,6 +82,12 @@ export async function sendPhoneCode(phoneInput: string): Promise<SendResult> {
 /** True when the code is right. Each code works once. */
 export async function checkPhoneCode(phoneInput: string, code: string): Promise<boolean> {
   const phone = normalisePhone(phoneInput);
+  const demo = demoPhone();
+  if (demo?.phone === phone) {
+    const given = Buffer.from(code);
+    const expected = Buffer.from(demo.code);
+    return given.length === expected.length && timingSafeEqual(given, expected);
+  }
   if (twilio()) {
     try {
       const res = await twilioVerify("VerificationCheck", { To: phone, Code: code });
